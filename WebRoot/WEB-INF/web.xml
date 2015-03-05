@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.4" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee   http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    <resource-ref>
+        <description>SQL Server 2005 数据库连接池配置</description>
+        <res-ref-name>MSSQL2005</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Shareable</res-sharing-scope>
+	</resource-ref>
+  <servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+    <init-param>
+      <param-name>config</param-name>
+      <param-value>/WEB-INF/struts-config.xml</param-value>
+    </init-param>
+    <init-param>
+      <param-name>debug</param-name>
+      <param-value>3</param-value>
+    </init-param>
+    <init-param>
+      <param-name>detail</param-name>
+      <param-value>3</param-value>
+    </init-param>
+    <load-on-startup>0</load-on-startup>
+  </servlet>
+  <servlet>
+    <servlet-name>UploadServlet</servlet-name>
+    <servlet-class>com.whu.tools.UploadServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>LoginServlet</servlet-name>
+    <servlet-class>com.whu.web.servlets.LoginServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>TimerServlet</servlet-name>
+    <servlet-class>com.whu.web.servlets.TimerServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>CalendarServlet</servlet-name>
+    <servlet-class>com.whu.web.servlets.CalendarServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>ExpertAdviceServlet</servlet-name>
+    <servlet-class>com.whu.web.servlets.ExpertAdviceServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>DeptAdviceServlet</servlet-name>
+    <servlet-class>com.whu.web.servlets.DeptAdviceServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>DeleteUploadServlet</servlet-name>
+    <servlet-class>com.whu.web.servlets.DeleteUploadServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>UploadWordServlet</servlet-name>
+    <servlet-class>com.whu.web.servlets.UploadWordServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>CheckIdentityServlet</servlet-name>
+    <servlet-class>com.whu.web.servlets.CheckIdentityServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>JBReasonServlet</servlet-name>
+    <servlet-class>com.whu.web.servlets.JBReasonServlet</servlet-class>
+  </servlet>
+
+
+
+
+
+	<filter>
+        <filter-name>Set Character Encoding</filter-name>
+        <filter-class>com.whu.web.common.SetCharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+ 
+ 	<filter-mapping>
+        <filter-name>Set Character Encoding</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+  <servlet-mapping>
+    <servlet-name>action</servlet-name>
+    <url-pattern>*.do</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>UploadServlet</servlet-name>
+    <url-pattern>/servlet/UploadServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>LoginServlet</servlet-name>
+    <url-pattern>/servlet/LoginServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>TimerServlet</servlet-name>
+    <url-pattern>/servlet/TimerServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>CalendarServlet</servlet-name>
+    <url-pattern>/servlet/CalendarServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ExpertAdviceServlet</servlet-name>
+    <url-pattern>/servlet/ExpertAdviceServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>DeptAdviceServlet</servlet-name>
+    <url-pattern>/servlet/DeptAdviceServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>DeleteUploadServlet</servlet-name>
+    <url-pattern>/servlet/DeleteUploadServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>UploadWordServlet</servlet-name>
+    <url-pattern>/servlet/UploadWordServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>CheckIdentityServlet</servlet-name>
+    <url-pattern>/servlet/CheckIdentityServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>JBReasonServlet</servlet-name>
+    <url-pattern>/servlet/JBReasonServlet</url-pattern>
+  </servlet-mapping>
+  <welcome-file-list>
+    <welcome-file>/login.jsp</welcome-file>
+  </welcome-file-list>
+  <error-page>
+	<error-code>404</error-code>
+	<location>/404.html</location>
+  </error-page>
+  	<error-page>
+  		<error-code>500</error-code>
+		<location>/error.html</location>
+	</error-page>
+  
+</web-app>
+

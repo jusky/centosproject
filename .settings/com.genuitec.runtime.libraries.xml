@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project adv-config="true">
+  <container path="com.genuitec.runtime.library/com.genuitec.struts_1.2">
+    <disable name="commons-fileupload.jar" type="jar"/>
+  </container>
+</project>

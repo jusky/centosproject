@@ -1,0 +1,27 @@
+.main_web_td{
+	background:#EBEBEB;
+	font-family:Verdana;
+	font-size:12px;
+	background-color:#EBEBEB;
+	color:black;
+	line-height:20px;
+	height:25px;
+	border-bottom:1px dashed #CCCCCC;
+}
+.main_table{
+border-left: 1px  solid #3691C6;
+border-right: 1px  solid #3691C6;
+border-top: 1px  solid #3691C6;
+border-bottom: 1px  solid #3691C6;
+background-color:white;
+}
+.myweb_td{
+ background:#EBEBEB;
+font-family:Verdana;
+font-size:12px;
+background-color:#EBEBEB;
+color:black;
+line-height:20px;
+height:25px;
+}
+

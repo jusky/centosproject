@@ -1,0 +1,61 @@
+.ops_box{
+	position:absolute;
+	right:21px;
+	z-index:9998;
+	display:none;
+}
+.ops_itemDiv {
+    background-color: #FFFFFF;
+    border: 1px solid #000000;
+    border-radius: 8px 0 8px 8px;
+    box-shadow: 2px 2px 5px #969696;
+    z-index:9999;
+}
+.ops_itemDiv ul {
+     padding: 5px 0;
+}
+.ops_itemDiv ul li {
+     padding: 8px 0;
+}
+.ops_itemDiv li a:hover {
+  background-color: #C3DBFF;
+}
+li.ops_li {
+    float: left;
+    list-style: none;
+}
+a.link{	
+	padding:0px 0px 0px 20px;
+	color: #555555;
+    cursor: pointer;
+    font-size: 12px;
+    padding-left: 20px;
+    text-decoration: none;
+	white-space:nowrap;
+	_float:left;
+	height:20px;
+}
+a.link.primary{
+	background: url("../images/primary.gif") no-repeat scroll 0 -2px transparent;
+}
+a.link.edit{
+	background: url("../images/icons_edit.png") no-repeat scroll 0 -2px transparent;
+}
+a.link.delete{
+	background: url("../images/icons_del.png") no-repeat scroll 0 -2px transparent;
+}
+a.link.detail{
+	background: url("../images/icons_detail.png") no-repeat scroll 0 -2px transparent;
+}
+a.link.search{
+	background: url("../images/icons_search.png") no-repeat scroll 0 -2px transparent;
+}
+a.link.parameter{
+	background: url("../images/parameter.png") no-repeat scroll 0 -2px transparent;
+}
+a.ops_more {
+	background-position: 10px 0px !important;
+    color: #555555;
+    font-size: 13px;
+    padding: 5px 3px 5px 28px;
+}

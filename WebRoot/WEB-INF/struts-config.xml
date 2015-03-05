@@ -1,0 +1,766 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.2//EN" "http://struts.apache.org/dtds/struts-config_1_2.dtd">
+	
+<struts-config>
+  <data-sources />
+    <form-beans >
+    <form-bean name="loginForm" type="com.whu.web.login.LoginForm" />
+    <form-bean name="newMailForm" type="com.whu.web.email.NewMailForm" />
+    <form-bean name="mailConfigForm" type="com.whu.web.email.MailConfigForm" />
+    <form-bean name="queryMsgForm" type="com.whu.web.msg.QueryMsgForm" />
+    <form-bean name="sendMsgListForm" type="com.whu.web.msg.SendMsgListForm" />
+    <form-bean name="newEventForm" type="com.whu.web.event.NewEventForm" />
+    <form-bean name="mailManageForm" type="com.whu.web.email.MailManageForm" />
+    <form-bean name="zzManageForm" type="com.whu.web.zuzhi.ZzManageForm" />
+    <form-bean name="posConfigForm" type="com.whu.web.position.PosConfigForm" />
+    <form-bean name="posManageForm" type="com.whu.web.position.PosManageForm" />
+    <form-bean name="gyUserListForm" type="com.whu.web.user.GyUserListForm" />
+    <form-bean name="dicManageForm" type="com.whu.web.dic.DicManageForm" />
+    <form-bean name="dicConfigForm" type="com.whu.web.dic.DicConfigForm" />
+    <form-bean name="changePwdForm" type="com.whu.web.login.ChangePwdForm" />
+    <form-bean name="checkEventForm" type="com.whu.web.eventmanage.CheckEventForm" />
+    <form-bean name="approveEventForm" type="com.whu.web.eventmanage.ApproveEventForm" />
+    <form-bean name="createGroupForm" type="com.whu.web.eventmanage.CreateGroupForm" />
+    <form-bean name="eventManageForm" type="com.whu.web.eventmanage.EventManageForm" />
+    <form-bean name="lookUpGroupForm" type="com.whu.web.eventmanage.LookUpGroupForm" />
+    <form-bean name="userManageForm" type="com.whu.web.user.UserManageForm" />
+    <form-bean name="configUserForm" type="com.whu.web.user.ConfigUserForm" />
+    <form-bean name="eventDetailForm" type="com.whu.web.eventmanage.EventDetailForm" />
+    <form-bean name="zzConfigForm" type="com.whu.web.zuzhi.ZzConfigForm" />
+    <form-bean name="zzDetailForm" type="com.whu.web.zuzhi.ZzDetailForm" />
+    <form-bean name="deptAdviceForm" type="com.whu.web.eventmanage.DeptAdviceForm" />
+    <form-bean name="expertAdviceForm" type="com.whu.web.eventmanage.ExpertAdviceForm" />
+    <form-bean name="litigantStateForm" type="com.whu.web.eventmanage.LitigantStateForm" />
+    <form-bean name="handleDecideForm" type="com.whu.web.eventmanage.HandleDecideForm" />
+    <form-bean name="meetManageForm" type="com.whu.web.eventmanage.MeetManageForm" />
+    <form-bean name="logManageForm" type="com.whu.web.log.LogManageForm" />
+    <form-bean name="keyManageForm" type="com.whu.web.key.KeyManageForm" />
+    <form-bean name="attachManageForm" type="com.whu.web.attach.AttachManageForm" />
+    <form-bean name="tjManageForm" type="com.whu.web.eventmanage.TjManageForm" />
+    <form-bean name="surveyReportForm" type="com.whu.web.eventmanage.SurveyReportForm" />
+    <form-bean name="roleManageForm" type="com.whu.web.role.RoleManageForm" />
+    <form-bean name="configRoleForm" type="com.whu.web.role.ConfigRoleForm" />
+    <form-bean name="expertManageForm" type="com.whu.web.expert.ExpertManageForm" />
+    <form-bean name="configExpertForm" type="com.whu.web.expert.ConfigExpertForm" />
+    <form-bean name="cljdManageForm" type="com.whu.web.event.CljdManageForm" />
+    <form-bean name="dcbgManageForm" type="com.whu.web.event.DcbgManageForm" />
+    <form-bean name="fYApplyManageForm" type="com.whu.web.eventmanage.FYApplyManageForm" />
+    <form-bean name="expertFKForm" type="com.whu.web.expertAndDept.ExpertFKForm" />
+    <form-bean name="deptFKForm" type="com.whu.web.expertAndDept.DeptFKForm" />
+    <form-bean name="wsjbManageForm" type="com.whu.web.wsjb.WsjbManageForm" />
+    <form-bean name="sjybdManageForm" type="com.whu.web.eventmanage.SjybdManageForm" />
+    <form-bean name="eventFKForm" type="com.whu.web.expertAndDept.EventFKForm" />
+    <form-bean name="wyManageForm" type="com.whu.web.user.WyManageForm" />
+    <form-bean name="addressBookForm" type="com.whu.web.email.AddressBookForm" />
+    <form-bean name="configInstituteForm" type="com.whu.web.credit.ConfigInstituteForm" />
+    <form-bean name="instituteManageForm" type="com.whu.web.credit.InstituteManageForm" />
+    <form-bean name="individualManageForm" type="com.whu.web.credit.IndividualManageForm" />
+    <form-bean name="configIndividualForm" type="com.whu.web.credit.ConfigIndividualForm" />
+    <form-bean name="miscountManageForm" type="com.whu.web.credit.MiscountManageForm" />
+    <form-bean name="configMiscountForm" type="com.whu.web.credit.ConfigMiscountForm" />
+    <form-bean name="punishManageForm" type="com.whu.web.credit.PunishManageForm" />
+    <form-bean name="configPunishForm" type="com.whu.web.credit.ConfigPunishForm" />
+    <form-bean name="mistypeManageForm" type="com.whu.web.credit.MistypeManageForm" />
+    <form-bean name="configMistypeForm" type="com.whu.web.credit.ConfigMistypeForm" />
+    <form-bean name="dispatchEventForm" type="com.whu.web.eventmanage.DispatchEventForm" />
+    <form-bean name="facultyAdviceForm" type="com.whu.web.eventmanage.FacultyAdviceForm" />
+    <form-bean name="facultyFKForm" type="com.whu.web.expertAndDept.FacultyFKForm" />
+  </form-beans>
+  
+  <global-exceptions />
+  <global-forwards />
+  <action-mappings >
+  <action
+      input="/login.jsp" parameter="method" name="loginForm" path="/loginAction" scope="request" type="com.whu.web.login.LoginAction">
+      <forward name="success" path="/web/index.jsp" />
+      <forward name="init" path="/web/login.jsp" />
+    </action>
+    <action
+      input="/web/email/newMail.jsp"
+      name="newMailForm"
+      parameter="method"
+      path="/newMailAction"
+      scope="request"
+      type="com.whu.web.email.NewMailAction">
+      <forward name="init" path="/web/email/newMail.jsp" />
+      <forward name="success" path="/dwz/demo/common/ajaxDone.html" />
+      <forward name="fail" path="/dwz/demo/common/ajaxError.html" />
+    </action>
+    <action
+      input="/web/email/mailConfig.jsp"
+      name="mailConfigForm"
+      parameter="method"
+      path="/mailConfigAction"
+      scope="request"
+      type="com.whu.web.email.MailConfigAction">
+      <forward name="edit" path="/web/email/editMail.jsp" />
+    </action>
+    <action
+      input="/web/message/msgList.jsp"
+      name="queryMsgForm"
+      parameter="method"
+      path="/msgListAction"
+      scope="request"
+      type="com.whu.web.msg.MsgListAction">
+      <forward name="init" path="/web/message/msgList.jsp" />
+      <forward name="success" path="/dwz/demo/common/ajaxDone.html" />
+    </action>
+    <action
+      input="/web/message/sendMsgList.jsp"
+      name="sendMsgListForm"
+      parameter="method"
+      path="/sendMsgListAction"
+      scope="request"
+      type="com.whu.web.msg.SendMsgListAction">
+      <forward name="init" path="/web/message/sendMsgList.jsp" />
+    </action>
+    <action
+      attribute="newEventForm"
+      input="/web/event/newEvent.jsp"
+      name="newEventForm"
+      parameter="method"
+      path="/newEventAction"
+      scope="request"
+      type="com.whu.web.event.NewEventAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/event/newEvent.jsp" />
+      <forward name="success" path="/web/result/ajaxDone.html" />
+      <forward name="fail" path="/web/result/ajaxError.html" />
+    </action>
+    <action
+      attribute="mailManageForm"
+      input="/web/email/recvMailManage.jsp"
+      name="mailManageForm"
+      parameter="method"
+      path="/mailManageAction"
+      scope="request"
+      type="com.whu.web.email.MailManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/email/mailManage.jsp" />
+      <forward name="detail" path="/web/email/mailDetail.jsp" />
+      <forward name="recvMail" path="/web/email/recvMailList.jsp" />
+      <forward name="refresh" path="/mailManageAction.do?method=recvMail" />
+    </action>
+    <action
+      attribute="zzManageForm"
+      input="/web/zuzhi/zzManage.jsp"
+      name="zzManageForm"
+      parameter="method"
+      path="/zzManageAction"
+      scope="request"
+      type="com.whu.web.zuzhi.ZzManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/zuzhi/zzManage.jsp" />
+      <forward name="initZZ" path="/web/zuzhi/zzList.jsp" />
+      <forward name="detail" path="/web/zuzhi/zzDetail.jsp" />
+    </action>
+    <action
+      attribute="posConfigForm"
+      name="posConfigForm"
+      parameter="method"
+      path="/posConfigAction"
+      scope="request"
+      type="com.whu.web.position.PosConfigAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="edit" path="/web/gangwei/editPos.jsp" />
+    </action>
+    <action
+      attribute="posManageForm"
+      name="posManageForm"
+      parameter="method"
+      path="/posManageAction"
+      scope="request"
+      type="com.whu.web.position.PosManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/gangwei/posManage.jsp" />
+      <forward name="detail" path="/web/gangwei/posDetail.jsp" />
+    </action>
+    <action
+      attribute="gyUserListForm"
+      name="gyUserListForm"
+      parameter="method"
+      path="/gyUserListAction"
+      scope="request"
+      type="com.whu.web.user.GyUserListAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/user/gyUserList.jsp" />
+    </action>
+    <action
+      attribute="dicManageForm"
+      input="/web/dic/dicManage.jsp"
+      name="dicManageForm"
+      parameter="method"
+      path="/dicManageAction"
+      scope="request"
+      type="com.whu.web.dic.DicManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/dic/dicManage.jsp" />
+       <forward name="initList" path="/web/dic/dicList.jsp" />
+       <forward name="deleteOK" path="/web/result/dicDone.html" />
+       <forward name="deleteFail" path="/web/result/dicError.html" />
+    </action>
+    <action
+      attribute="dicConfigForm"
+      name="dicConfigForm"
+      parameter="method"
+      path="/dicConfigAction"
+      scope="request"
+      type="com.whu.web.dic.DicConfigAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="done" path="/web/result/dicDone.html" />
+      <forward name="edit" path="/web/dic/editDic.jsp" />
+    </action>
+    <action
+      attribute="changePwdForm"
+      input="/web/changePwd.jsp"
+      name="changePwdForm"
+      parameter="method"
+      path="/changePwdAction"
+      scope="request"
+      type="com.whu.web.login.ChangePwdAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="success" path="/dwz/demo/common/ajaxDone1.html" />
+      <forward name="fail" path="/web/result/fail.jsp" />
+    </action>
+    <action
+      attribute="checkEventForm"
+      name="checkEventForm"
+      parameter="method"
+      path="/checkEventAction"
+      scope="request"
+      type="com.whu.web.eventmanage.CheckEventAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/eventManage/checkEvent.jsp" />
+      <forward name="success" path="/web/result/ajaxDone.html" />
+      <forward name="fail" path="/web/result/ajaxError.html" />
+    </action>
+    <action
+      attribute="approveEventForm"
+      name="approveEventForm"
+      parameter="method"
+      path="/approveEventAction"
+      scope="request"
+      type="com.whu.web.eventmanage.ApproveEventAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/eventManage/approveEvent.jsp" />
+      <forward name="success" path="/web/result/ajaxDone.html" />
+      <forward name="fail" path="/web/result/ajaxError.html" />
+    </action>
+    <action
+      attribute="wsjbManageForm"
+      name="wsjbManageForm"
+      parameter="method"
+      path="/wsjbManageAction"
+      scope="request"
+      type="com.whu.web.wsjb.WsjbManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/wsjb/wsjbManage.jsp" />
+      <forward name="detail" path="/web/wsjb/wsjbDetail.jsp" />
+    </action>
+    <action
+      attribute="eventManageForm"
+      name="eventManageForm"
+      parameter="method"
+      path="/eventManageAction"
+      scope="request"
+      type="com.whu.web.eventmanage.EventManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="sljd" path="/web/eventManage/sljdManage.jsp" />
+      <forward name="ladcjd" path="/web/eventManage/ladcjdManage.jsp" />
+      <forward name="cljd" path="/web/eventManage/cljdManage.jsp" />
+      <forward name="all" path="/web/eventManage/allEventManage.jsp" />
+      <forward name="delete" path="/web/eventManage/deleteEventManage.jsp" />
+      <forward name="reportInfo" path="/web/eventDetail/eventDetail.jsp" />
+      <forward name="check" path="/web/eventManage/checkEvent.jsp" />
+      <forward name="approve" path="/web/eventManage/approveEvent.jsp" />
+      <forward name="addBZ" path="/web/eventManage/addBZ.jsp" />
+      <forward name="createGroup" path="/web/eventManage/createGroup.jsp" />
+      <forward name="deptAdviceManage" path="/web/eventManage/deptAdviceManage.jsp" />
+      <forward name="expertAdviceManage" path="/web/eventManage/expertAdviceManage.jsp" />
+      <forward name="litigantStateManage" path="/web/eventManage/litigantStateManage.jsp" />
+      <forward name="handleDecideManage" path="/web/eventManage/handleDecideManage.jsp" />
+      <forward name="surveyReport" path="/web/dsoframer/surveyReport.jsp" />
+      <forward name="sjsh" path="/web/eventManage/sjshManage.jsp" />
+      <forward name="print" path="/web/eventManage/print.jsp" />
+      <forward name="fyApplyManage" path="/web/eventManage/fyApplyManage.jsp" />
+      <forward name="createSJYBD" path="/web/dsoframer/createSJYBD.jsp" />
+      <forward name="editInfo" path="/web/eventManage/editEvent.jsp" />
+      <forward name="facultyAdviceManage" path="/web/eventManage/facultyAdviceManage.jsp"/>
+    </action>
+    <action
+      attribute="lookUpGroupForm"
+      name="lookUpGroupForm"
+      parameter="method"
+      path="/lookUpGroupAction"
+      scope="request"
+      type="com.whu.web.eventmanage.LookUpGroupAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="jbsy" path="/web/event/jbReason.jsp" />
+      <forward name="bsld" path="/web/eventManage/sysUser.jsp" />
+      <forward name="hymc" path="/web/eventManage/meetList.jsp" />
+      <forward name="sszz" path="/web/zuzhi/gyZZList.jsp" />
+      <forward name="faculty" path="/web/zuzhi/gyZZList.jsp"/>
+      <forward name="role" path="/web/role/gyRoleList.jsp" />
+      <forward name="pos" path="/web/gangwei/gyPosList.jsp" />
+      <forward name="contact" path="/web/email/contactList.jsp" />
+      <forward name="expert" path="/web/eventManage/expertList.jsp" />
+      <forward name="cljdlook" path="/web/event/cljdDicList.jsp" />
+      <forward name="wylook" path="/web/user/wyList.jsp" />
+    </action>
+    <action
+      attribute="userManageForm"
+      name="userManageForm"
+      parameter="method"
+      path="/userManageAction"
+      scope="request"
+      type="com.whu.web.user.UserManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/user/userManage.jsp" />
+      <forward name="detail" path="/web/user/userDetail.jsp" />
+    </action>
+    <action
+      attribute="configUserForm"
+      name="configUserForm"
+      parameter="method"
+      path="/configUserAction"
+      scope="request"
+      type="com.whu.web.user.ConfigUserAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="edit" path="/web/user/editUser.jsp" />
+    </action>
+    <action
+      attribute="eventDetailForm"
+      name="eventDetailForm"
+      parameter="method"
+      path="/eventDetailAction"
+      scope="request"
+      type="com.whu.web.eventmanage.EventDetailAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="attachment" path="/web/eventDetail/attachList.jsp" />
+      <forward name="showattach" path="/web/documentView.jsp" />
+      <forward name="approveInfo" path="/web/eventDetail/approveInfo.jsp" />
+      <forward name="deptAdvice" path="/web/eventDetail/deptAdvice.jsp" />
+      <forward name="expertAdvice" path="/web/eventDetail/expertAdvice.jsp" />
+      <forward name="litigantState" path="/web/eventDetail/litigantState.jsp" />
+      <forward name="handleDecide" path="/web/eventDetail/handleDecide.jsp" />
+      <forward name="handleFlow" path="/web/eventDetail/handleFlow.jsp" />
+      <forward name="flowGraph" path="/web/handleFlow/flowGraph.jsp" />
+      <forward name="printEvent" path="/web/dsoframer/printEvent.jsp" />
+      <forward name="facultyAdvice" path="/web/eventDetail/facultyAdvice.jsp"/>
+    </action>
+    <action
+      attribute="zzConfigForm"
+      name="zzConfigForm"
+      parameter="method"
+      path="/zzConfigAction"
+      scope="request"
+      type="com.whu.web.zuzhi.ZzConfigAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="edit" path="/web/zuzhi/editZZ.jsp" />
+    </action>
+    <action
+      attribute="zzDetailForm"
+      name="zzDetailForm"
+      parameter="method"
+      path="/zzDetailAction"
+      scope="request"
+      type="com.whu.web.zuzhi.ZzDetailAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="view" path="/web/zuzhi/zzInfo.jsp" />
+      <forward name="initZZUser" path="/web/zuzhi/zzUserInfo.jsp" />
+    </action>
+    <action
+      attribute="deptAdviceForm"
+      name="deptAdviceForm"
+      parameter="method"
+      path="/deptAdviceAction"
+      scope="request"
+      type="com.whu.web.eventmanage.DeptAdviceAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="fkResult" path="/web/FKResult.jsp" />
+      <forward name="deptSurveyLetter" path="/web/dsoframer/deptSurveyLetter.jsp"/>
+      <forward name="createDCH" path="/web/eventManage/deptDCH.jsp"/>
+    </action>
+    <action
+      attribute="expertAdviceForm"
+      name="expertAdviceForm"
+      parameter="method"
+      path="/expertAdviceAction"
+      scope="request"
+      type="com.whu.web.eventmanage.ExpertAdviceAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="fkResult" path="/web/FKResult.jsp" />
+      <forward name="createJDH" path="/web/eventManage/createExpertJDH.jsp"/>
+      <forward name="makeJDH" path="/web/dsoframer/expertJDH.jsp"/>
+      <forward name="expertJDYJS" path="/web/dsoframer/expertJDYJS.jsp"/>
+      <forward name="showEmail" path="/web/eventManage/showEmail.jsp" />
+      <forward name="createJDYJS" path="/web/eventManage/createJDYJS.jsp" />
+       <forward name="expertAdviceManage" path="/web/eventManage/expertAdviceManage.jsp" />
+    </action>
+    <action
+      attribute="litigantStateForm"
+      name="litigantStateForm"
+      parameter="method"
+      path="/litigantStateAction"
+      scope="request"
+      type="com.whu.web.eventmanage.LitigantStateAction">
+      <set-property property="cancellable" value="true" />
+    </action>
+    <action
+      attribute="handleDecideForm"
+      name="handleDecideForm"
+      parameter="method"
+      path="/handleDecideAction"
+      scope="request"
+      type="com.whu.web.eventmanage.HandleDecideAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="handleDecide" path="/web/dsoframer/handleDecide.jsp" />
+    </action>
+    <action
+      attribute="meetManageForm"
+      name="meetManageForm"
+      parameter="method"
+      path="/meetManageAction"
+      scope="request"
+      type="com.whu.web.eventmanage.MeetManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/meet/meetManage.jsp" />
+      <forward name="edit" path="/web/meet/editMeet.jsp" />
+      <forward name="detail" path="/web/meet/meetDetail.jsp" />
+    </action>
+    <action
+      attribute="logManageForm"
+      name="logManageForm"
+      parameter="method"
+      path="/logManageAction"
+      scope="request"
+      type="com.whu.web.log.LogManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/log/logManage.jsp" />
+    </action>
+    <action
+      attribute="keyManageForm"
+      name="keyManageForm"
+      parameter="method"
+      path="/keyManageAction"
+      scope="request"
+      type="com.whu.web.key.KeyManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/key/keyManage.jsp" />
+    </action>
+    <action
+      attribute="attachManageForm"
+      name="attachManageForm"
+      parameter="method"
+      path="/attachManageAction"
+      scope="request"
+      type="com.whu.web.attach.AttachManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/attach/attachManage.jsp" />
+    </action>
+    <action
+      attribute="tjManageForm"
+      name="tjManageForm"
+      parameter="method"
+      path="/tjManageAction"
+      scope="request"
+      type="com.whu.web.eventmanage.TjManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/eventManage/tjInfo.jsp" />
+      <forward name="initResult" path="/web/eventManage/tjResult.jsp" />
+    </action>
+    <action
+      attribute="surveyReportForm"
+      name="surveyReportForm"
+      parameter="method"
+      path="/surveyReportAction"
+      scope="request"
+      type="com.whu.web.eventmanage.SurveyReportAction">
+      <set-property property="cancellable" value="true" />
+    </action>
+    <action
+      attribute="roleManageForm"
+      name="roleManageForm"
+      parameter="method"
+      path="/roleManageAction"
+      scope="request"
+      type="com.whu.web.role.RoleManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/role/roleManage.jsp" />
+      <forward name="detail" path="/web/role/roleDetail.jsp" />
+      <forward name="resAllocation" path="/web/role/resAllocation.jsp" />
+    </action>
+    <action
+      attribute="configRoleForm"
+      name="configRoleForm"
+      parameter="method"
+      path="/configRoleAction"
+      scope="request"
+      type="com.whu.web.role.ConfigRoleAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="edit" path="/web/role/editRole.jsp" />
+    </action>
+    <action
+      attribute="expertManageForm"
+      name="expertManageForm"
+      parameter="method"
+      path="/expertManageAction"
+      scope="request"
+      type="com.whu.web.expert.ExpertManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/expert/expertManage.jsp" />
+      <forward name="detail" path="/web/expert/expertDetail.jsp" />
+    </action>
+    <action
+      attribute="configExpertForm"
+      name="configExpertForm"
+      parameter="method"
+      path="/configExpertAction"
+      scope="request"
+      type="com.whu.web.expert.ConfigExpertAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="edit" path="/web/expert/editExpert.jsp" />
+    </action>
+    <action
+      attribute="cljdManageForm"
+      name="cljdManageForm"
+      parameter="method"
+      path="/cljdManageAction"
+      scope="request"
+      type="com.whu.web.event.CljdManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/event/handleDecideList.jsp" />
+      <forward name="edit" path="/web/dsoframer/handleDecide.jsp" />
+      <forward name="detail" path="/web/documentView.jsp" />
+    </action>
+    <action
+      attribute="dcbgManageForm"
+      name="dcbgManageForm"
+      parameter="method"
+      path="/dcbgManageAction"
+      scope="request"
+      type="com.whu.web.event.DcbgManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/event/surveyReportList.jsp" />
+      <forward name="edit" path="/web/dsoframer/surveyReport.jsp" />
+      <forward name="showCombine" path="/web/event/combineReportList.jsp" />
+      <forward name="editCombineReport" path="/web/dsoframer/combineReport.jsp" />
+    </action>
+    <action
+      attribute="fYApplyManageForm"
+      name="fYApplyManageForm"
+      parameter="method"
+      path="/fYApplyManageAction"
+      scope="request"
+      type="com.whu.web.eventmanage.FYApplyManageAction">
+      <set-property property="cancellable" value="true" />
+    </action>
+    <action
+      attribute="expertFKForm"
+      name="expertFKForm"
+      parameter="method"
+      path="/expertFKAction"
+      scope="request"
+      type="com.whu.web.expertAndDept.ExpertFKAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="expertInfo" path="/web/expertAndDept/expertInfo.jsp" />
+      <forward name="expertJDList" path="/web/expertAndDept/expertFKManage.jsp" />
+      <forward name="onlineSubmit" path="/web/expertAndDept/expertAdviceFK.jsp" />
+    </action>
+    <action
+      attribute="deptFKForm"
+      name="deptFKForm"
+      parameter="method"
+      path="/deptFKAction"
+      scope="request"
+      type="com.whu.web.expertAndDept.DeptFKAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="deptDCList" path="/web/expertAndDept/deptFKManage.jsp" />
+      <forward name="onlineSubmit" path="/web/expertAndDept/deptAdviceFK.jsp" />
+    </action>
+    <action
+      attribute="sjybdManageForm"
+      name="sjybdManageForm"
+      parameter="method"
+      path="/sjybdManageAction"
+      scope="request"
+      type="com.whu.web.eventmanage.SjybdManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="createSJYBD" path="/web/eventManage/createSJYBD.jsp" />
+      <forward name="makeSJYBD" path="/web/dsoframer/createSJYBD.jsp" />
+    </action>
+    <action
+      attribute="eventFKForm"
+      name="eventFKForm"
+      parameter="method"
+      path="/eventFKAction"
+      scope="request"
+      type="com.whu.web.expertAndDept.EventFKAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/expertAndDept/eventFKManage.jsp" />
+    </action>
+    <action
+      attribute="wyManageForm"
+      name="wyManageForm"
+      parameter="method"
+      path="/wyManageAction"
+      scope="request"
+      type="com.whu.web.user.WyManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/user/wyManage.jsp" />
+      <forward name="configWY" path="/web/user/configWY.jsp" />
+      <forward name="detail" path="/web/user/wyDetail.jsp" />
+    </action>
+    <action
+      attribute="addressBookForm"
+      name="addressBookForm"
+      parameter="method"
+      path="/addressBookAction"
+      scope="request"
+      type="com.whu.web.email.AddressBookAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/email/addrManage.jsp" />
+      <forward name="configADDR" path="/web/email/configADDR.jsp" />
+    </action>
+    <action
+      attribute="instituteManageForm"
+      name="instituteManageForm"
+      parameter="method"
+      path="/instituteManageAction"
+      scope="request"
+      type="com.whu.web.credit.InstituteManageAction">
+      <set-property property="cancellable" value="true" />      
+      <forward name="init" path="/web/credit/instituteManage.jsp" />
+    </action>
+    <action
+      attribute="configInstituteForm"
+      name="configInstituteForm"
+      parameter="method"
+      path="/configInstituteAction"
+      scope="request"
+      type="com.whu.web.credit.ConfigInstituteAction">
+      <set-property property="cancellable" value="true" />      
+      <forward name="edit" path="/web/credit/editInstitute.jsp" />
+      <forward name="detail" path="/web/credit/instituteCredit.jsp" />
+    </action>
+    <action
+      attribute="individualManageForm"
+      name="individualManageForm"
+      parameter="method"
+      path="/individualManageAction"
+      scope="request"
+      type="com.whu.web.credit.IndividualManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/credit/individualManage.jsp" />
+      <forward name="detail" path="/web/credit/individualCreditDetail.jsp" />
+    </action>
+    <action
+      attribute="configIndividualForm"
+      name="configIndividualForm"
+      parameter="method"
+      path="/configIndividualAction"
+      scope="request"
+      type="com.whu.web.credit.ConfigIndividualAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="edit" path="/web/credit/editIndividual.jsp" />
+    </action>
+    <action
+      attribute="miscountManageForm"
+      name="miscountManageForm"
+      parameter="method"
+      path="/miscountManageAction"
+      scope="request"
+      type="com.whu.web.credit.MiscountManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/credit/miscountManage.jsp" />
+    </action>
+    <action
+      attribute="configMiscountForm"
+      name="configMiscountForm"
+      parameter="method"
+      path="/configMiscountAction"
+      scope="request"
+      type="com.whu.web.credit.ConfigMiscountAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="edit" path="/web/credit/editMiscount.jsp" />
+      <forward name="detail" path="/web/credit/miscountDetail.jsp" />
+    </action>
+    <action
+      attribute="punishManageForm"
+      name="punishManageForm"
+      parameter="method"
+      path="/punishManageAction"
+      scope="request"
+      type="com.whu.web.credit.PunishManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/credit/punishManage.jsp" />
+    </action>
+    <action
+      attribute="configPunishForm"
+      name="configPunishForm"
+      parameter="method"
+      path="/configPunishAction"
+      scope="request"
+      type="com.whu.web.credit.ConfigPunishAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="edit" path="/web/credit/editPunish.jsp" />
+    </action>
+    <action
+      attribute="mistypeManageForm"
+      name="mistypeManageForm"
+      parameter="method"
+      path="/mistypeManageAction"
+      scope="request"
+      type="com.whu.web.credit.MistypeManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/credit/mistypeManage.jsp" />
+      <forward name="initMistype" path="/web/credit/mistypeList.jsp" />
+    </action>
+    <action
+      attribute="configMistypeForm"
+      name="configMistypeForm"
+      parameter="method"
+      path="/configMistypeAction"
+      scope="request"
+      type="com.whu.web.credit.ConfigMistypeAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="edit" path="/web/credit/editMistype.jsp" />
+      <forward name="weight" path="/web/credit/weightManage.jsp" />
+    </action>
+    <action
+      attribute="dispatchEventForm"
+      input="/web/eventManage/dispatchEvent.jsp"
+      name="dispatchEventForm"
+      parameter="method"
+      path="/dispatchEventAction"
+      scope="request"
+      type="com.whu.web.eventmanage.DispatchEventAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/eventManage/dispatchEvent.jsp" />
+    </action>
+    <action
+      attribute="facultyAdviceForm"
+      name="facultyAdviceForm"
+      parameter="method"
+      path="/facultyAdviceAction"
+      scope="request"
+      type="com.whu.web.eventmanage.FacultyAdviceAction">
+      <set-property property="cancellable" value="true" />
+    </action>
+    <action
+      attribute="facultyFKForm"
+      name="facultyFKForm"
+      parameter="method"
+      path="/facultyFKAction"
+      scope="request"
+      type="com.whu.web.expertAndDept.FacultyFKAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/expertAndDept/facultyFKList.jsp" />
+      <forward name="editFacultyAdvice" path="/web/expertAndDept/editFacultyAdvice.jsp" />
+    </action>
+    </action-mappings>
+  <message-resources parameter="ApplicationResources_cn" />
+  <plug-in className="org.apache.struts.validator.ValidatorPlugIn">
+        <set-property property="pathnames" value="/WEB-INF/validator-rules.xml,/WEB-INF/validation.xml"/>
+  </plug-in>
+</struts-config>

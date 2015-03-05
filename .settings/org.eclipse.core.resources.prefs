@@ -1,0 +1,13 @@
+eclipse.preferences.version=1
+encoding//WebRoot/web/credit/instituteCredit.jsp=UTF-8
+encoding//WebRoot/web/role/addRole.jsp=UTF-8
+encoding//src/com/whu/tools/CheckPage.java=GBK
+encoding//src/com/whu/tools/ExcelTools.java=UTF-8
+encoding//src/com/whu/tools/HtmlValueNameBean.java=GBK
+encoding//src/com/whu/tools/ReciveEmail.java=GBK
+encoding//src/com/whu/tools/crypto/KeyFactory.java=UTF-8
+encoding//src/com/whu/web/dic/DicConfigForm.java=GBK
+encoding//src/com/whu/web/dic/DicManageForm.java=GBK
+encoding//src/com/whu/web/email/ContactBean.java=GBK
+encoding//src/com/whu/web/email/EmailBean.java=GBK
+encoding/<project>=UTF-8

@@ -1,0 +1,4 @@
+eclipse.preferences.version=1
+validator.Checked=WebRoot/ztree/api/apiCss/jquery-1.6.2.min.js,WebRoot/Charts/FusionCharts.js,WebRoot/dwz/js/jquery-1.7.2.min.js,WebRoot/dwz/xheditor/xheditor-1.2.1.min.js,WebRoot/Charts/jquery.min.js,WebRoot/web/eventDetail/eventDetail.jsp,WebRoot/dwz/js/jquery.validate.min.js,WebRoot/dwz/chart/raphael-min.js
+validator.Revalidate=true
+validator.Unchecked=

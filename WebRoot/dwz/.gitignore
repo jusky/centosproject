@@ -1,0 +1,10 @@
+*.bak
+*.class
+*.db
+*.gz
+*.gzjs
+*.pyc
+*.pyo
+.svn
+_svn
+~*
