@@ -53,10 +53,12 @@ public class InstituteManageAction extends DispatchAction {
 			queryPageNo = Integer.parseInt(request.getParameter("queryPageNo"));
 		}
 		pageBean.setQueryPageNo(queryPageNo);
-	//	String sql = "select * from SYS_INST_INFO";
 		String sql = "select a.*,ROUND(IFNULL(b.CREDIT, 1),4) as CREDIT,ifnull(c.COUNT,0) as COUNT from SYS_INST_INFO a left join VIEW_INSTITUTE_CREDIT b on a.CODE=b.INSTITUTE left join (select INSTID,count(MISCOUNTID) as COUNT from TB_MISCOUNT group by INSTID) c on a.CODE=c.INSTID order by CREDIT, COUNT desc,CODE";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryInstituteSql", sql);
+		request.getSession().setAttribute("queryInstituteParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryInstituteList(rs, rowsPerPage);
@@ -85,6 +87,7 @@ public class InstituteManageAction extends DispatchAction {
 		String operation = request.getParameter("operation");
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -93,28 +96,36 @@ public class InstituteManageAction extends DispatchAction {
 			String code = instituteManageForm.getCode();
 			String category = instituteManageForm.getCategory();
 			String temp = "";
+			ArrayList<String> paramList = new ArrayList<String>();
 			if(!category.equals("")) {
-				temp += " and CATEGORY ='" + category + "'";
+				temp += " and CATEGORY = ?";
+				paramList.add(category);
 			}
 			if(!name.equals(""))
 			{
-				temp += " and NAME like '%" + name + "%'";
+				temp += " and NAME like ?";
+				paramList.add("%" + name + "%");
 			}
 			if(!code.equals(""))
 			{
-				temp += " and CODE like '%" + code + "%'";
+				temp += " and CODE like ?";
+				paramList.add("%" + code + "%");
 			}
+			params = paramList.toArray(new String[0]);
 			sql = "select a.*, ROUND(ifnull(b.CREDIT, 1),4) as CREDIT,ifnull(c.COUNT,0) as COUNT from (select * from SYS_INST_INFO where 1=1 " + temp + ") as a left join VIEW_INSTITUTE_CREDIT b on a.CODE=b.INSTITUTE left join (select INSTID,count(MISCOUNTID) as COUNT from TB_MISCOUNT group by INSTID) c on a.CODE=c.INSTID order by CREDIT, COUNT desc,CODE";
 			request.getSession().setAttribute("queryInstituteSql", sql);	
+			request.getSession().setAttribute("queryInstituteParams", params);
 			request.setAttribute("category", category);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryInstituteSql");
+			params = (String[])request.getSession().getAttribute("queryInstituteParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -179,6 +190,7 @@ public class InstituteManageAction extends DispatchAction {
 		DBTools db = new DBTools();
 		
 		String sql = (String)request.getSession().getAttribute("queryInstituteSql");
+		String[] params = (String[])request.getSession().getAttribute("queryInstituteparams");
 		String num = request.getParameter("exportnum");
 		if( num != null && Integer.parseInt(num) > 0){
 			sql += " limit " + num;
@@ -190,7 +202,7 @@ public class InstituteManageAction extends DispatchAction {
 			response.reset();
 			response.setHeader("Content-disposition", "attachment;filename=" + fname + ".xls");
 			response.setContentType("application/msexcel");
-			ResultSet rs = db.queryRsList(sql);
+			ResultSet rs = db.queryRsList(sql, params);
 			rs.last();
 			int length = rs.getRow();
 			rs.beforeFirst();
@@ -232,9 +244,9 @@ public class InstituteManageAction extends DispatchAction {
 		String result = "";
 		String name = request.getParameter("name");
 		DBTools dbTool = new DBTools();
-		String sql = "select CODE from SYS_INST_INFO where NAME='" + name + "'";
+		String sql = "select CODE from SYS_INST_INFO where NAME=?";
 		
-		ResultSet rs = dbTool.queryRsList(sql);
+		ResultSet rs = dbTool.queryRsList(sql, new String[]{name});
 		
 		if(rs != null & rs.next()){
 			result = rs.getString("CODE");

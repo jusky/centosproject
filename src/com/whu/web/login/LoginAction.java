@@ -46,8 +46,14 @@ public class LoginAction extends DispatchAction {
 		String sql = "";
 		if(roleIDs!=null && !roleIDs.equals(""))
 		{
-			sql = "select MODULEIDS from SYS_ROLE where ID in (" + roleIDs + ")";
-			moduleList = dbTools.queryModuleFormRole(sql);
+			StringBuilder sqlBuilder= new StringBuilder("select MODULEIDS from SYS_ROLE where ID in(");
+			String[] roleArray = roleIDs.split(",");
+			for (int i = 0, len= roleArray.length; i < len; i++) {
+				sqlBuilder.append(" ?,");
+				if(i == len - 1) sqlBuilder.replace(sqlBuilder.length() - 1, sqlBuilder.length(), ")");
+			}
+			sql = sqlBuilder.toString();
+			moduleList = dbTools.queryModuleFormRole(sql, roleArray);
 		}
 		
 		//取出多个角色重叠的功能模块
@@ -67,20 +73,20 @@ public class LoginAction extends DispatchAction {
 		WsjbDBTools db = new WsjbDBTools();
 		sql = "select a.ID,a.REPORTID,a.REPORTNAME,a.BEREPORTNAME,a.BEDEPT,a.TIME from TB_REPORTINFO a where a.ISRECV = '0' order by ID desc limit 5";
 		ArrayList wsjbList = new ArrayList();
-		wsjbList = db.queryWsjbList(sql);
+		wsjbList = db.queryWsjbList(sql, new String[0]);
 		loginForm.setWsjbList(wsjbList);
 		
 		//查询最新的反馈消息，包括专家鉴定意见和单位调查结果
 		sql = "select * from TB_FKRECODER order by ID desc limit 5";
 		ArrayList replyList = new ArrayList();
-		replyList = dbTools.queryReplyList(sql);
+		replyList = dbTools.queryReplyList(sql, new String[0]);
 		loginForm.setReplyList(replyList);
 		
 		//查询待办事项列表
 		String userName = (String)request.getSession().getAttribute("UserName");
-		sql = "select * from TB_MSGNOTIFY where RECVNAME='" + userName + "' and ISHANDLE='0' limit 5";
+		sql = "select * from TB_MSGNOTIFY where RECVNAME=? and ISHANDLE='0' limit 5";
 		ArrayList dbsxList = new ArrayList();
-		dbsxList = dbTools.queryMsgNotify(sql, "1");
+		dbsxList = dbTools.queryMsgNotify(sql, "1", new String[]{userName});
 		loginForm.setDbsxList(dbsxList);
 		
 		return mapping.findForward("success");
@@ -98,7 +104,7 @@ public class LoginAction extends DispatchAction {
 
 		String sql = "select count(*) as NUM, substring(STATUS,1,1) as TITLE from TB_REPORTINFO where ISDELETE='0' and substring(STATUS,1,1) in ('1','2','3') group by substring(STATUS,1,1)";
 		DBTools dbTools = new DBTools();
-		ArrayList itemList = dbTools.queryTjInfo(sql);
+		ArrayList itemList = dbTools.queryTjInfo(sql, new String[0]);
 		ItemAndNum ian;
 		if(itemList.size() != 3)
 		{

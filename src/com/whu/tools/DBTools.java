@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -119,11 +120,13 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public boolean isHave(String sql) {
+	public boolean isHave(String sql, String loginName, String pwd) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, loginName);
+			pst.setString(2, pwd);
+			rs = pst.executeQuery();
 			while (rs.next()) {
 				return true;
 			}
@@ -137,18 +140,22 @@ public class DBTools {
 		return false;
 	}
 
-	public int getTotalRows(String sql) {
+	public int getTotalRows(String sql, String[] params) {
 		int count = 0;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			this.stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs.next()) {
 				count++;
 			}
 		} catch (SQLException ex) {
 			ex.printStackTrace();
-			System.out.print("getTotalRows errors" + ex.getMessage());
+//			System.out.print("getTotalRows errors" + ex.getMessage());
 		}
 		return count;
 	}
@@ -156,29 +163,40 @@ public class DBTools {
 	public ResultSet queryRs(int queryPageNo, CheckPage pageBean,
 			int rowsPerPage) {
 		String sql = "";
-
+		String[] params = new String[0];
 		queryPageNo = pageBean.getQueryPageNo(); 
 		// System.out.print("queryPageNo:"+queryPageNo+"||");
 		rowsPerPage = pageBean.getRowsPerPage();
 		if (pageBean.getQuerySql() != null)
 			sql = pageBean.getQuerySql(); 
-		int totalRows = getTotalRows(sql);
-		pageBean.setTotalRows(totalRows);
-
-		int totalPage = totalRows % rowsPerPage == 0 ? totalRows / rowsPerPage
-				: totalRows / rowsPerPage + 1;
-		pageBean.setTotalPage(totalPage);
-		
-		int lastPageRows = totalRows % rowsPerPage == 0 ? rowsPerPage
-				: totalRows % rowsPerPage;
-		pageBean.setLastPageRows(lastPageRows);
-
+		if (pageBean.getParams() != null)
+			params = pageBean.getParams();
+	
 		try {
-			this.stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			pst = conn.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_READ_ONLY);
-			rs = stmt.executeQuery(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
+			
+			rs.last();
+			int totalRows = rs.getRow();
+			rs.beforeFirst();
+			pageBean.setTotalRows(totalRows);
+
+			int totalPage = totalRows % rowsPerPage == 0 ? totalRows / rowsPerPage
+					: totalRows / rowsPerPage + 1;
+			pageBean.setTotalPage(totalPage);
+			
+			int lastPageRows = totalRows % rowsPerPage == 0 ? rowsPerPage
+					: totalRows % rowsPerPage;
+			pageBean.setLastPageRows(lastPageRows);
+			
 			int skipRows = (queryPageNo - 1) * rowsPerPage;
-			for (int i = 0; i < skipRows; i++)
+			for (int j = 0; j < skipRows; j++)
 				rs.next();
 
 		} catch (Exception e) {
@@ -193,11 +211,15 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ResultSet queryRsList(String sql) {
+	public ResultSet queryRsList(String sql, String[] params) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			this.stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		} 
@@ -692,11 +714,15 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public MeetInfo queryMeetInfo(String sql) {
+	public MeetInfo queryMeetInfo(String sql, String[] params) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				MeetInfo mi = new MeetInfo();
 				mi.setId(String.valueOf(rs.getInt("ID")));
@@ -943,12 +969,23 @@ public class DBTools {
 	 */
 	public String queryUserByZZName(String facultys) {
 		String result = "";
-		facultys = "('" + facultys.replace(",", "','") + "')";
-		String sql = "select * from SYS_USER a, SYS_ZZINFO b where a.ZZID=b.ZZID and b.ZZNAME in " + facultys;
+		if(facultys == null || facultys.equals("")) return "";
+		StringBuilder sqlBuilder = new StringBuilder("select a.USERNAME from SYS_USER a, SYS_ZZINFO b where a.ZZID=b.ZZID and b.ZZNAME in (");
+		String[] facultyArray = facultys.split(",");
+		int len = facultyArray.length;
+		for (int i = 0; i < len; i++) {
+			sqlBuilder.append(" ?,");
+			if(i == len-1) sqlBuilder.replace(sqlBuilder.length()-1, sqlBuilder.length(), ")");
+		}
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sqlBuilder.toString());
+			int i = 1;
+			for(String param : facultyArray) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
+			
 			while(rs != null && rs.next()) {
 				result += rs.getString("USERNAME") + ",";
 			}
@@ -1169,12 +1206,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public List queryPunishTree(String sql) {
+	public List queryPunishTree(String sql, String[] params) {
 		List<String> lstTree = new ArrayList<String>();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			String result = "";
 			String code = "";
 			String caption = "";
@@ -1230,12 +1271,16 @@ public class DBTools {
 		return list;
 	}
 
-	public ArrayList queryMailList(String sql) {
+	public ArrayList queryMailList(String sql, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				EmailBean emailBean = new EmailBean();
 				emailBean.setID(String.valueOf(rs.getInt("ID")));
@@ -1469,11 +1514,15 @@ public class DBTools {
 	}
 
 	// ɾ����ݿ�ļ�¼
-	public boolean deleteItem(String sql) {
+	public boolean deleteItem(String sql, String[] params) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			stmt.executeUpdate(sql);
+			pst = conn.prepareStatement(sql);
+			int i=1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			pst.executeUpdate();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1491,13 +1540,88 @@ public class DBTools {
 	 * @param sql 需要执行的插入sql
 	 * @return 插入语句是否执行成功
 	 */
-	public boolean insertItem(String sql) {
+	public boolean insertItem(String sql, String[] params) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			stmt.executeUpdate(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			pst.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			return false;
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return true;
+	}
+
+	/*
+	 * 
+	 */
+	public boolean insertMiscountList(String miscountId, String[] mistypeList) {
+		String sql = "insert into TB_MISCOUNT_LIST(MISCOUNTID, MISTYPE) values(?, ?)";
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			pst = conn.prepareStatement(sql);
+			conn.setAutoCommit(false);
+			for (String mistype : mistypeList) {
+				pst.setString(1, miscountId);
+				pst.setString(2, mistype);
+				pst.addBatch();
+			}
+			pst.executeBatch();
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			return false;
+		}
+		finally {
+			closeConnection();
+		}
+		return true;
+	}
+	
+	
+	/**
+	 * 向数据库中插入记录
+	 * @param sql 需要执行的插入sql
+	 * @return 插入语句是否执行成功
+	 * @throws SQLException 
+	 */
+	public boolean insertFacultyAdvice(String reportId, String[] facultyArray) {
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			String sql = "insert into TB_FACULTYADVICE(REPORTID,FACULTYID,ISFK) values(?, ?, ?)";
+			conn.setAutoCommit(false);
+			for (String facultyId:facultyArray){
+				if(!facultyId.equals("")) {
+					pst.setString(1, reportId);
+					pst.setString(2, facultyId);
+					pst.setString(3, "0");
+					pst.addBatch();
+				}
+			}
+			pst.executeBatch();
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 			return false;
 		}
 		finally
@@ -1514,10 +1638,11 @@ public class DBTools {
 	 */
 	public boolean checkNotExist(String loginName) {
 		try {
-			String sql = "select * from SYS_USER where LOGINNAME='" + loginName + "'";
+			String sql = "select * from SYS_USER where LOGINNAME=?";
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, loginName);
+			rs = pst.executeQuery();
 			if (rs != null && rs.next()) {
 				return false;
 			}
@@ -1532,11 +1657,15 @@ public class DBTools {
 	}
 	
 	// ������ݿ�ļ�¼
-	public boolean updateItem(String sql) {
+	public boolean updateItem(String sql, String[] params) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			stmt.executeUpdate(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			pst.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -1548,12 +1677,16 @@ public class DBTools {
 		return true;
 	}
 	// ��ݱ�Ų�ѯ����������Ϣ
-	public EmailBean queryEmailConfig(String sql) {
+	public EmailBean queryEmailConfig(String sql, String[] params) {
 		EmailBean emailBean = null;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				emailBean = new EmailBean();
 				emailBean.setID(String.valueOf(rs.getInt("ID")));
@@ -1586,10 +1719,11 @@ public class DBTools {
 	public DicBean queryDicConfig(String id) {
 		DicBean dicBean = null;
 		try {
-			String sql = "select * from SYS_DATA_DIC where ID='" + id + "'";
+			String sql = "select * from SYS_DATA_DIC where ID=?";
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, id);
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				dicBean = new DicBean();
 				dicBean.setId(String.valueOf(rs.getInt("ID")));
@@ -1611,10 +1745,11 @@ public class DBTools {
 	public PunishBean queryPunishConfig(String id) {
 		PunishBean punishBean = null;
 		try {
-			String sql = "select * from SYS_DATA_DIC where ID='" + id + "'";
+			String sql = "select * from SYS_DATA_DIC where ID=?";
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, id);
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				punishBean = new PunishBean();
 				punishBean.setId(String.valueOf(rs.getInt("ID")));
@@ -1726,9 +1861,11 @@ public class DBTools {
 	public boolean checkEmail(String emailID, boolean flat) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			String sql = "select ID from TB_RECVMAIL where EMAILID='" + emailID+ "'";
-			rs = stmt.executeQuery(sql);
+			String sql = "select ID from TB_RECVMAIL where EMAILID=?";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, emailID);
+			rs = pst.executeQuery();
+			
 			if (rs.next())
 				return true;
 		} catch (SQLException e) {
@@ -1754,12 +1891,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryJBReasonList(String sql) {
+	public ArrayList queryJBReasonList(String sql, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				JBReasonBean jbrb = new JBReasonBean();
 				jbrb.setId(String.valueOf(rs.getInt("ID")));
@@ -1787,19 +1928,21 @@ public class DBTools {
 	public boolean insertPosUser(String posID, String ids) throws SQLException {
 		try {
 			conn.setAutoCommit(false);
-			String sql = "insert into SYS_POSITION_USER(USERID,POSID,ISMAINPOS) values('"+ posID + "',?,'0')";
+			String sql = "insert into SYS_POSITION_USER(USERID,POSID,ISMAINPOS) values(?,?,'0')";
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
 			pst = conn.prepareStatement(sql);
 
 			String[] arrID = ids.split(",");
 			for (int i = 0; i < arrID.length; i++) {
-				pst.setString(1, arrID[i]);
+				pst.setString(1, posID);
+				pst.setString(2, arrID[i]);
 				pst.addBatch();
 			}
 			pst.executeBatch();
 			conn.commit();
 			conn.setAutoCommit(true);
 		} catch (SQLException e) {
+			e.printStackTrace();
 			conn.rollback();
 			return false;
 		} finally {
@@ -1840,6 +1983,7 @@ public class DBTools {
 			conn.commit();
 			conn.setAutoCommit(true);
 		} catch (SQLException e) {
+			e.printStackTrace();
 			conn.rollback();
 			return false;
 		}
@@ -1877,12 +2021,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public EventBean queryEvent(String sql)
+	public EventBean queryEvent(String sql, String[] params)
 	{
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			AESCrypto aes = new AESCrypto();
 			String key = "TB_REPORTINFO";
 			
@@ -1952,12 +2100,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ZZBean queryZZInfo(String sql)
+	public ZZBean queryZZInfo(String sql, String[] params)
 	{
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				ZZBean zzB = new ZZBean();
 				zzB.setId(String.valueOf(rs.getInt("ID")));
@@ -1984,14 +2136,18 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryBeReport(String sql) {
+	public ArrayList queryBeReport(String sql, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			AESCrypto aes = new AESCrypto();
 			String key = "TB_BEREPORTPE";
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			BeReportBean brb = null;
 			while (rs != null && rs.next()) {
 				brb = new BeReportBean();
@@ -2016,11 +2172,15 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public CheckBean queryCheckInfo(String sql) {
+	public CheckBean queryCheckInfo(String sql, String[] params) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				CheckBean cb = new CheckBean();
 				cb.setReportID(rs.getString("REPORTID"));
@@ -2043,11 +2203,15 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ApproveBean queryApproveInfo(String sql) {
+	public ApproveBean queryApproveInfo(String sql, String[] params) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				ApproveBean ab = new ApproveBean();
 				ab.setReportID(rs.getString("REPORTID"));
@@ -2072,12 +2236,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public List queryAllZZ(String sql, String type) {
+	public List queryAllZZ(String sql, String[] params, String type) {
 		List<String> lstTree = new ArrayList<String>();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			String result = "";
 			String id = "";
 			String pId = "";
@@ -2132,12 +2300,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public List queryModuleTree(String sql, List<String> moduleList) {
+	public List queryModuleTree(String sql, String[] params, List<String> moduleList) {
 		List<String> lstTree = new ArrayList<String>();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			String result = "";
 			String id = "";
 			String pId = "";
@@ -2308,9 +2480,10 @@ public class DBTools {
 	public boolean deleteItemReal(String id, String tableName, String colName) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			String sql = "delete from " + tableName + " where " + colName + "=" + id;
-			stmt = conn.createStatement();
-			stmt.executeUpdate(sql);
+			String sql = "delete from " + tableName + " where " + colName + "=?";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, id);
+			pst.executeUpdate();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -2331,9 +2504,10 @@ public class DBTools {
 	public boolean removeUser(String id, String tableName) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			String sql = "update " + tableName + " set ZZID='' where ID=" + id;
-			stmt = conn.createStatement();
-			stmt.executeUpdate(sql);
+			String sql = "update " + tableName + " set ZZID='' where ID=?";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, id);
+			pst.executeUpdate();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -2412,9 +2586,10 @@ public class DBTools {
 	public boolean deleteItem(String id, String tableName, String colName) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			String sql = "update " + tableName + " set ISDELETE='1' where " + colName + "=" + id;
-			stmt = conn.createStatement();
-			stmt.executeUpdate(sql);
+			String sql = "update " + tableName + " set ISDELETE='1' where " + colName + "=?";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, id);
+			pst.executeUpdate();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -2431,13 +2606,17 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryTjInfo(String sql) {
+	public ArrayList queryTjInfo(String sql, String[] params) {
 		ArrayList result = new ArrayList();
 		ItemAndNum ian;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			String key = "";
 			String value = "";
 			while (rs != null && rs.next()) {
@@ -2460,13 +2639,17 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public HashMap querySlAndLaInfo(String sql) {
+	public HashMap querySlAndLaInfo(String sql, String[] params) {
 		HashMap result = new HashMap();
 		ItemAndNum ian;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			String key = "";
 			String value = "";
 			while (rs != null && rs.next()) {
@@ -2489,12 +2672,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public UserBean queryUserBean(String sql) {
+	public UserBean queryUserBean(String sql, String[] params) {
 		UserBean userBean;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				userBean = new UserBean();
 				userBean.setId(String.valueOf(rs.getInt("ID")));
@@ -2529,12 +2716,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ExpertInfo queryExpertInfo(String sql) {
+	public ExpertInfo queryExpertInfo(String sql, String[] params) {
 		ExpertInfo expertInfo;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				expertInfo = new ExpertInfo();
 				expertInfo.setId(String.valueOf(rs.getInt("ID")));
@@ -2567,11 +2758,15 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public InstituteInfo queryInstituteInfo(String sql) {
+	public InstituteInfo queryInstituteInfo(String sql, String[] params) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				InstituteInfo instituteInfo = new InstituteInfo();
 				instituteInfo.setId(rs.getString("ID"));
@@ -2599,13 +2794,17 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public String queryInstTrend(String sql, String sql2) {
+	public String queryInstTrend(String sql, String[] params,String name) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			JSONArray array = new JSONArray();
-			int i = 0;
+			i = 0;
 			int year = Calendar.getInstance().get(Calendar.YEAR);
 			while (rs != null && rs.next() && i < 6) {
 				JSONObject obj = new JSONObject();
@@ -2630,14 +2829,7 @@ public class DBTools {
 				year--;
 				i++;
 			}		
-			
-			// get name
-			String name = "";
-			rs = stmt.executeQuery(sql2);
-			while (rs != null && rs.next()) {
-				name = rs.getString("NAME");
-			}
-			
+						
 			JSONObject ret = new JSONObject();
 			JSONObject chart = new JSONObject();
 			chart.put("caption", name + " 近六年违规人次 " + ++year + "-"  + (year + 5));
@@ -2679,11 +2871,15 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public IndividualInfo queryIndividualInfo(String sql) {
+	public IndividualInfo queryIndividualInfo(String sql, String[] params) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				IndividualInfo individualInfo = new IndividualInfo();
 				individualInfo.setId(rs.getString("ID"));
@@ -2715,11 +2911,15 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public MiscountInfo queryMiscountInfo(String sql) {
+	public MiscountInfo queryMiscountInfo(String sql, String[] params) {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				MiscountInfo miscountInfo = new MiscountInfo();
 				miscountInfo.setId(String.valueOf(rs.getInt("ID")));
@@ -2750,12 +2950,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ContactBean queryAddrBean(String sql) {
+	public ContactBean queryAddrBean(String sql, String[] params) {
 		ContactBean contactBean;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				contactBean = new ContactBean();
 				contactBean.setId(String.valueOf(rs.getInt("ID")));
@@ -2777,12 +2981,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public WYBean queryWYBean(String sql) {
+	public WYBean queryWYBean(String sql, String[] params) {
 		WYBean wyBean;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				wyBean = new WYBean();
 				wyBean.setId(String.valueOf(rs.getInt("ID")));
@@ -2809,12 +3017,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public PosBean queryPosBean(String sql) {
+	public PosBean queryPosBean(String sql, String[] params) {
 		PosBean posBean;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				posBean = new PosBean();
 				posBean.setId(String.valueOf(rs.getInt("ID")));
@@ -2836,12 +3048,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ZZBean queryZZBean(String sql) {
+	public ZZBean queryZZBean(String sql, String[] params) {
 		ZZBean zzBean;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				zzBean = new ZZBean();
 				zzBean.setId(String.valueOf(rs.getInt("ID")));
@@ -2867,12 +3083,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public MistypeBean queryMistypeBean(String sql) {
+	public MistypeBean queryMistypeBean(String sql, String[] params) {
 		MistypeBean mistypeBean;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				mistypeBean = new MistypeBean();
 				mistypeBean.setId(String.valueOf("ID"));
@@ -2901,12 +3121,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public RoleBean queryRoleBean(String sql) {
+	public RoleBean queryRoleBean(String sql, String[] params) {
 		RoleBean rb;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				rb = new RoleBean();
 				rb.setId(String.valueOf(rs.getInt("ID")));
@@ -2969,12 +3193,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryMsgNotify(String sql, String type) {
+	public ArrayList queryMsgNotify(String sql, String type, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				MsgNotifyBean mnb = new MsgNotifyBean();
 				mnb.setId(rs.getString("ID"));
@@ -3058,12 +3286,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public String queryZZID(String sql) {
+	public String queryZZID(String sql, String[] params) {
 		String result = "";
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			//已经按照编号倒序查询，第一条记录即是最大的编号
 			while (rs != null && rs.next()) {
 				result = rs.getString("ZZID");
@@ -3083,12 +3315,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public String queryZZName(String sql) {
+	public String queryZZName(String sql, String[] params) {
 		String result = "";
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			//已经按照编号倒序查询，第一条记录即是最大的编号
 			while (rs != null && rs.next()) {
 				result = rs.getString("ZZNAME");
@@ -3109,12 +3345,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public String queryMistypeRid(String sql) {
+	public String queryMistypeRid(String sql, String[] params) {
 		String result = "";
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			// order by RID desc limit 1
 			while (rs != null && rs.next()) {
 				result = rs.getString("RID");
@@ -3135,12 +3375,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryExpertAdvice(String sql, String type) {
+	public ArrayList queryExpertAdvice(String sql, String type, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int j = 1;
+			for(String param: params) {
+				pst.setString(j++, param);
+			}
+			rs = pst.executeQuery();
 			ExpertAdvice ea = null;
 			String attachName = "";
 			String advice = "";
@@ -3214,12 +3458,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryLitigantState(String sql, String type) {
+	public ArrayList queryLitigantState(String sql, String type, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			LitigantState ls = null;
 			String attachName = "";
 			String litigantContent = "";
@@ -3272,12 +3520,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryFacultyAdvice(String sql, String type) {
+	public ArrayList queryFacultyAdvice(String sql, String type, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);			
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 
 			AESCrypto aes = new AESCrypto();
 			String key = "TB_REPORTINFO";
@@ -3319,17 +3571,22 @@ public class DBTools {
 	/* queary multi dcbg files
 	 * 
 	 */
-	public String[] queryDcbgFiles(String sql, int len, String dirPath) {
+	public String[] queryDcbgFiles(String sql, String[] params, String dirPath) {
 		
-		String[] ret = new String[len];
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);			
-			int i = 0;
-			while (rs != null && rs.next()) {
-				ret[i++] = dirPath + "/attachment/" +  rs.getString("FILENAME");
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
 			}
+			rs = pst.executeQuery();
+			int i = 0;
+			ArrayList<String> pathList = new ArrayList<String>();
+			while (rs != null && rs.next()) {
+				pathList.add(dirPath + "/attachment/" +  rs.getString("FILENAME"));
+			}
+			return pathList.toArray(new String[0]);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -3338,7 +3595,6 @@ public class DBTools {
 		{
 			closeConnection();
 		}
-		return ret;
 	}
 	
 	/**
@@ -3346,12 +3602,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryDeptAdvice(String sql, String type) {
+	public ArrayList queryDeptAdvice(String sql, String type, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			DeptAdvice da = null;
 			String attachName = "";
 			String advice = "";
@@ -3405,12 +3665,16 @@ public class DBTools {
 	 * @param type
 	 * @return
 	 */
-	public ArrayList queryFYApplyList(String sql, String type) {
+	public ArrayList queryFYApplyList(String sql, String type, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			FYApply fyApply = null;
 			String attachName = "";
 			String shortInfo = "";
@@ -3454,12 +3718,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryHandleDecide(String sql, String type) {
+	public ArrayList queryHandleDecide(String sql, String type, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			HandleDecide hd = null;
 			String attachName = "";
 			String decideContent = "";
@@ -3519,12 +3787,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public HandleDecide queryHandleDecideBean(String sql) {
+	public HandleDecide queryHandleDecideBean(String sql, String[] params) {
 		HandleDecide hd = null;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				hd = new HandleDecide();
 				hd.setId(rs.getString("ID"));
@@ -3552,12 +3824,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public FYApply queryFYApplyInfo(String sql) {
+	public FYApply queryFYApplyInfo(String sql, String[] params) {
 		FYApply fyApply = null;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				fyApply = new FYApply();
 				fyApply.setId(rs.getString("ID"));
@@ -3580,12 +3856,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public DeptSurveyLetter queryDeptSurveyLetter(String sql) {
+	public DeptSurveyLetter queryDeptSurveyLetter(String sql, String[] params) {
 		DeptSurveyLetter dsl = null;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			
 			while (rs != null && rs.next()) {
 				dsl = new DeptSurveyLetter();
@@ -3615,12 +3895,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryHandleFlow(String sql) {
+	public ArrayList queryHandleFlow(String sql, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			HandleFlow hf = null;
 			int i = 0;
 			while (rs != null && rs.next()) {
@@ -3657,10 +3941,17 @@ public class DBTools {
 			SimpleDateFormat forma = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			String createTime = forma.format(currentTime);
 			
-			String sql = "insert into SYS_LOGINFO(OPERATOR,TIME,LOGTYPE,DETAIL,IPADDR) values('" + lb.getOperator() + "','" + createTime + "','" + lb.getLogType() + "','" + lb.getDetail() + "','" + lb.getIpAddr() + "')";
+		//	String sql = "insert into SYS_LOGINFO(OPERATOR,TIME,LOGTYPE,DETAIL,IPADDR) values('" + lb.getOperator() + "','" + createTime + "','" + lb.getLogType() + "','" + lb.getDetail() + "','" + lb.getIpAddr() + "')";
+			String sql = "insert into SYS_LOGINFO(OPERATOR,TIME,LOGTYPE,DETAIL,IPADDR) values(?, ?, ?, ?, ?)";
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			stmt.executeUpdate(sql);
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, lb.getOperator());
+			pst.setString(2, createTime);
+			pst.setString(3, lb.getLogType());
+			pst.setString(4, lb.getDetail());
+			pst.setString(5, lb.getIpAddr());
+			
+			pst.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -3683,11 +3974,17 @@ public class DBTools {
 	{
 		try {
 			String createTime = SystemShare.GetNowTime("yyyy-MM-dd HH:mm:ss");
-			
-			String sql = "insert into SYS_LOGINFO(OPERATOR,TIME,LOGTYPE,DETAIL,IPADDR) values('" + operator + "','" + createTime + "','" + logType + "','" + detail + "','" + ipAddr+ "')";
+			String sql = "insert into SYS_LOGINFO(OPERATOR,TIME,LOGTYPE,DETAIL,IPADDR) values(?, ?, ?, ?, ?)";
+		//	String sql = "insert into SYS_LOGINFO(OPERATOR,TIME,LOGTYPE,DETAIL,IPADDR) values('" + operator + "','" + createTime + "','" + logType + "','" + detail + "','" + ipAddr+ "')";
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			stmt.executeUpdate(sql);
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, operator);
+			pst.setString(2, createTime);
+			pst.setString(3, logType);
+			pst.setString(4, detail);
+			pst.setString(5, ipAddr);
+			
+			pst.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -3712,9 +4009,10 @@ public class DBTools {
 		String result = "";
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			String sql = "select " + resultCol + " from " + tableName + " where " + colName + " ='" + value + "'";
-			rs = stmt.executeQuery(sql);
+			String sql = "select " + resultCol + " from " + tableName + " where " + colName + " =?";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, value);
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				result = rs.getString(resultCol);
 			}
@@ -3733,13 +4031,17 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public String querySerialNum(String sql)
+	public String querySerialNum(String sql, String[] params)
 	{
 		String result = "";
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				result = rs.getString("SERIALNUM");
 			}
@@ -3765,8 +4067,8 @@ public class DBTools {
 		try {
 			String sql = "select ID from " + tableName + " order by ID desc limit 1";
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				result = rs.getString("ID");
 			}
@@ -3791,12 +4093,16 @@ public class DBTools {
 	{
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
 			Date currentTime = new Date();
     		SimpleDateFormat forma = new SimpleDateFormat("yyyy-MM-dd");
     		String createTime = forma.format(currentTime);
-			String sql = "insert into SYS_ATTACHMENT(FILENAME,CREATETIME,EXTNAME,SIZE,UPLOADNAME,FILEPATH) values('" + fileName +"','" + createTime + "', '', '','" + uploadName + "', '" + filePath + "')";
-			stmt.executeUpdate(sql);
+			String sql = "insert into SYS_ATTACHMENT(FILENAME,CREATETIME,EXTNAME,SIZE,UPLOADNAME,FILEPATH) values(?, ?, '', '', ?, ?)";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, fileName);
+			pst.setString(2, createTime);
+			pst.setString(3, uploadName);
+			pst.setString(4, filePath);
+			pst.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -3840,6 +4146,7 @@ public class DBTools {
 			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			conn.rollback();
+			e.printStackTrace();
 			return false;
 		}
 		finally
@@ -3860,10 +4167,17 @@ public class DBTools {
 	{
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
     		String time = SystemShare.GetNowTime("yyyy-MM-dd");
-			String sql = "insert into TB_HANDLEPROCESS(REPORTID,NAME,TIME,TYPE,STATUS, FLOWTYPE, DESCRIPTION) values('" + reportID +"','" + name + "', '" + time + "', '" + type + "','" + status + "','" + flowType + "','" + describe + "')";
-			stmt.executeUpdate(sql);
+			String sql = "insert into TB_HANDLEPROCESS(REPORTID,NAME,TIME,TYPE,STATUS,FLOWTYPE,DESCRIPTION) values(?, ?, ?, ?, ?, ?, ?)";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, reportID);
+			pst.setString(2, name);
+			pst.setString(3, time);
+			pst.setString(4, type);
+			pst.setString(5, status);
+			pst.setString(6, flowType);
+			pst.setString(7, describe);
+			pst.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -3883,10 +4197,12 @@ public class DBTools {
 	{
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
     		String time = SystemShare.GetNowTime("yyyy-MM-dd");
-			String sql = "update TB_REPORTINFO set LASTTIME='" + time + "' where REPORTID='" + reportID + "'";
-			stmt.executeUpdate(sql);
+			String sql = "update TB_REPORTINFO set LASTTIME=? where REPORTID=?";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, time);
+			pst.setString(2, reportID);
+			pst.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -3968,12 +4284,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryModuleFormRole(String sql) {
+	public ArrayList queryModuleFormRole(String sql, String[] params) {
 		ArrayList moduleList = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			String moduleID = "";
 			String[] temp;
 			while (rs != null && rs.next()) {
@@ -3981,7 +4301,7 @@ public class DBTools {
 				if(!moduleID.equals(""))
 				{
 					temp = moduleID.split(",");
-					for(int i = 0; i < temp.length; i++)
+					for(i = 0; i < temp.length; i++)
 					{
 						moduleList.add(temp[i]);
 					}
@@ -4001,13 +4321,17 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public String queryModuleIDs(String sql)
+	public String queryModuleIDs(String sql, String[]params)
 	{
 		String result = "";
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				result = rs.getString("MODULEIDS");
 			}
@@ -4026,12 +4350,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public String queryRoleNames(String sql) {
+	public String queryRoleNames(String sql, String[] params) {
 		String result = "";
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				result += rs.getString("ROLENAME") + ",";
 			}
@@ -4050,12 +4378,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public String queryPosNames(String sql) {
+	public String queryPosNames(String sql, String[] params) {
 		String result = "";
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				result += rs.getString("POSNAME") + ",";
 			}
@@ -4081,10 +4413,12 @@ public class DBTools {
 		boolean result = false;
 		try {
 			//仅仅反馈那些实名的网络举报
-			String sql = "select SEARCHID from TB_REPORTINFO where REPORTID='" + reportID + "' and REPORTTYPE='" + SystemConstant.JBFS_WLJB + "' and ISNI='0'";
+		//	String sql = "select SEARCHID from TB_REPORTINFO where REPORTID='" + reportID + "' and REPORTTYPE='" + SystemConstant.JBFS_WLJB + "' and ISNI='0'";
+			String sql = "select SEARCHID from TB_REPORTINFO where REPORTID=?  and REPORTTYPE='" + SystemConstant.JBFS_WLJB + "' and ISNI='0'";
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, reportID);
+			rs = pst.executeQuery();
 			String searchID = "";
 			while (rs != null && rs.next()) {
 				searchID = rs.getString("SEARCHID");
@@ -4109,13 +4443,17 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public String queryUnApprove(String sql)
+	public String queryUnApprove(String sql, String[] params)
 	{
 		String result = "";
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				result += rs.getString("REPORTID") + ",";
 			}
@@ -4180,11 +4518,18 @@ public class DBTools {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
 			conn.setAutoCommit(false);
-			String sql = "insert into TB_HANDLEPROCESS(REPORTID,NAME,TIME,TYPE,STATUS, FLOWTYPE, DESCRIPTION) values((?),'" + userName + "', '" + time + "', '" + type + "','" + status + "','" + flowType + "','" + describe + "')";
+		//	String sql = "insert into TB_HANDLEPROCESS(REPORTID,NAME,TIME,TYPE,STATUS, FLOWTYPE, DESCRIPTION) values((?),'" + userName + "', '" + time + "', '" + type + "','" + status + "','" + flowType + "','" + describe + "')";
+			String sql = "insert into TB_HANDLEPROCESS(REPORTID,NAME,TIME,TYPE,STATUS, FLOWTYPE, DESCRIPTION) values( ?, ?, ?, ?, ?, ?, ?)";
 			
 			pst = conn.prepareStatement(sql);
 			for (int i = 0; i < arrID.length; i++) {
 				pst.setString(1, arrID[i]);
+				pst.setString(2, userName);
+				pst.setString(3, time);
+				pst.setString(4, type);
+				pst.setString(5, status);
+				pst.setString(6, flowType);
+				pst.setString(7, describe);
 				pst.addBatch();
 			}
 			pst.executeBatch();
@@ -4239,12 +4584,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public EmailInfo queryExpertEmail(String sql) {
+	public EmailInfo queryExpertEmail(String sql, String[] params) {
 		EmailInfo ei = null;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			
 			String attachNames = "";
 			String reportID = "";
@@ -4265,7 +4614,7 @@ public class DBTools {
 					String[] attachArr = attachNames.split(":");
 					String attachPath = "";
 					String serverPath = SystemConstant.GetServerPath() + "/" + "attachment" + "/";
-					for(int i = 0; i < attachArr.length; i++)
+					for(i = 0; i < attachArr.length; i++)
 					{
 						attachPath = serverPath + "/" + reportID + "/" + attachArr[i];
 						UrlAndName uan = new UrlAndName();
@@ -4290,12 +4639,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryCombineReport(String sql) {
+	public ArrayList queryCombineReport(String sql, String[] params) {
 		ArrayList result = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			
 			while (rs != null && rs.next()) {
 				result.add(rs.getString("FILENAME"));
@@ -4361,12 +4714,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryCombineReportList(String sql) {
+	public ArrayList queryCombineReportList(String sql, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			CombineReport cr = null;
 			String reportIDs = "";
 			while (rs != null && rs.next()) {
@@ -4407,12 +4764,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryReplyList(String sql) {
+	public ArrayList queryReplyList(String sql, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			
 			ReplyInfo ri = null;
 			while (rs != null && rs.next()) {
@@ -4438,12 +4799,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryExpertJDList(String sql) {
+	public ArrayList queryExpertJDList(String sql, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			int count = 0;
 			ExpertIdentityBean eib = null;
 			String jdhpath = "";
@@ -4524,12 +4889,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ExpertFile queryExpertFile(String sql) {
+	public ExpertFile queryExpertFile(String sql, String[] params) {
 		ExpertFile ef = new ExpertFile();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			String jdhpath = "";
 			String yjspath = "";
 			String serverPath = SystemConstant.GetServerPath() + "/" + "attachment" + "/";
@@ -4569,12 +4938,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryDeptDCList(String sql) {
+	public ArrayList queryDeptDCList(String sql, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			int count = 0;
 			DeptDCBean db = null;
 			String filePath = "";
@@ -4625,12 +4998,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public JDYJSBean queryJDYJS(String sql) {
+	public JDYJSBean queryJDYJS(String sql, String[] params) {
 		JDYJSBean jb;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				jb = new JDYJSBean();
 				jb.setId(rs.getString("ID"));
@@ -4655,12 +5032,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ExpertJDH queryExpertJDH(String sql) {
+	public ExpertJDH queryExpertJDH(String sql, String[] params) {
 		ExpertJDH ejdh;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				ejdh = new ExpertJDH();
 				ejdh.setId(rs.getString("ID"));
@@ -4684,12 +5065,16 @@ public class DBTools {
 	/**
 	 * check is exist?
 	 */
-	public boolean queryISEXIST(String sql) {
+	public boolean queryISEXIST(String sql, String[] params) {
 		boolean flag=false;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			
 			if (!rs.next()) {
 				flag=true;
@@ -4712,12 +5097,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public JDYJSBean queryExpertFK(String sql) {
+	public JDYJSBean queryExpertFK(String sql, String[] params) {
 		JDYJSBean jb;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				jb = new JDYJSBean();
 				jb.setEventReason(rs.getString("EVENTREASON"));
@@ -4742,12 +5131,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public SjybdBean querySJYBD(String sql) {
+	public SjybdBean querySJYBD(String sql, String[] params) {
 		SjybdBean sb;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				sb = new SjybdBean();
 				sb.setId(rs.getString("ID"));
@@ -4773,12 +5166,16 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public DeptAdviceBean queryDeptAdvice(String sql) {
+	public DeptAdviceBean queryDeptAdvice(String sql, String[] params) {
 		DeptAdviceBean dab;
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				dab = new DeptAdviceBean();
 				dab.setDeptAdvice(rs.getString("ADVICE"));

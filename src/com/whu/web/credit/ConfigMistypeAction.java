@@ -50,27 +50,30 @@ public class ConfigMistypeAction extends DispatchAction {
 		String rname = configMistypeForm.getRname();
 		String prid = configMistypeForm.getPrid();
 		String sql = "";
+		String[] params = new String[0];
 		String rid = "";
 		String rsort = "1"; // personal credit factor 
 		DBTools dbTool = new DBTools();	
 		boolean result = false;
 		
-		sql = "select RID from SYS_JBREASON where PRID='" + prid + "' order by RID desc limit 1";
-		String maxRid = dbTool.queryMistypeRid(sql);
+		sql = "select RID from SYS_JBREASON where PRID=? order by RID desc limit 1";
+		String maxRid = dbTool.queryMistypeRid(sql, new String[]{prid});
 
 		if(!maxRid.equals(""))
 		{
 			rid = String.valueOf(Integer.parseInt(maxRid) + 1);
 			if(operation.equals("new"))
 			{
-				sql = "insert into SYS_JBREASON(RID,RNAME,PRID,RSORT,ISJC) values('" + rid + "','" + rname + "','" + prid + "','" + rsort + "','0')";
+				sql = "insert into SYS_JBREASON(RID,RNAME,PRID,RSORT,ISJC) values(?, ?, ?, ?, ?)";
+				params = new String[]{rid, rname, prid, rsort, "0"};
 			}
 			else if(operation.equals("edit"))
 			{
 				rid = configMistypeForm.getRid();
-				sql = "update SYS_JBREASON set RID='" + rid + "',RNAME='" + rname + "', PRID='" + prid + "' where rid='" + rid + "'";
+				sql = "update SYS_JBREASON set RID=?,RNAME=?, PRID=? where rid=?";
+				params = new String[]{rid, rname, prid, rid};
 			}
-			result = dbTool.insertItem(sql);
+			result = dbTool.insertItem(sql, params);
 		}
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
@@ -98,8 +101,8 @@ public class ConfigMistypeAction extends DispatchAction {
 		ConfigMistypeForm configMistypeForm = (ConfigMistypeForm) form;
 		String id = request.getParameter("id");
 		DBTools dbTools = new DBTools();
-		String sql = "select a.*,b.RNAME as PNAME from SYS_JBREASON a left join SYS_JBREASON b on a.PRID=b.RID where a.ID=" + id;
-		MistypeBean mistypeBean = dbTools.queryMistypeBean(sql);
+		String sql = "select a.*,b.RNAME as PNAME from SYS_JBREASON a left join SYS_JBREASON b on a.PRID=b.RID where a.ID=?";
+		MistypeBean mistypeBean = dbTools.queryMistypeBean(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(mistypeBean!=null)
 		{
@@ -129,16 +132,18 @@ public class ConfigMistypeAction extends DispatchAction {
 		
 		String type = request.getParameter("type");
 		String sql = "";
+		String[] params = new String[0];
 		
 		if(type.equals("0")){
 			sql = "select * from SYS_JBREASON where RSORT=1 and ISJC=1";
 		} else {
-			sql = "select * from SYS_JBREASON where RSORT=1 and PRID='" + type + "'";
+			sql = "select * from SYS_JBREASON where RSORT=1 and PRID=?";
+			params = new String[]{type};
 		}
 		
 				
 		DBTools db = new DBTools();
-		ResultSet rs = db.queryRsList(sql);
+		ResultSet rs = db.queryRsList(sql, params);
 		
 		List<String> lstTree = db.queryMistype(rs);
 	        
@@ -173,8 +178,9 @@ public class ConfigMistypeAction extends DispatchAction {
 		{
 			  String rid = weights.getJSONObject(i).getString("rid");
 			  String weight = weights.getJSONObject(i).getString("weight");
-			  sql = "update SYS_JBREASON set WEIGHT ='" + weight + "' where RID='" + rid + "'";
-			  result = db.insertItem(sql);
+			  sql = "update SYS_JBREASON set WEIGHT = ? where RID= ?";
+			  String[] params = new String[]{weight, rid};
+			  result = db.insertItem(sql, params);
 			  if(!result)
 				  break;
 		}

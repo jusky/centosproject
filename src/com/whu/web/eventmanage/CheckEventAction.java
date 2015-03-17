@@ -71,14 +71,18 @@ public class CheckEventAction extends DispatchAction {
 		DBTools db = new DBTools();
 		boolean result = false;
 	
-		String sql = "insert into TB_CHECKINFO(REPORTID,PREADVICE,BSHEAD,CHECKNAME,CHECKTIME) values('" + reportID + "','" + preAdvice + "','" + bsHead + "', '" + checkName + "','" + checkTime + "')";
-		result = db.insertItem(sql);
+	//	String sql = "insert into TB_CHECKINFO(REPORTID,PREADVICE,BSHEAD,CHECKNAME,CHECKTIME) values('" + reportID + "','" + preAdvice + "','" + bsHead + "', '" + checkName + "','" + checkTime + "')";
+		String sql = "insert into TB_CHECKINFO(REPORTID,PREADVICE,BSHEAD,CHECKNAME,CHECKTIME) values(?, ?, ?, ?, ?)";
+		String[] params = new String[]{reportID, preAdvice, bsHead, checkName, checkTime};
+		result = db.insertItem(sql, params);
 		
 		if(result)
 		{
 			//将事件状态修改为“已初步核实”
-			sql = "update TB_REPORTINFO set STATUS='" + SystemConstant.SS_CHECKEVENT + "',LASTTIME='" + checkTime + "',FACULTY='" + faculty + "' where REPORTID='"+ reportID + "'";
-			result = db.insertItem(sql);
+		//	sql = "update TB_REPORTINFO set STATUS='" + SystemConstant.SS_CHECKEVENT + "',LASTTIME='" + checkTime + "',FACULTY='" + faculty + "' where REPORTID='"+ reportID + "'";
+			sql = "update TB_REPORTINFO set STATUS=?, LASTTIME=?, FACULTY=? where REPORTID=?";
+			params = new String[]{SystemConstant.SS_CHECKEVENT, checkTime, faculty, reportID};
+			result = db.insertItem(sql, params);
 			//插入到消息提醒数据库表中
 			try
 			{

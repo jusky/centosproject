@@ -52,8 +52,11 @@ public class RoleManageAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select * from SYS_ROLE";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryRoleSql", sql);
+		request.getSession().setAttribute("queryRoleParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryRoleList(rs, rowsPerPage);
@@ -81,6 +84,7 @@ public class RoleManageAction extends DispatchAction {
 		
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -89,18 +93,22 @@ public class RoleManageAction extends DispatchAction {
 			String temp = "";
 			if(!roleName.equals(""))
 			{
-				temp += " and ROLENAME like '%" + roleName + "%'";
+				temp += " and ROLENAME like ?";
+				params = new String[]{"%" + roleName + "%"};
 			}
 			sql = "select * from SYS_ROLE where 1=1 " + temp;
 			request.getSession().setAttribute("queryRoleSql", sql);
+			request.getSession().setAttribute("queryRoleParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryRoleSql");
+			params = (String[])request.getSession().getAttribute("queryRoelParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -192,8 +200,8 @@ public class RoleManageAction extends DispatchAction {
 		DBTools dbTools = new DBTools();
 		//查询与该角色关联的功能列表，用于控制前台树的复选框是否勾选
 		List<String> moduleList = new ArrayList<String>();
-		String sql = "select MODULEIDS from SYS_ROLE where ID=" + roleID;
-		String moduleIDs = dbTools.queryModuleIDs(sql);
+		String sql = "select MODULEIDS from SYS_ROLE where ID=?";
+		String moduleIDs = dbTools.queryModuleIDs(sql, new String[]{roleID});
 		if(!moduleIDs.equals(""))
 		{
 			String[] temp = moduleIDs.split(",");
@@ -204,7 +212,7 @@ public class RoleManageAction extends DispatchAction {
 		}
 		
 		sql = "select * from SYS_MODULE";
-        List<String> lstTree = dbTools.queryModuleTree(sql, moduleList);
+        List<String> lstTree = dbTools.queryModuleTree(sql, new String[0], moduleList);
         //利用Json插件将Array转换成Json格式
         response.getWriter().print(JSONArray.fromObject(lstTree).toString()); 
 
@@ -241,8 +249,8 @@ public class RoleManageAction extends DispatchAction {
 				result = false;
 			}
 			*/
-			String sql = "update SYS_ROLE set MODULEIDS='" + ids + "' where ID='" + roleID + "'";
-			result = dbTools.insertItem(sql);
+			String sql = "update SYS_ROLE set MODULEIDS=? where ID=?";
+			result = dbTools.insertItem(sql, new String[]{ids, roleID});
 		}
 		
 		PrintWriter out = response.getWriter();
@@ -278,8 +286,8 @@ public class RoleManageAction extends DispatchAction {
 		
 		String id = request.getParameter("id");
 		DBTools dbTools = new DBTools();
-		String sql = "select * from SYS_ROLE where ID=" + id;
-		RoleBean rb = dbTools.queryRoleBean(sql);
+		String sql = "select * from SYS_ROLE where ID=?";
+		RoleBean rb = dbTools.queryRoleBean(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(rb!=null)
 		{

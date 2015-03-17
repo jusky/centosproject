@@ -251,7 +251,7 @@ body {
 	font-weight: normal;
 	line-height: normal;
 	margin: 0;
-	background: #FFFFFF url(../images/default/form/text-bg.gif) repeat-x
+	background: #FFFFFF url('<%=path%>/web/handleFlow/img/text-bg.gif') repeat-x
 		scroll 0 0;
 	border: 1px solid #B5B8C8;
 	padding: 1px 3px;
@@ -2098,16 +2098,16 @@ body {
 		this.textObj = null;
 		this.fromObj = null;
 		this.toObj = null;
-		this.init = function() {
-			var groupObj = document.getElementById('group');
-			var obj = document.createElement('v:polyline');
+		this.init = function() {			
+			var groupObj=document.getElementById('group');
+			var obj=document.createElement('v:polyline');
 			groupObj.appendChild(obj);
-			obj.title = this.name;
-			obj.points.value = '0,20 50,0 100,20';
-			obj.strokecolor = 'blue';
-			obj.strokeweight = '1';
-			obj.filled = 'false';
-			obj.style.position = 'absolute';
+			obj.title=this.name;
+			obj.style.position='absolute';
+			obj.points.value='0,20 50,0 100,20';
+			obj.strokecolor='blue';
+			obj.strokeweight='1';
+			obj.filled='false';			
 			obj.style.zIndex = '2';
 			obj.style.cursor = 'hand';
 			this.obj = obj;

@@ -34,21 +34,21 @@ import com.whu.web.email.RecvMailInfo;
  * 接收邮件处理类
  * 
  * */
-public class ReciveEmail {
+public class ReceiveEmail {
     
     private MimeMessage msg = null;
     private String saveAttchPath = "";
     private StringBuffer bodytext = new StringBuffer();
     private String dateformate = "yy-MM-dd HH:mm";
     
-    public ReciveEmail(MimeMessage msg){
+    public ReceiveEmail(MimeMessage msg){
         this.msg = msg;
         }
     public void setMsg(MimeMessage msg) {
         this.msg = msg;
     }
     
-    public ReciveEmail()
+    public ReceiveEmail()
     {
     	
     }
@@ -449,12 +449,12 @@ public class ReciveEmail {
 
 		ArrayList resultList = new ArrayList();
 		RecvMailInfo rmInfo = null;
-		ReciveEmail rm = null;
+		ReceiveEmail rm = null;
 		String emailID = "";
 		DBTools dbTools = new DBTools();
 		boolean checkResult = false;
 		for (int i = 0; i < count; i++) {
-			rm = new ReciveEmail((MimeMessage) msgs[i]);
+			rm = new ReceiveEmail((MimeMessage) msgs[i]);
 			//rm.recive(msgs[i], i);
 			rmInfo = rm.getEmailInfo(msgs[i], i);
 			emailID = rmInfo.getEmailID();
@@ -493,9 +493,9 @@ public class ReciveEmail {
         int count = msgs.length;
         System.out.println("Message Count:"+count);
         
-        ReciveEmail rm = null;
+        ReceiveEmail rm = null;
         for(int i=0;i<count;i++){
-            rm = new ReciveEmail((MimeMessage) msgs[i]);
+            rm = new ReceiveEmail((MimeMessage) msgs[i]);
             rm.recive(msgs[i],i);;
         }
         

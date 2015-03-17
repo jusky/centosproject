@@ -45,7 +45,7 @@ public class ChangePwdAction extends DispatchAction {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
-		ChangePwdForm changePwdForm = (ChangePwdForm) form;// TODO Auto-generated method stub
+		ChangePwdForm changePwdForm = (ChangePwdForm) form;
 		String loginName = (String)request.getSession().getAttribute("LoginName");
 		String oldPwd = changePwdForm.getOldPwd();
 		String newPwd = changePwdForm.getNewPwd();
@@ -63,13 +63,16 @@ public class ChangePwdAction extends DispatchAction {
 		{
 			tableName = "SYS_ED_USER";
 		}
-		sql = "select * from " + tableName + " where LOGINNAME='" + loginName + "' and PASSWORD='" + oldPwd + "'";
-		boolean result = db.isHave(sql);
+		// sql = "select * from " + tableName + " where LOGINNAME='" + loginName + "' and PASSWORD='" + oldPwd + "'";
+		sql = "select * from " + tableName + " where LOGINNAME=? and PASSWORD=?";
+		boolean result = db.isHave(sql, loginName, oldPwd);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if (result) {
-			sql = "update " + tableName  + " set PASSWORD='" + newPwd + "' where LOGINNAME='" + loginName + "'";
-			result = db.updateItem(sql);
+		//	sql = "update " + tableName  + " set PASSWORD='" + newPwd + "' where LOGINNAME='" + loginName + "'";
+			sql = "update " + tableName + " set PASSWORD=? where LOGINNAME=?";
+			String[] params = new String[]{newPwd, loginName};
+			result = db.updateItem(sql, params);
 			
 			if(result)
 			{

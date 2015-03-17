@@ -45,7 +45,7 @@ public class NewEventAction extends DispatchAction {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 		String sql = "select SERIALNUM from TB_REPORTINFO order by ID desc limit 1";
-		String serialNum = SystemShare.GetSerialNum(sql);
+		String serialNum = SystemShare.GetSerialNum(sql, new String[0]);
 		request.setAttribute("SerialNum", serialNum);
 		return mapping.findForward("init");
 	}

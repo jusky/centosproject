@@ -81,18 +81,24 @@ public class ApproveEventAction extends DispatchAction {
 		
 		DBTools db = new DBTools();
 		
-		String sql = "insert into TB_APPROVEINFO(REPORTID,ISLA,LAADVICE,APPROVENAME,APPROVETIME) values('" + reportID + "','" + isLA + "','" + laAdvice + "','" + approveName +"','" + approveTime + "')";
-		boolean result = db.insertItem(sql);
+	//	String sql = "insert into TB_APPROVEINFO(REPORTID,ISLA,LAADVICE,APPROVENAME,APPROVETIME) values('" + reportID + "','" + isLA + "','" + laAdvice + "','" + approveName +"','" + approveTime + "')";
+		String sql = "insert into TB_APPROVEINFO(REPORTID,ISLA,LAADVICE,APPROVENAME,APPROVETIME) values(?, ?, ?, ?, ?)";
+		String[] params = new String[] {reportID, isLA, laAdvice, approveName, approveTime};
+		boolean result = db.insertItem(sql, params);
 		
 		if(result)
 		{
-			sql = "update TB_REPORTINFO set STATUS='" + status + "',LASTTIME='" + approveTime + "' where REPORTID='"+ reportID + "'";
-			result = db.insertItem(sql);
+		//	sql = "update TB_REPORTINFO set STATUS='" + status + "',LASTTIME='" + approveTime + "' where REPORTID='"+ reportID + "'";
+			sql = "update TB_REPORTINFO set STATUS=?, LASTTIME=? where REPORTID=?";
+			params = new String[]{status, approveTime, reportID};
+			result = db.insertItem(sql, params);
 			
 			//更新消息提醒状态，使得“事件审批”栏目不会再重复出现该事件
 			String loginName = (String)request.getSession().getAttribute("UserName");
-			sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME='" + loginName + "' and REPORTID='" + reportID + "'";
-			db.insertItem(sql);
+		//	sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME='" + loginName + "' and REPORTID='" + reportID + "'";
+			sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME=? and REPORTID=?";
+			params = new String[]{loginName, reportID};
+			db.insertItem(sql, params);
 			
 			//插入处理过程到数据库中
 			String describe = approveTime + "领导：" + approveName + "审批该事件,审核意见详情请查看《审核信息》一栏";

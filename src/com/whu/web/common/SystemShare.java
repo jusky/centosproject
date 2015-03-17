@@ -450,10 +450,10 @@ public class SystemShare {
 		 * 得到下一个编号
 		 * @return
 		 */
-		public static String GetSerialNum(String sql)
+		public static String GetSerialNum(String sql, String[] params)
 		{
 			DBTools dbTools = new DBTools();
-			String maxSerialNum = dbTools.querySerialNum(sql);
+			String maxSerialNum = dbTools.querySerialNum(sql, params);
 			String serialNum = "001";
 			Calendar cal = Calendar.getInstance();
 			int year = cal.get(Calendar.YEAR);

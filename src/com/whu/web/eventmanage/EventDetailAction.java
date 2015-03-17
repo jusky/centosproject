@@ -152,9 +152,9 @@ public class EventDetailAction extends DispatchAction {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 		String reportID = (String)request.getSession().getAttribute("reportID");
-		String sql = "select * from TB_HANDLEDECIDE where REPORTID='" + reportID + "'";
+		String sql = "select * from TB_HANDLEDECIDE where REPORTID=?";
 		DBTools dbTools = new DBTools();
-		ArrayList result = dbTools.queryHandleDecide(sql, "2");
+		ArrayList result = dbTools.queryHandleDecide(sql, "2", new String[]{reportID});
 		if(result.size() > 0)
 		{
 			eventDetailForm.setRecordNotFind("false");
@@ -191,19 +191,19 @@ public class EventDetailAction extends DispatchAction {
 		if(type.equals("approveInfo"))
 		{
 			ApproveInfo ai = new ApproveInfo();
-			sql = "select * from TB_CHECKINFO where REPORTID='" + reportID + "'";
-			CheckBean cb = dbTools.queryCheckInfo(sql);
+			sql = "select * from TB_CHECKINFO where REPORTID=?";
+			CheckBean cb = dbTools.queryCheckInfo(sql, new String[]{reportID});
 			if(cb != null)
 			{
 				ai.setNibanName(cb.getCheckName());
 				ai.setNibanTime(cb.getCheckTime());
 				ai.setNibanAdvice(cb.getPreAdvice());
 			}
-			sql = "select * from TB_APPROVEINFO where REPORTID='" + reportID + "'";
+			sql = "select * from TB_APPROVEINFO where REPORTID=?";
 			// TODO
 			// may be multi APPROVEINFO to one REPORTID, to be fixed...
 			
-			ApproveBean ab = dbTools.queryApproveInfo(sql);
+			ApproveBean ab = dbTools.queryApproveInfo(sql, new String[]{reportID});
 			if(ab != null)
 			{
 				ai.setHeadAdvice(ab.getLaAdvice());
@@ -214,33 +214,33 @@ public class EventDetailAction extends DispatchAction {
 		}
 		else if(type.equals("deptAdvice"))
 		{
-			sql = "select * from TB_DEPTADVICE where REPORTID='" + reportID + "'";
-			result = dbTools.queryDeptAdvice(sql, "2");
+			sql = "select * from TB_DEPTADVICE where REPORTID=?";
+			result = dbTools.queryDeptAdvice(sql, "2", new String[]{reportID});
 		}
 		else if(type.equals("expertAdvice"))
 		{
-			sql = "select a.*,b.JDCONCLUSION from TB_EXPERTADVICE a, TB_JDYJSINFO b where a.REPORTID=b.REPORTID and a.REPORTID='" + reportID + "'";
-			result = dbTools.queryExpertAdvice(sql, "2");
+			sql = "select a.*,b.JDCONCLUSION from TB_EXPERTADVICE a, TB_JDYJSINFO b where a.REPORTID=b.REPORTID and a.REPORTID=?";
+			result = dbTools.queryExpertAdvice(sql, "2", new String[]{reportID});
 		}
 		else if(type.equals("litigantState"))
 		{
-			sql = "select * from TB_LITIGANTSTATE where REPORTID='" + reportID + "'";
-			result = dbTools.queryLitigantState(sql, "2");
+			sql = "select * from TB_LITIGANTSTATE where REPORTID=?";
+			result = dbTools.queryLitigantState(sql, "2", new String[]{reportID});
 		}
 		else if(type.equals("facultyAdvice"))
 		{
-			sql = "select a.*,b.ZZNAME as FACULTYNAME from TB_FACULTYADVICE a, SYS_ZZINFO b where a.REPORTID='" + reportID + "' and a.FACULTYID=b.ZZID";
-			result = dbTools.queryFacultyAdvice(sql, "2");
+			sql = "select a.*,b.ZZNAME as FACULTYNAME from TB_FACULTYADVICE a, SYS_ZZINFO b where a.REPORTID=? and a.FACULTYID=b.ZZID";
+			result = dbTools.queryFacultyAdvice(sql, "2", new String[]{reportID});
 		}
 		else if(type.equals("handleDecide"))
 		{
-			sql = "select * from TB_HANDLEDECIDE where REPORTID='" + reportID + "'";
-			result = dbTools.queryHandleDecide(sql, "2");
+			sql = "select * from TB_HANDLEDECIDE where REPORTID=?";
+			result = dbTools.queryHandleDecide(sql, "2", new String[]{reportID});
 		}
 		else if(type.equals("handleFlow"))
 		{
-			sql = "select a.*,b.CAPTION from TB_HANDLEPROCESS a,SYS_DATA_DIC b  where a.REPORTID='" + reportID + "' and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt +"' order by a.ID asc";
-			result = dbTools.queryHandleFlow(sql);
+			sql = "select a.*,b.CAPTION from TB_HANDLEPROCESS a,SYS_DATA_DIC b  where a.REPORTID=? and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt +"' order by a.ID asc";
+			result = dbTools.queryHandleFlow(sql, new String[]{reportID});
 		}
 		
 		request.setAttribute("size", result.size());
@@ -279,8 +279,8 @@ public class EventDetailAction extends DispatchAction {
 		Hashtable ht =  InitFlowGraph();
 		
 		DBTools dbTools = new DBTools();
-		String sql = "select a.*,b.CAPTION from TB_HANDLEPROCESS a,SYS_DATA_DIC b  where a.REPORTID='" + reportID + "' and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt +"' order by a.ID asc";
-		ArrayList result = dbTools.queryHandleFlow(sql);
+		String sql = "select a.*,b.CAPTION from TB_HANDLEPROCESS a,SYS_DATA_DIC b  where a.REPORTID=? and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt +"' order by a.ID asc";
+		ArrayList result = dbTools.queryHandleFlow(sql, new String[]{reportID});
 		HandleFlow hf;
 		String flowType = "";
 		if(result.size() > 0)
@@ -471,12 +471,12 @@ public class EventDetailAction extends DispatchAction {
 		String id = (String)request.getSession().getAttribute("reportID");
 		String templatePath = "";
 		
-		String sql = "select * from TB_REPORTINFO where REPORTID='" + id + "'";
+		String sql = "select * from TB_REPORTINFO where REPORTID=?'";
 		DBTools db = new DBTools();
-		EventBean eb = db.queryEvent(sql);
+		EventBean eb = db.queryEvent(sql, new String[]{id});
 		
-		sql = "select * from TB_BEREPORTPE where REPORTID='" + id + "'";
-		ArrayList beReportList = db.queryBeReport(sql);
+		sql = "select * from TB_BEREPORTPE where REPORTID=?";
+		ArrayList beReportList = db.queryBeReport(sql, new String[]{id});
 		if(beReportList != null && beReportList.size() > 0)
 		{
 			eb.setBeReportList(beReportList);

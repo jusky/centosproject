@@ -46,9 +46,9 @@ public class TimerServlet extends HttpServlet {
 		try {
 			String userName = (String)request.getSession().getAttribute("UserName");
 			//String loginName =  (String)request.getSession().getAttribute("LoginName");
-			String sql = "select * from TB_MSGNOTIFY where RECVNAME='" + userName + "' and ISNOTIFY='0'";
+			String sql = "select * from TB_MSGNOTIFY where RECVNAME=? and ISNOTIFY='0'";
 			DBTools dbTool = new DBTools();
-			ArrayList result = dbTool.queryMsgNotify(sql, "0");
+			ArrayList result = dbTool.queryMsgNotify(sql, "0", new String[]{userName});
 			if(result.size() > 0)
 			{
 				//将消息提醒状态修改为已提醒

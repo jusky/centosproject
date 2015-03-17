@@ -66,8 +66,11 @@ public class WsjbManageAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select a.ID,a.REPORTID,a.REPORTNAME,a.BEREPORTNAME,a.BEDEPT,a.JBSY2,a.TIME from TB_REPORTINFO a where a.ISRECV = '0' order by ID desc";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryWsjbSql", sql);
+		request.getSession().setAttribute("queryWsjbParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		WsjbDBTools db = new WsjbDBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryWsjbList(rs, rowsPerPage);
@@ -104,6 +107,7 @@ public class WsjbManageAction extends DispatchAction {
 
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -116,6 +120,7 @@ public class WsjbManageAction extends DispatchAction {
 			String jbBeginTime = wsjbManageForm.getJbBeginTime();
 			String jbEndTime = wsjbManageForm.getJbEndTime();
 			String temp = "";
+			ArrayList<String> paramList = new ArrayList<String>();
 			AESCrypto aes = new AESCrypto();
 			String key = "TB_REPORTINFO";
 			//String test=SystemShare.getHexString(aes.createEncryptor("匿名举报", key));
@@ -139,23 +144,29 @@ public class WsjbManageAction extends DispatchAction {
 			}
 			if(!jbBeginTime.equals(""))
 			{
-				temp += " and a.TIME >= '" + jbBeginTime + "'";
+				temp += " and a.TIME >= ?";
+				paramList.add(jbBeginTime);
 			}
 			if(!jbEndTime.equals(""))
 			{
-				temp += " and a.TIME <= '" + jbEndTime + "'";
+				temp += " and a.TIME <= ?";
+				paramList.add(jbEndTime);
 			}
+			params = paramList.toArray(new String[0]);
 			sql = "select a.ID,a.REPORTID,a.REPORTNAME,a.BEREPORTNAME,a.BEDEPT,a.JBSY2,a.TIME from TB_REPORTINFO a where a.ISRECV = '0' " + temp + "  order by ID desc";
 			request.getSession().setAttribute("queryWsjbSql", sql);
+			request.getSession().setAttribute("queryWsjbParams", params);
 		}
 		
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryWsjbSql");
+			params = (String[])request.getSession().getAttribute("queryWsjbParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		WsjbDBTools db = new WsjbDBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -290,8 +301,8 @@ public class WsjbManageAction extends DispatchAction {
 		//受理的案件自动分配编号，不受理的案件不分配编号
 		if(status.equals(SystemConstant.SS_RECVEVENT))
 		{
-			sql = "select SERIALNUM from TB_REPORTINFO where STATUS<>'" + SystemConstant.SS_UNRECVEVENT + "'  order by ID desc limit 1";
-			eb.setSerialNum(SystemShare.GetSerialNum(sql));
+			sql = "select SERIALNUM from TB_REPORTINFO where STATUS<>? order by ID desc limit 1";
+			eb.setSerialNum(SystemShare.GetSerialNum(sql, new String[]{SystemConstant.SS_UNRECVEVENT}));
 		}
 		else
 		{
@@ -348,11 +359,12 @@ public class WsjbManageAction extends DispatchAction {
 			db.InsertHandleProcess(wsjbInfo.getReportID(), createName, SystemConstant.HP_RECVEVENT, SystemConstant.SS_RECVEVENT, SystemConstant.LCT_SLJB, describe);
 			
 			//更新前台数据库中事件的接收状态
-			sql = "update TB_REPORTINFO set ISRECV='1' where ID=" + id;
-			result = dbTool.UpdateItem(sql);
+			sql = "update TB_REPORTINFO set ISRECV='1' where ID=?";
+			result = dbTool.UpdateItem(sql, new String[]{id});
 			//更新反馈内容
-			String sqlStr = "insert into TB_FKINFO(SEARCHID, FKCONTENT,FKTIME) values('" + wsjbInfo.getSearchID() + "', '" + SystemConstant.FK_RECVEVENT + "','" + createTime + "')" ;
-			result = dbTool.UpdateItem(sqlStr);
+			String sqlStr = "insert into TB_FKINFO(SEARCHID, FKCONTENT,FKTIME) values(?, ?, ?)" ;
+			String[] params = new String[]{wsjbInfo.getSearchID(), SystemConstant.FK_RECVEVENT, createTime};
+			result = dbTool.UpdateItem(sqlStr, params);
 			dbTool.closeConnection();
 
 			LogBean lb = new LogBean();
@@ -438,6 +450,7 @@ public class WsjbManageAction extends DispatchAction {
 			HttpServletRequest request, HttpServletResponse response) {
 		WsjbDBTools db = new WsjbDBTools();
 		String sql = (String)request.getSession().getAttribute("queryWsjbSql");
+		String[] params = (String[])request.getSession().getAttribute("queryWsjbParams");
 		try
 		{
 			String fname = "event";
@@ -445,7 +458,7 @@ public class WsjbManageAction extends DispatchAction {
 			response.reset();
 			response.setHeader("Content-disposition", "attachment;filename=" + fname + ".xls");
 			response.setContentType("application/msexcel");
-			ResultSet rs = db.queryRsList(sql);
+			ResultSet rs = db.queryRsList(sql, params);
 			rs.last();
 			int length = rs.getRow();
 			rs.beforeFirst();

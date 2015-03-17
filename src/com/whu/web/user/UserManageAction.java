@@ -47,8 +47,11 @@ public class UserManageAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select a.*,b.ZZNAME from SYS_USER a,SYS_ZZINFO b where a.ZZID=b.ZZID order by a.ID asc";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryUserSql", sql);
+		request.getSession().setAttribute("queryUserParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryUserList(rs, rowsPerPage);
@@ -79,6 +82,7 @@ public class UserManageAction extends DispatchAction {
 		}
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -87,7 +91,9 @@ public class UserManageAction extends DispatchAction {
 		if(gjSearchFlag!=null && gjSearchFlag.equals("true"))
 		{
 			sql = (String)request.getSession().getAttribute("UserGjSearchSql");
+			params = (String[])request.getSession().getAttribute("USerGjSearchParams");
 			request.getSession().setAttribute("queryUserSql", sql);
+			request.getSession().setAttribute("queryUserParams", params);
 		}else
 		{
 			if (operation.equalsIgnoreCase("search")) {
@@ -97,19 +103,24 @@ public class UserManageAction extends DispatchAction {
 				String temp = "";
 				if(!userName.equals(""))
 				{
-					temp += " and USERNAME like '%" + userName + "%'";
+					temp += " and USERNAME like ?";
+					params = new String[]{"%" + userName + "%"};
 				}
 				sql = "select a.*,b.ZZNAME from SYS_USER a,SYS_ZZINFO b where a.ZZID=b.ZZID" + temp + " order by a.ID asc";
+				
 				request.getSession().setAttribute("queryUserSql", sql);
+				request.getSession().setAttribute("queryUserParams", params);
 			}
 		}
 		if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryUserSql");
+			params = (String[])request.getSession().getAttribute("queryUserParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -175,8 +186,8 @@ public class UserManageAction extends DispatchAction {
 		
 		String id = request.getParameter("uid");
 		DBTools dbTools = new DBTools();
-		String sql = "select a.*,b.ZZNAME from SYS_USER a,SYS_ZZINFO b where a.ZZID=b.ZZID and a.ID=" + id;
-		UserBean userBean = dbTools.queryUserBean(sql);
+		String sql = "select a.*,b.ZZNAME from SYS_USER a,SYS_ZZINFO b where a.ZZID=b.ZZID and a.ID=?";
+		UserBean userBean = dbTools.queryUserBean(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(userBean!=null)
 		{
@@ -184,8 +195,15 @@ public class UserManageAction extends DispatchAction {
 			String roleNames = "";
 			if(roleIDs != null && !roleIDs.equals(""))
 			{
-				sql = "select ROLENAME from SYS_ROLE where ID in (" + roleIDs + ")";
-				roleNames = dbTools.queryRoleNames(sql);
+				StringBuilder sqlBuilder = new StringBuilder("select ROLENAME from SYS_ROLE where SYS_ROLE where ID in (");
+				String[] roleIdArray = roleIDs.split(",");
+				int len =  roleIdArray.length;
+				for(int i = 0; i < len; i++) {
+					sqlBuilder.append(" ?,");
+					if(i == len - 1) sqlBuilder.replace(sqlBuilder.length()-1, sqlBuilder.length(), ")");
+				}
+				sql = sqlBuilder.toString();
+				roleNames = dbTools.queryRoleNames(sql, roleIdArray);
 				if(!roleNames.equals(""))
 				{
 					roleNames = roleNames.substring(0, roleNames.length() - 1);
@@ -197,8 +215,15 @@ public class UserManageAction extends DispatchAction {
 			String posNames = "";
 			if(posIDs != null && !posIDs.equals(""))
 			{
-				sql = "select POSNAME from SYS_POSITION where ID in (" + posIDs + ")";
-				posNames = dbTools.queryPosNames(sql);
+				StringBuilder sqlBuilder = new StringBuilder("select POSNAME from SYS_POSITION where ID in (");
+				String[] posIdArray = posIDs.split(",");
+				int len = posIdArray.length;
+				for (int i = 0; i < len; i++) {
+					sqlBuilder.append(" ?,");
+					if(i == len-1) sqlBuilder.replace(sqlBuilder.length()-1, sqlBuilder.length(), ")");
+				}
+				sql = sqlBuilder.toString();
+				posNames = dbTools.queryPosNames(sql, posIdArray);
 				if(!posNames.equals(""))
 				{
 					posNames = posNames.substring(0, posNames.length() - 1);
@@ -232,34 +257,42 @@ public class UserManageAction extends DispatchAction {
 		String orderWay = userManageForm.getOrderWay();
 
 		String sql = "select a.*,b.ZZNAME from SYS_USER a,SYS_ZZINFO b where a.ZZID=b.ZZID";
+		ArrayList<String> paramList = new ArrayList<String>();
 		String temp = "";
-		if(!loginName.equals(""))
+		if(loginName != null && !loginName.equals(""))
 		{
-			temp += " and a.LOGINNAME like '%" + loginName + "'";
+			temp += " and a.LOGINNAME like ?";
+			paramList.add("%" + loginName + "%");
 		}
-		if(!userName.equals(""))
+		if(userName !=null && !userName.equals(""))
 		{
-			temp += " and a.USERNAME like '%" + userName + "'";
+			temp += " and a.USERNAME like ?";
+			paramList.add("%" + userName + "%");
 		}
-		if(!zzID.equals(""))
+		if(zzID != null && !zzID.equals(""))
 		{
-			temp += " and a.ZZID='" + zzID + "'";
+			temp += " and a.ZZID=?";
+			paramList.add(zzID);
 		}
-		if(!posID.equals(""))
+		if(posID != null && !posID.equals(""))
 		{
-			temp += " and ','+a.POSIDS+',' like '%," + posID + ",%'";
+			temp += " and a.POSIDS like ?";
+			paramList.add("%" + posID + "%");
 		}
-		if(!roleID.equals(""))
+		if(roleID != null && !roleID.equals(""))
 		{
-			temp += " and ','+a.ROLEIDS+',' like '%," + roleID + ",%'";
+			temp += " and a.ROLEIDS like ?";
+			paramList.add("%" + roleID + "%");
 		}
-		if(!orderWay.equals(""))
+		if(orderWay != null && !orderWay.equals("") && !orderWay.matches(".*[=<>].*"))
 		{
 			temp += " order by " + orderWay + " asc";
 		}
 		sql += temp;
+		String[] params = paramList.toArray(new String[0]);
 		request.getSession().setAttribute("UserGjSearch", "true");
 		request.getSession().setAttribute("UserGjSearchSql", sql);
+		request.getSession().setAttribute("UserGjSearchParams", params);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		json.put("statusCode", 200);
@@ -287,8 +320,8 @@ public class UserManageAction extends DispatchAction {
 		JSONObject json = new JSONObject();
 		DBTools dbTools = new DBTools();
 		String id = request.getParameter("uid");
-		String sql = "update SYS_USER set PASSWORD='123456' where ID=" + id;
-		boolean result = dbTools.insertItem(sql);
+		String sql = "update SYS_USER set PASSWORD='123456' where ID=?";
+		boolean result = dbTools.insertItem(sql, new String[]{id});
 		if(result)
 		{
 			json.put("statusCode", 200);

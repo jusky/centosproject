@@ -49,8 +49,11 @@ public class PosManageAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select * from SYS_POSITION";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryPosSql", sql);
+		request.getSession().setAttribute("queryPosParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryPosList(rs, rowsPerPage);
@@ -78,26 +81,31 @@ public class PosManageAction extends DispatchAction {
 		
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
 		if (operation.equalsIgnoreCase("search")) {
 			String posName = posManageForm.getPosName();
 			String temp = "";
-			if(!posName.equals(""))
+			if(posName != null && !posName.equals(""))
 			{
-				temp += " and POSNAME like '%" + posName + "%'";
+				temp += " and POSNAME like ?";
+				params = new String[]{"%" + posName + "%"};
 			}
 			sql = "select * from SYS_POSITION where 1=1" + temp;
 			request.getSession().setAttribute("queryPosSql", sql);
+			request.getSession().setAttribute("queryPosParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryPosSql");
+			params = (String[])request.getSession().getAttribute("queryPosParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -163,8 +171,8 @@ public class PosManageAction extends DispatchAction {
 		
 		String id = request.getParameter("uid");
 		DBTools dbTools = new DBTools();
-		String sql = "select * from SYS_POSITION where ID=" + id;
-		PosBean posBean = dbTools.queryPosBean(sql);
+		String sql = "select * from SYS_POSITION where ID=?";
+		PosBean posBean = dbTools.queryPosBean(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(posBean!=null)
 		{

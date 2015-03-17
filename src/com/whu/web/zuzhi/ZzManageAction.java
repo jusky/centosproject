@@ -66,7 +66,7 @@ public class ZzManageAction extends DispatchAction {
 		}
 		DBTools dbTools = new DBTools();
 		
-        List<String> lstTree = dbTools.queryAllZZ(sql,type);
+        List<String> lstTree = dbTools.queryAllZZ(sql, new String[0], type);
         //利用Json插件将Array转换成Json格式
         response.getWriter().print(JSONArray.fromObject(lstTree).toString()); 
 	}
@@ -94,8 +94,11 @@ public class ZzManageAction extends DispatchAction {
 		pageBean.setQueryPageNo(queryPageNo);
 		
 		String sql = "select a.*,b.ZZNAME as PZZNAME from SYS_ZZINFO a, SYS_ZZINFO b where a.PZZID=b.ZZID order by ZZID asc";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryZZSql", sql);
+		request.getSession().setAttribute("queryZZParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -125,6 +128,7 @@ public class ZzManageAction extends DispatchAction {
 
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -141,31 +145,36 @@ public class ZzManageAction extends DispatchAction {
 					//int firstChar = Integer.valueOf( String.valueOf(id.charAt(0)));
 					//String nextStr = String.valueOf(++firstChar) + id.substring(1, id.length() - 1) ;
 					//temp += " and a.ZZID>='" + id + "' and a.ZZID<='" + nextStr + "'";
-					temp += " and a.PZZID='" + id + "'";
+					temp += " and a.PZZID=?";
 				}
 				else
 				{
-					temp += " and a.ZZID='" + id + "'";
+					temp += " and a.ZZID=?";
 				}
+				params = new String[]{id};
 			}
 			else
 			{
 				String zzName = zzManageForm.getZzName();
 				if(!zzName.equals(""))
 				{
-					temp += " and a.ZZNAME like '%" + zzName + "%'";
+					temp += " and a.ZZNAME like ?";
+					params  = new String[]{"%" + zzName + "%"};
 				}
 			}
 			sql = "select a.*,b.ZZNAME as PZZNAME from SYS_ZZINFO a, SYS_ZZINFO b where a.PZZID=b.ZZID " + temp + " order by ZZID asc";
 			request.getSession().setAttribute("queryZZSql", sql);
+			request.getSession().setAttribute("queryZZParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryZZSql");
+			params = (String[])request.getSession().getAttribute("qeuryZZParams");
 			if (request.getParameter("page.currentPage") != null && request.getParameter("page.currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("page.currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -255,8 +264,8 @@ public class ZzManageAction extends DispatchAction {
 		
 		String id = request.getParameter("id");
 		DBTools dbTools = new DBTools();
-		String sql = "select a.*,b.ZZNAME as PZZNAME from SYS_ZZINFO a, SYS_ZZINFO b where a.PZZID=b.ZZID and a.ID=" + id;
-		ZZBean zzBean = dbTools.queryZZBean(sql);
+		String sql = "select a.*,b.ZZNAME as PZZNAME from SYS_ZZINFO a, SYS_ZZINFO b where a.PZZID=b.ZZID and a.ID=?";
+		ZZBean zzBean = dbTools.queryZZBean(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(zzBean!=null)
 		{

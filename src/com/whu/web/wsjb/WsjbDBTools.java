@@ -19,11 +19,15 @@ public class WsjbDBTools {
 	private PreparedStatement pst = null;
 	private Statement stmt = null;
 
-	public int getTotalRows(String sql) {
+	public int getTotalRows(String sql, String[] params) {
 		int count = 0;
 		try {
-			this.stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			while (rs.next()) {
 				count++;
 			}
@@ -37,12 +41,15 @@ public class WsjbDBTools {
 	public ResultSet queryRs(int queryPageNo, CheckPage pageBean,
 			int rowsPerPage) {
 		String sql = "";
+		String[] params = new String[0];
 
 		queryPageNo = pageBean.getQueryPageNo(); 
 		rowsPerPage = pageBean.getRowsPerPage();
 		if (pageBean.getQuerySql() != null)
 			sql = pageBean.getQuerySql(); 
-		int totalRows = getTotalRows(sql);
+		if (pageBean.getParams() != null) 
+			params = pageBean.getParams();
+		int totalRows = getTotalRows(sql, params);
 		pageBean.setTotalRows(totalRows);
 
 		int totalPage = totalRows % rowsPerPage == 0 ? totalRows / rowsPerPage
@@ -54,11 +61,15 @@ public class WsjbDBTools {
 		pageBean.setLastPageRows(lastPageRows);
 
 		try {
-			this.stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+			pst = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE,
 					ResultSet.CONCUR_READ_ONLY);
-			rs = stmt.executeQuery(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			int skipRows = (queryPageNo - 1) * rowsPerPage;
-			for (int i = 0; i < skipRows; i++)
+			for (i = 0; i < skipRows; i++)
 				rs.next();
 
 		} catch (Exception e) {
@@ -103,11 +114,15 @@ public class WsjbDBTools {
 	 * @param sql
 	 * @return
 	 */
-	public ArrayList queryWsjbList(String sql) {
+	public ArrayList queryWsjbList(String sql, String[] params) {
 		ArrayList list = new ArrayList();
 		try {
-			this.stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 			AESCrypto aes = new AESCrypto();
 			String key = "TB_REPORTINFO";
 			while (rs != null && rs.next()) {
@@ -133,8 +148,12 @@ public class WsjbDBTools {
 	public void closeConnection()
 	{
 		try {
-			stmt.close();
-			conn.close();
+			if (stmt != null)
+				stmt.close();
+			if (pst != null)
+				pst.close();
+			if (conn != null)
+				conn.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -191,9 +210,11 @@ public class WsjbDBTools {
 	 */
 	public boolean deleteItem(String id, String tableName) {
 		try {
-			String sql = "update " + tableName + " set ISRECV='2' where ID=" + id;
-			stmt = conn.createStatement();
-			stmt.executeUpdate(sql);
+			String sql = "update " + tableName + " set ISRECV='2' where ID=?";
+			
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, id);
+			pst.executeUpdate();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -209,9 +230,10 @@ public class WsjbDBTools {
 	public WsjbInfo QueryWsjbInfo(String id) {
 		WsjbInfo wsjbInfo = new WsjbInfo();
 		try {
-			String sql = "select a.* from TB_REPORTINFO a where  a.ID=" + id;
-			this.stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			String sql = "select a.* from TB_REPORTINFO a where  a.ID=?";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, id);
+			rs = pst.executeQuery();
 			AESCrypto aes = new AESCrypto();
 			String key = "TB_REPORTINFO";
 			while (rs.next()) {
@@ -249,9 +271,10 @@ public class WsjbDBTools {
 	 */
 	public boolean recvReport(String id) {
 		try {
-			String sql = "update TB_REPORTINFO set ISRECV='1' where ID=" + id;
-			stmt = conn.createStatement();
-			stmt.executeUpdate(sql);
+			String sql = "update TB_REPORTINFO set ISRECV='1' where ID=?";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, id);
+			pst.executeUpdate();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -260,11 +283,15 @@ public class WsjbDBTools {
 		return true;
 	}
 	
-	public boolean UpdateItem(String sql)
+	public boolean UpdateItem(String sql, String[] params)
 	{
 		try {
-			stmt = conn.createStatement();
-			stmt.executeUpdate(sql);
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			pst.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -280,9 +307,13 @@ public class WsjbDBTools {
 	public boolean InsertFKInfo(String time, String info, String searchID)
 	{
 		String sql = "insert into TB_FKINFO(SEARCHID, FKCONTENT,FKTIME) values('" + searchID + "', '" + info + "','" + time + "')" ;
+		
 		try {
-			stmt = conn.createStatement();
-			stmt.executeUpdate(sql);
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, searchID);
+			pst.setString(2, info);
+			pst.setString(3, time);
+			pst.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -293,10 +324,14 @@ public class WsjbDBTools {
 		return true;
 	}
 	
-	public ResultSet queryRsList(String sql) {
+	public ResultSet queryRsList(String sql, String[] params) {
 		try {
-			this.stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-			rs = stmt.executeQuery(sql);
+			pst = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}

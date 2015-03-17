@@ -48,14 +48,17 @@ public class ConfigInstituteAction extends DispatchAction {
 		
 		DBTools dbTool = new DBTools();
 		String sql = "";
+		String[] params = new String[0];
 		if(operation.equals("new")) {
-			sql = "insert into SYS_INST_INFO(CODE,NAME,CATEGORY,PHONE,ADDRESS) values('" + code + "','" + name + "','" + category + "','" + phone + "','" + address + "')";
+			sql = "insert into SYS_INST_INFO(CODE,NAME,CATEGORY,PHONE,ADDRESS) values(?, ?, ?, ?, ?)";
+			params = new String[]{code, name, category, phone, address};
 		} 
 		else if(operation.equals("edit")) {
 			String id = configInstituteForm.getId();
-			sql = "update SYS_INST_INFO set NAME='" + name + "', CODE='" + code + "', CATEGORY='" + category + "', PHONE='" + phone + "', ADDRESS='" + address + "' where ID='" + id + "'";
+			sql = "update SYS_INST_INFO set NAME=?, CODE=?, CATEGORY=?, PHONE=?, ADDRESS=? where ID=?";
+			params = new String[]{name, code, category, phone, address, id};
 		}
-		boolean result = dbTool.insertItem(sql);
+		boolean result = dbTool.insertItem(sql, params);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
@@ -93,8 +96,8 @@ public class ConfigInstituteAction extends DispatchAction {
 		ConfigInstituteForm configInstituteForm = (ConfigInstituteForm)form;
 		String id = request.getParameter("uid");
 		DBTools dbTools = new DBTools();
-		String sql = "select * from SYS_INST_INFO where ID='" + id + "'";
-		InstituteInfo InstituteInfo = dbTools.queryInstituteInfo(sql);
+		String sql = "select * from SYS_INST_INFO where ID=?";
+		InstituteInfo InstituteInfo = dbTools.queryInstituteInfo(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(InstituteInfo != null){
 			result.add(InstituteInfo);
@@ -126,9 +129,8 @@ public class ConfigInstituteAction extends DispatchAction {
 		String code = request.getParameter("code");
 		DBTools dbTools = new DBTools();
 		String sql = "select substr(TIME, 1, 4) as YEAR, count(*) as COUNT from TB_MISCOUNT where INSTID= '" + code + "' group by INSTID, YEAR order by YEAR desc limit 6";
-		String sql2 = "select NAME from SYS_INST_INFO where CODE='" + code + "'";
-		//String sql = "select a.*, ifnull(b.CREDIT, 1) as CREDIT from (select * from SYS_INST_INFO where CODE='" + code + "') a left join VIEW_INSTITUTE_CREDIT b on a.NAME=b.INSTITUTE";
-		String creditTrend = dbTools.queryInstTrend(sql, sql2);
+		String name = dbTools.querySingleDate("SYS_INST_INFO", "NAME", "CODE", code);
+		String creditTrend = dbTools.queryInstTrend(sql, new String[]{code}, name);
 		request.setAttribute("creditTrend", creditTrend);
 		
 		return mapping.findForward("detail");

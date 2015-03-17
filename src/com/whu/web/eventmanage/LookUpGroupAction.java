@@ -39,6 +39,7 @@ public class LookUpGroupAction extends DispatchAction {
 		LookUpGroupForm lookUpGroupForm = (LookUpGroupForm) form;
 		String type = request.getParameter("type");
 		String sql = "";
+		String[] params = new String[0];
 		if(type.equals("jbsy"))//举报事由
 		{
 			sql = "select * from SYS_JBREASON";
@@ -66,7 +67,8 @@ public class LookUpGroupAction extends DispatchAction {
 		else if(type.equals("contact"))//邮箱通讯录
 		{
 			String loginName = (String)request.getSession().getAttribute("LoginName");
-			sql = "select ID,CONNAME,CONADDR from TB_CONTACT where LOGINNAME='" + loginName + "' or LOGINNAME='expert' or LOGINNAME='committee'";
+			sql = "select ID,CONNAME,CONADDR from TB_CONTACT where LOGINNAME=? or LOGINNAME='expert' or LOGINNAME='committee'";
+			params = new String[]{loginName};
 		}
 		else if(type.equals("expert"))//鉴定专家
 		{
@@ -74,7 +76,8 @@ public class LookUpGroupAction extends DispatchAction {
 		}
 		else if(type.equals("cljdlook"))//处理决定
 		{
-			sql = "select * from SYS_DATA_DIC where CODENAME='" + SystemConstant.cljd + "' order by CODE asc";
+			sql = "select * from SYS_DATA_DIC where CODENAME=? order by CODE asc";
+			params = new String[]{SystemConstant.cljd};
 		}
 		else if(type.equals("wylook"))//委员信息
 		{
@@ -94,7 +97,9 @@ public class LookUpGroupAction extends DispatchAction {
 		pageBean.setQueryPageNo(queryPageNo);
 		
 		request.getSession().setAttribute("query" + type + "Sql", sql);
+		request.getSession().setAttribute("query" + type + "Params", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = new ArrayList();
@@ -161,6 +166,7 @@ public class LookUpGroupAction extends DispatchAction {
 		String type = request.getParameter("type");
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		String temp = "";
 		int queryPageNo = 1;
 		int rowsPerPage = 10;
@@ -172,7 +178,8 @@ public class LookUpGroupAction extends DispatchAction {
 				String jbObject = lookUpGroupForm.getJbObject();
 				if(!jbObject.equals(""))
 				{
-					temp += " and PID='" + jbObject + "'";
+					temp += " and PID=?";
+					params = new String[]{jbObject};
 				}
 				sql = "select * from SYS_JBREASON where 1=1 " + temp;
 			}
@@ -181,7 +188,8 @@ public class LookUpGroupAction extends DispatchAction {
 				String userName = lookUpGroupForm.getUserName();
 				if(!userName.equals(""))
 				{
-					temp += " and a.USERNAME like '%" + userName + "%'";
+					temp += " and a.USERNAME like ?";
+					params = new String[]{"%" + userName + "%"};
 				}
 				sql = "select a.*,b.ZZNAME from SYS_USER a,SYS_ZZINFO b where a.ZZID=b.ZZID and a.ISHEAD='1' " + temp;
 			}
@@ -190,7 +198,8 @@ public class LookUpGroupAction extends DispatchAction {
 				String meetName = lookUpGroupForm.getMeetName();
 				if(!meetName.equals(""))
 				{
-					temp += " and MEETNAME like '%" + meetName + "%' ";
+					temp += " and MEETNAME like ?";
+					params = new String[]{"%" + meetName + "%"};
 				}
 				sql = "select * from TB_CONFERENCE where 1=1 " + temp;
 			}
@@ -199,7 +208,8 @@ public class LookUpGroupAction extends DispatchAction {
 				String zzName = lookUpGroupForm.getZzName();
 				if(!zzName.equals(""))
 				{
-					temp += " and a.ZZNAME like '%" + zzName + "%'";
+					temp += " and a.ZZNAME like ?";
+					params = new String[]{"%" + zzName + "%"};
 				}
 				sql = "select a.*,b.ZZNAME as PZZNAME from SYS_ZZINFO a, SYS_ZZINFO b where a.PZZID=b.ZZID" + temp;
 			}
@@ -208,7 +218,8 @@ public class LookUpGroupAction extends DispatchAction {
 				String roleName = lookUpGroupForm.getRoleName();
 				if(!roleName.equals(""))
 				{
-					temp += " and ROLENAME like '%" + roleName + "%'";
+					temp += " and ROLENAME like ?";
+					params = new String[]{"%" + roleName + "%"};
 				}
 				sql = "select * from SYS_ROLE where 1=1" + temp;
 			}
@@ -218,39 +229,47 @@ public class LookUpGroupAction extends DispatchAction {
 				if(!posName.equals(""))
 				{
 					temp += " and POSNAME like '%" + posName + "%'";
+					params = new String[]{"%" + posName + "%"};
 				}
 				sql = "select * from SYS_POSITION where 1=1" + temp;
 			}
 			else if(type.equals("contact"))
 			{
 				String contactName = lookUpGroupForm.getContactName();
+				String loginName = (String)request.getSession().getAttribute("LoginName");
+				params = new String[]{loginName};
 				if(!contactName.equals(""))
 				{
-					temp += " and CONNAME like '%" + contactName + "%'";
+					temp += " and CONNAME like ?";
+					params = new String[]{loginName, "%" + contactName + "%"};
 				}
-				String loginName = (String)request.getSession().getAttribute("LoginName");
 				sql = "select ID,CONNAME,CONADDR from TB_CONTACT where LOGINNAME='" + loginName + " 'or LOGINNAME='committee' or LOGINNAME='expert' " + temp;
 			}
 			else if(type.equals("expert"))
 			{
 				String expertName = lookUpGroupForm.getExpertName();
 				String expertFaculty = lookUpGroupForm.getExpertFaculty();
+				ArrayList<String> paramList = new ArrayList<String>();
 				if(!expertName.equals(""))
 				{
-					temp += " and NAME like '%" + expertName + "%' ";
+					temp += " and NAME like ?";
+					paramList.add("%" + expertName + "%");
 				}
 				if(!expertFaculty.equals(""))
 				{
-					temp += " and FACULTY like '%" + expertFaculty + "%'";
+					temp += " and FACULTY like ?";
+					paramList.add("%" + expertFaculty + "%");
 				}
 				sql = "select * from SYS_EXPERTINFO where 1=1 " + temp;
+				params = paramList.toArray(new String[0]);
 			}
 			else if(type.equals("cljdlook"))
 			{
 				String cljd = lookUpGroupForm.getCljd();
 				if(!cljd.equals(""))
 				{
-					temp += " and CAPTION like '%" + cljd + "%' ";
+					temp += " and CAPTION like ?";
+					params = new String[]{"%" + cljd + "%"};
 				}
 				sql = "select * from SYS_DATA_DIC where CODENAME='" + SystemConstant.cljd + "' " + temp + " order by ID asc";
 			}
@@ -259,19 +278,23 @@ public class LookUpGroupAction extends DispatchAction {
 				String wyName = lookUpGroupForm.getWyName();
 				if(!wyName.equals(""))
 				{
-					temp += " and NAME like '%" + wyName + "%' ";
+					temp += " and NAME like ?";
+					params = new String[]{"%" + wyName + "%"};
 				}
 				sql = "select * from TB_WYINFO where 1=1 " + temp;
 			}
 			request.getSession().setAttribute("query" + type + "Sql", sql);
+			request.getSession().setAttribute("query" + type + "params", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("query" + type + "Sql");
+			params = (String[])request.getSession().getAttribute("query" + type + "Params");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);

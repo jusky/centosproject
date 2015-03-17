@@ -51,8 +51,11 @@ public class DispatchEventAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select ID,LOGINNAME,USERNAME from SYS_USER where POSIDS=9";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryOfficerSql", sql);
+		request.getSession().setAttribute("queryOfficerParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryOfficerList(rs, rowsPerPage);
@@ -80,6 +83,7 @@ public class DispatchEventAction extends DispatchAction {
 		String operation = request.getParameter("operation");
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -88,18 +92,22 @@ public class DispatchEventAction extends DispatchAction {
 			String temp = "";
 			if(officer != null && !officer.equals(""))
 			{
-				temp += " and USERNAME like '%" + officer + "%'";
+				temp += " and USERNAME like ?";
+				params = new String[]{"%" + officer + "%"};
 			}
 			sql = "select ID,USERNAME,LOGINNAME from SYS_USER where POSIDS=9 " + temp;
 			request.getSession().setAttribute("queryOfficerSql", sql);	
+			request.getSession().setAttribute("queryOfficerParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryOfficerSql");
+			params = (String[])request.getSession().getAttribute("queryOfficerParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -141,10 +149,10 @@ public class DispatchEventAction extends DispatchAction {
 			result = false;
 		}
 		
-		String sql = "update TB_REPORTINFO set OFFICER='" + newOfficer + "' where SERIALNUM='" + serialNum + "'";
+		String sql = "update TB_REPORTINFO set OFFICER=? where SERIALNUM=?";
 		
 		if (result) {
-			result = dbTool.insertItem(sql);
+			result = dbTool.insertItem(sql, new String[]{newOfficer, serialNum});
 		}
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();

@@ -40,6 +40,7 @@ public class ConfigUserAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");	
 		ConfigUserForm configUserForm = (ConfigUserForm)form;
 		String operation = request.getParameter("operation");
+		if(operation == null) return null;
 		String loginName = configUserForm.getLoginName();
 		//String pwd = configUserForm.getPwd();
 		//String zzName = request.getParameter("org6.zzName");
@@ -62,7 +63,7 @@ public class ConfigUserAction extends DispatchAction {
 		
 		DBTools dbTool = new DBTools();
 		String sql = "";
-		
+		String[] params = new String[0];
 		
 		boolean result1 = true;
 		if(operation.equals("new"))
@@ -71,19 +72,21 @@ public class ConfigUserAction extends DispatchAction {
 			// loginName cannot conflict with users in SYS_USER;
 			if (result1) {
 				String createTime = SystemShare.GetNowTime("yyyy-MM-dd");
-				sql = "insert into SYS_USER(LOGINNAME,USERNAME,PASSWORD,SEX,MAILADDRESS,BGPHONE,TELPHONE,BGSNUM,CREATETIME,ZZID,ROLEIDS,POSIDS,ISHEAD) values('" + loginName + "','" + userName + "','123456','" + sex + "','" + mailAddress + "','" + bgPhone + "','" + telPhone + "','" + bgsNum + "','" + createTime + "','" + zzID + "','" + roleID + "','" + posID + "','" + isHead + "')";
+				sql = "insert into SYS_USER(LOGINNAME,USERNAME,PASSWORD,SEX,MAILADDRESS,BGPHONE,TELPHONE,BGSNUM,CREATETIME,ZZID,ROLEIDS,POSIDS,ISHEAD) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				params = new String[]{loginName, userName, "123456", sex, mailAddress, bgPhone, telPhone, bgsNum, createTime, zzID, roleID, posID, isHead};
 			}
 		}
 		else if(operation.equals("edit"))
 		{
 			String id = configUserForm.getId();
-			sql = "update SYS_USER set USERNAME='" + userName + "',SEX='" + sex + "',MAILADDRESS='" + mailAddress + "',BGPHONE='" + bgPhone + "',TELPHONE='" + telPhone + "',BGSNUM='" + bgsNum + "',ZZID='" + zzID + "',ROLEIDS='" + roleID + "',POSIDS='" + posID + "',ISHEAD='" + isHead + "' where ID=" + id;
+			sql = "update SYS_USER set USERNAME=?,SEX=?,MAILADDRESS=?,BGPHONE=?,TELPHONE=?,BGSNUM=?,ZZID=?,ROLEIDS=?,POSIDS=?,ISHEAD=? where ID=?";
+			params = new String[]{userName, sex, mailAddress, bgPhone, telPhone, bgsNum, zzID, roleID, posID, isHead, id};
 		}
 		
 
 		boolean result = true;
 		if (result1)
-			result = dbTool.insertItem(sql);
+			result = dbTool.insertItem(sql, params);
 		/*
 		if(!roleID.equals(""))
 		{
@@ -136,8 +139,8 @@ public class ConfigUserAction extends DispatchAction {
 		
 		String id = request.getParameter("uid");
 		DBTools dbTools = new DBTools();
-		String sql = "select a.*,b.ZZNAME from SYS_USER a,SYS_ZZINFO b where a.ZZID=b.ZZID and a.ID=" + id;
-		UserBean userBean = dbTools.queryUserBean(sql);
+		String sql = "select a.*,b.ZZNAME from SYS_USER a,SYS_ZZINFO b where a.ZZID=b.ZZID and a.ID=?";
+		UserBean userBean = dbTools.queryUserBean(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(userBean!=null)
 		{
@@ -147,8 +150,15 @@ public class ConfigUserAction extends DispatchAction {
 			String roleNames = "";
 			if(roleIDs != null && !roleIDs.equals(""))
 			{
-				sql = "select ROLENAME from SYS_ROLE where ID in (" + roleIDs + ")";
-				roleNames = dbTools.queryRoleNames(sql);
+				String[] roleIdArray = roleIDs.split(",");
+				int len  = roleIdArray.length;
+				StringBuilder sqlBuilder = new StringBuilder("select ROLENAME from SYS_ROLE where ID in (");
+				for(int i = 0; i < len; i++) {
+					sqlBuilder.append(" ?,");
+					if(i == len - 1) sqlBuilder.replace(sqlBuilder.length()-1, sqlBuilder.length(), ")");
+				}
+				sql = sqlBuilder.toString();
+				roleNames = dbTools.queryRoleNames(sql, roleIdArray);
 				if(!roleNames.equals(""))
 				{
 					roleNames = roleNames.substring(0, roleNames.length() - 1);
@@ -160,8 +170,15 @@ public class ConfigUserAction extends DispatchAction {
 			String posNames = "";
 			if(posIDs != null && !posIDs.equals(""))
 			{
-				sql = "select POSNAME from SYS_POSITION where ID in (" + posIDs + ")";
-				posNames = dbTools.queryPosNames(sql);
+				String[] posIdArray = posIDs.split(",");
+				int len  = posIdArray.length;
+				StringBuilder sqlBuilder = new StringBuilder("select POSNAME from SYS_POSITION where ID in (");
+				for(int i = 0; i < len; i++) {
+					sqlBuilder.append(" ?,");
+					if(i == len - 1) sqlBuilder.replace(sqlBuilder.length(), sqlBuilder.length(), ")");
+				}
+				sql = sqlBuilder.toString();
+				posNames = dbTools.queryPosNames(sql, posIdArray);
 				if(!posNames.equals(""))
 				{
 					posNames = posNames.substring(0, posNames.length() - 1);

@@ -50,8 +50,11 @@ public class MeetManageAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select * from TB_CONFERENCE";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryMeetSql", sql);
+		request.getSession().setAttribute("querymeetParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryMeetList(rs, rowsPerPage);
@@ -88,6 +91,7 @@ public class MeetManageAction extends DispatchAction {
 
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -97,29 +101,37 @@ public class MeetManageAction extends DispatchAction {
 			String jbBeginTime = meetManageForm.getJbBeginTime();
 			String jbEndTime = meetManageForm.getJbEndTime();
 			String temp = "";
+			ArrayList<String> paramList = new ArrayList<String>();
 			if(!meetName.equals(""))
 			{
-				temp += " and MEETNAME like '%" + meetName + "%'";
+				temp += " and MEETNAME like ?";
+				paramList.add("%" + meetName + '%');
 			}
 			if(!jbBeginTime.equals(""))
 			{
-				temp += " and TIME >= '" + jbBeginTime + "'";
+				temp += " and TIME >= ?";
+				paramList.add(jbBeginTime);
 			}
 			if(!jbEndTime.equals(""))
 			{
-				temp += " and TIME <= '" + jbEndTime + "'";
+				temp += " and TIME <= ?";
+				paramList.add(jbEndTime);
 			}
 			sql = "select * from TB_CONFERENCE where 1=1 " + temp;
+			params = paramList.toArray(new String[0]);
 			request.getSession().setAttribute("queryMeetSql", sql);
+			request.getSession().setAttribute("queryMeetParams", params);
 		}
 		
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryMeetSql");
+			params = (String[])request.getSession().getAttribute("queryMeetparams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -150,8 +162,9 @@ public class MeetManageAction extends DispatchAction {
 			String members = request.getParameter("orgw.wyName");
 			String location = meetManageForm.getLocation();
 			DBTools dbTools = new DBTools();
-			String sqlStr = "insert into TB_CONFERENCE(MEETNAME,TIME,MEMBERS,LOCATION,STATUS) values('" + meetName + "','" + time + "','" + members + "','" + location + "','1')";
-			result = dbTools.insertItem(sqlStr);			
+			String sqlStr = "insert into TB_CONFERENCE(MEETNAME,TIME,MEMBERS,LOCATION,STATUS) values(?, ?, ?, ?, ?)";
+			String[] params = new String[]{meetName, time, members, location, "1"};
+			result = dbTools.insertItem(sqlStr, params);			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -219,8 +232,8 @@ public class MeetManageAction extends DispatchAction {
 		String id = request.getParameter("id");
 		DBTools dbTools = new DBTools();
 		
-		String sql = "select * from TB_CONFERENCE where ID=" + id;
-		MeetInfo mi = dbTools.queryMeetInfo(sql);
+		String sql = "select * from TB_CONFERENCE where ID=?";
+		MeetInfo mi = dbTools.queryMeetInfo(sql, new String[]{id});
 		
 		ArrayList result = new ArrayList();
 		if(mi!=null)
@@ -243,8 +256,8 @@ public class MeetManageAction extends DispatchAction {
 		String id = request.getParameter("id");
 		DBTools dbTools = new DBTools();
 		
-		String sql = "select * from TB_CONFERENCE where ID=" + id;
-		MeetInfo mi = dbTools.queryMeetInfo(sql);
+		String sql = "select * from TB_CONFERENCE where ID=?";
+		MeetInfo mi = dbTools.queryMeetInfo(sql, new String[]{id});
 		
 		ArrayList result = new ArrayList();
 		if(mi!=null)
@@ -274,8 +287,9 @@ public class MeetManageAction extends DispatchAction {
 		String members = request.getParameter("orgw.wyName");
 		String location = meetManageForm.getLocation();
 		
-		String sql = "update TB_CONFERENCE set MEETNAME='" + meetName + "',TIME='" + time + "',MEMBERS='" + members + "',LOCATION='" + location + "' where ID='" + id + "'";
-		result = dbTools.insertItem(sql);
+		String sql = "update TB_CONFERENCE set MEETNAME=?,TIME=?,MEMBERS=?,LOCATION=? where ID=?";
+		String[] params = new String[]{meetName, time, members, location, id};
+		result = dbTools.insertItem(sql, params);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)

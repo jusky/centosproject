@@ -48,16 +48,19 @@ public class ConfigRoleAction extends DispatchAction {
 		DBTools dbTool = new DBTools();
 		
 		String sql = "";
+		String[] params = new String[0];
 		if(operation.equals("newRole"))
 		{
-			sql = "insert into SYS_ROLE(ROLENAME,ROLEDESCRIBE,ISUSE,MODULEIDS) values('" + roleName + "','" + roleDescribe + "','" + isUse + "','')";
+			sql = "insert into SYS_ROLE(ROLENAME,ROLEDESCRIBE,ISUSE,MODULEIDS) values(?, ?, ?, ?)";
+			params = new String[]{roleName, roleDescribe, isUse, ""};
 		}
 		else if(operation.equals("editRole"))
 		{
 			String id = configRoleForm.getId();
-			sql = "update SYS_ROLE set ROLENAME='" + roleName + "',ROLEDESCRIBE='" + roleDescribe + "',ISUSE='" + isUse + "' where ID=" + id;
+			sql = "update SYS_ROLE set ROLENAME=?,ROLEDESCRIBE=?,ISUSE=? where ID=?";
+			params = new String[]{roleName, roleDescribe, isUse, id};
 		}
-		boolean result = dbTool.insertItem(sql);
+		boolean result = dbTool.insertItem(sql, params);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
@@ -94,8 +97,8 @@ public class ConfigRoleAction extends DispatchAction {
 		
 		String id = request.getParameter("id");
 		DBTools dbTools = new DBTools();
-		String sql = "select * from SYS_ROLE where ID=" + id;
-		RoleBean rb = dbTools.queryRoleBean(sql);
+		String sql = "select * from SYS_ROLE where ID=?";
+		RoleBean rb = dbTools.queryRoleBean(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(rb!=null)
 		{

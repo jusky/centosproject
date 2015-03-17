@@ -54,15 +54,20 @@ public class DicConfigAction extends DispatchAction {
 		String remark = dicConfigForm.getRemark();
 		String operation = request.getParameter("operation");
 		String sql = "";
+		String[] params = null;
 		if (operation.equals("new")){
-			sql = "insert into SYS_DATA_DIC(CODENAME,CODE,CAPTION,REMARK) values('" + codeName + "','" + code + "','" + caption + "','" + remark + "')";
+			//sql = "insert into SYS_DATA_DIC(CODENAME,CODE,CAPTION,REMARK) values('" + codeName + "','" + code + "','" + caption + "','" + remark + "')";
+			sql = "insert into SYS_DATA_DIC(CODENAME,CODE,CAPTION,REMARK) values(?,?,?,?)";
+			params = new String[]{codeName, code, caption, remark};
 		}
 		if (operation.equals("edit")) {
 			String id = dicConfigForm.getId();
 			sql = "update SYS_DATA_DIC set CODENAME='" + codeName + "', CODE='" + code + "', CAPTION='" + caption + "', REMARK='" + remark + "' where ID='" + id + "'";
+			sql = "update SYS_DATA_DIC set CODENAME=?, CODE=?, CAPTION=?, REMARK=? where ID=?";
+			params = new String[]{codeName, code, caption, remark, id};
 		}
 		DBTools db = new DBTools();
-		boolean result = db.insertItem(sql);
+		boolean result = db.insertItem(sql, params);
 		db.closeConnection();
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();

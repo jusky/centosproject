@@ -3,6 +3,8 @@ package com.whu.web.servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -64,8 +66,9 @@ public class LoginServlet extends HttpServlet {
 				String sql = "";
 				String roleid= "";
 				// query identity
-				sql = "(select ROLEIDS from SYS_USER where LOGINNAME='" + userName + "')union (select ROLEIDS from SYS_ED_USER where LOGINNAME='" + userName + "')";
-				ResultSet rs = dbc.queryRsList(sql);
+				sql = "(select ROLEIDS from SYS_USER where LOGINNAME=?) union (select ROLEIDS from SYS_ED_USER where LOGINNAME=?)";
+				//sql = "(select ROLEIDS from SYS_USER where LOGINNAME='" + userName + "')union (select ROLEIDS from SYS_ED_USER where LOGINNAME='" + userName + "')";
+				ResultSet rs = dbc.queryRsList(sql, new String[]{userName, userName});
 				if(rs != null && rs.next())
 					roleid = rs.getString("ROLEIDS");
 				dbc.closeConnection();

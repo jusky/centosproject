@@ -80,8 +80,11 @@ public class MistypeManageAction extends DispatchAction {
 		pageBean.setQueryPageNo(queryPageNo);
 		
 		String sql = "select * from SYS_JBREASON where RSORT='1' and ISJC='1' order by RID asc";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryMistypeSql", sql);
+		request.getSession().setAttribute("queryMistypeParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -120,8 +123,11 @@ public class MistypeManageAction extends DispatchAction {
 		pageBean.setQueryPageNo(queryPageNo);
 		
 		String sql = "select a.*,b.RNAME as PNAME from SYS_JBREASON a, SYS_JBREASON b where a.RID='1' and a.PRID=b.RID order by RID asc";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryMistypeSql", sql);
+		request.getSession().setAttribute("queryMistypeParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -153,6 +159,7 @@ public class MistypeManageAction extends DispatchAction {
 
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -166,32 +173,37 @@ public class MistypeManageAction extends DispatchAction {
 				String tail = id.substring(1);
 				if( tail.equals("000"))// Main type
 				{
-					temp += " and a.PRID='" + id + "'";
+					temp += " and a.PRID=?";
 					request.setAttribute("RID", id);
 				}
 				else
 				{
-					temp += " and a.RID='" + id + "'";
+					temp += " and a.RID=?";
 				}
+				params = new String[]{id};
 			}
 			else
 			{
 				String name = mistypeManageForm.getName();
 				if(!name.equals(""))
 				{
-					temp += " and a.RNAME like '%" + name + "%'";
+					temp += " and a.RNAME like ?";
+					params = new String[]{"%" + name + "%"};
 				}
 			}
 			sql = "select a.*,b.RNAME as PNAME from SYS_JBREASON a, SYS_JBREASON b where a.PRID=b.RID " + temp + " order by RID asc";
 			request.getSession().setAttribute("queryMistypeSql", sql);
+			request.getSession().setAttribute("queryMistypeParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryMistypeSql");
+			params = (String[])request.getSession().getAttribute("queryMistypeParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);

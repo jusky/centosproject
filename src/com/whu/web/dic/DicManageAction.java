@@ -50,7 +50,9 @@ public class DicManageAction extends DispatchAction {
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select ID,CODENAME,CODE,CAPTION,REMARK from SYS_DATA_DIC";
 		request.getSession().setAttribute("queryDicSql", sql);
+		request.getSession().setAttribute("queryDicSql", new String[0]);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(new String[0]);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryDicList(rs, rowsPerPage);
@@ -86,6 +88,7 @@ public class DicManageAction extends DispatchAction {
 		
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -106,18 +109,22 @@ public class DicManageAction extends DispatchAction {
 			}
 			else
 			{
-				sql = "select ID,CODENAME,CODE,CAPTION,REMARK from SYS_DATA_DIC where CODENAME='" + codeName + "'";
+				sql = "select ID,CODENAME,CODE,CAPTION,REMARK from SYS_DATA_DIC where CODENAME=?";
+				params = new String[]{codeName};
 			}
 			request.getSession().setAttribute("queryDicSql", sql);
+			request.getSession().setAttribute("queryDicParams", params);
 		}
 		// ����Ƿ�ҳ
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryDicSql");
+			params = (String[])request.getSession().getAttribute("queryDicParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -158,31 +165,24 @@ public class DicManageAction extends DispatchAction {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 
+
+		DBTools dbTool = new DBTools();
 		String sql = "";
 		String ids = request.getParameter("ids");
+		String[] params = null;
+		boolean result = false;
 		if(ids == null || ids == "")
 		{
 			String id = request.getParameter("id");
-			sql = "delete from SYS_DATA_DIC where ID='" + id + "'";
+			sql = "delete from SYS_DATA_DIC where ID=?";
+			params = new String[]{id};
+			result = dbTool.deleteItem(sql, params);
 		}
 		else
 		{
 			String[] arrID = ids.split(",");
-			sql = "delete from SYS_DATA_DIC where ";
-			for(int i = 0; i < arrID.length; i++)
-			{
-				if(i == 0)
-				{
-					sql += "ID='" + arrID[i] + "' ";
-				}
-				else
-				{
-					sql += "or ID='" + arrID[i] + "' ";
-				}
-			}
+			result = dbTool.deleteItemsReal(arrID, "SYS_DATA_DIC", "ID");
 		}
-		DBTools dbTool = new DBTools();
-		boolean result = dbTool.deleteItem(sql);
 		if(result)
 		{
 			return mapping.findForward("deleteOK");

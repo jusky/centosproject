@@ -54,8 +54,11 @@ public class CljdManageAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select * from TB_HANDLEDECIDE order by ID desc";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryCljdSql", sql);
+		request.getSession().setAttribute("queryCljdParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryCljdList(rs, rowsPerPage);
@@ -92,6 +95,7 @@ public class CljdManageAction extends DispatchAction {
 
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -103,37 +107,48 @@ public class CljdManageAction extends DispatchAction {
 			String endTime = cljdManageForm.getHandleEndTime();
 			String conference = cljdManageForm.getConference();
 			String temp = "";
+			ArrayList<String> paramList = new ArrayList<String>();
 			if(!serialNum.equals(""))
 			{
-				temp += " and SERIALNUM='" + serialNum + "' ";
+			//	temp += " and SERIALNUM='" + serialNum + "' ";
+				temp += " and SERIALNUM=?";
+				paramList.add(serialNum);
 			}
 			if(!handleName.equals(""))
 			{
-				temp += " and HANDLENAME like '%" + handleName + "%'";
+				temp += " and HANDLENAME like ?";
+				paramList.add("%" + handleName + "%");
 			}
 			if(!conference.equals(""))
 			{
-				temp += " and CONFERENCE like '%" + conference + "%' ";
+				temp += " and CONFERENCE like ? ";
+				paramList.add("%" + conference + "%");
 			}
 			if(!beginTime.equals(""))
 			{
-				temp += " and HANDLETIME >= '" + beginTime + "'";
+				temp += " and HANDLETIME >= ?";
+				paramList.add(beginTime);
 			}
 			if(!endTime.equals(""))
 			{
-				temp += " and HANDLETIME <= '" + endTime + "'";
+				temp += " and HANDLETIME <= ?";
+				paramList.add(endTime);
 			}
 			sql = "select * from TB_HANDLEDECIDE where 1=1 " + temp + " order by ID desc";
+			params = paramList.toArray(new String[paramList.size()]);
 			request.getSession().setAttribute("queryCljdSql", sql);
+			request.getSession().setAttribute("queryCljdParams", params);
 		}
 		
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryCljdSql");
+			params = (String[])request.getSession().getAttribute("queryCljdParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -164,8 +179,8 @@ public class CljdManageAction extends DispatchAction {
 		{
 			String id = request.getParameter("id");
 			String dirPath = request.getSession().getServletContext().getRealPath("/");
-			String sql = "select * from TB_HANDLEDECIDE where ID=" + id;
-			HandleDecide hd = dbTool.queryHandleDecideBean(sql);
+			String sql = "select * from TB_HANDLEDECIDE where ID=?";
+			HandleDecide hd = dbTool.queryHandleDecideBean(sql, new String[]{id});
 			if(hd != null)
 			{
 				String filePath = hd.getFilePath();
@@ -213,8 +228,8 @@ public class CljdManageAction extends DispatchAction {
 		String sql = "";
 		
 		DBTools dbTools = new DBTools();
-		sql = "select * from TB_HANDLEDECIDE where ID=" + id;
-		HandleDecide hd = dbTools.queryHandleDecideBean(sql);
+		sql = "select * from TB_HANDLEDECIDE where ID=?";
+		HandleDecide hd = dbTools.queryHandleDecideBean(sql, new String[]{id});
 		String conference = hd.getConference();
 		if(conference != null && !conference.equals(""))
 		{
@@ -257,8 +272,8 @@ public class CljdManageAction extends DispatchAction {
 		String sql = "";
 		
 		DBTools dbTools = new DBTools();
-		sql = "select * from TB_HANDLEDECIDE where ID=" + id;
-		HandleDecide hd = dbTools.queryHandleDecideBean(sql);
+		sql = "select * from TB_HANDLEDECIDE where ID=?";
+		HandleDecide hd = dbTools.queryHandleDecideBean(sql, new String[]{id});
 		String reportID = hd.getReportID();
 		String dirPath = request.getSession().getServletContext().getRealPath("/")+"/attachment/" + reportID;
 		File files = new File(dirPath);
@@ -321,6 +336,7 @@ public class CljdManageAction extends DispatchAction {
 		DBTools db = new DBTools();
 		
 		String sql = (String)request.getSession().getAttribute("queryCljdSql");
+		String[] params = (String[])request.getSession().getAttribute("queryCljdParams");
 		try
 		{
 			String fname = "cljdList";
@@ -328,7 +344,7 @@ public class CljdManageAction extends DispatchAction {
 			response.reset();
 			response.setHeader("Content-disposition", "attachment;filename=" + fname + ".xls");
 			response.setContentType("application/msexcel");
-			ResultSet rs = db.queryRsList(sql);
+			ResultSet rs = db.queryRsList(sql, params);
 			rs.last();
 			int length = rs.getRow();
 			rs.beforeFirst();

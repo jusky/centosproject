@@ -53,9 +53,12 @@ public class GyUserListAction extends DispatchAction {
 			queryPageNo = Integer.parseInt(request.getParameter("queryPageNo"));
 		}
 		pageBean.setQueryPageNo(queryPageNo);
-		String sql = "select ID,USERNAME,ZUZHI from SYS_USER";	// this sentence is error
+		String sql = "select a.ID,a.USERNAME,b.ZZNAME from SYS_USER a, SYS_ZZINFO where a.ZZID=b.ZZNAME";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryGYUserSql", sql);
+		request.getSession().setAttribute("queryGYUserParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryGYUserList(rs, rowsPerPage);

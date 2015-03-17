@@ -48,14 +48,17 @@ public class ConfigIndividualAction extends DispatchAction {
 		
 		DBTools dbTool = new DBTools();
 		String sql = "";
+		String[] params = new String[0];
 		if(operation.equals("new")) {
-			sql = "insert into SYS_INDIVIDUAL_INFO(NAME,SEX,PID,INSTITUTE,SPECIALTY,PHONE,ADDRESS,EMAIL,ISEXPERT,TITLE) values('" + name + "','" + sex + "','" + pid + "','" + institute + "','" + specialty + "','" + phone + "','" + address + "','" + email + "','" + isExpert + "','" + title + "')";
+			sql = "insert into SYS_INDIVIDUAL_INFO(NAME,SEX,PID,INSTITUTE,SPECIALTY,PHONE,ADDRESS,EMAIL,ISEXPERT,TITLE) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			params = new String[]{name, sex, pid, institute, specialty, phone, address, email, isExpert, title};
 		} 
 		else if(operation.equals("edit")) {
 			String id = configIndividualForm.getId();
-			sql = "update SYS_INDIVIDUAL_INFO set NAME='" + name + "', SEX='" + sex + "', PID='" + pid + "', INSTITUTE='" + institute + "', SPECIALTY='" + specialty + "', PHONE='" + phone + "', ADDRESS='" + address + "', EMAIL='" + email + "', ISEXPERT='" + isExpert + "', TITLE='" + title + "' where ID='" + id + "'";
+			sql = "update SYS_INDIVIDUAL_INFO set NAME=?, SEX=?, PID=?, INSTITUTE=?, SPECIALTY=?, PHONE=?, ADDRESS=?, EMAIL=?, ISEXPERT=?, TITLE=? where ID=?";
+			params = new String[]{name, sex, pid, institute, specialty, phone, address, email, isExpert, title};
 		}
-		boolean result = dbTool.insertItem(sql);
+		boolean result = dbTool.insertItem(sql, params);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
@@ -93,8 +96,8 @@ public class ConfigIndividualAction extends DispatchAction {
 		ConfigIndividualForm configIndividualForm = (ConfigIndividualForm)form;
 		String id = request.getParameter("uid");
 		DBTools dbTools = new DBTools();
-		String sql = "select a.*,b.NAME as INSTNAME from SYS_INDIVIDUAL_INFO a, SYS_INST_INFO b where a.ID='" + id + "' and a.INSTITUTE=b.CODE";
-		IndividualInfo IndividualInfo = dbTools.queryIndividualInfo(sql);
+		String sql = "select a.*,b.NAME as INSTNAME from SYS_INDIVIDUAL_INFO a, SYS_INST_INFO b where a.ID=? and a.INSTITUTE=b.CODE";
+		IndividualInfo IndividualInfo = dbTools.queryIndividualInfo(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(IndividualInfo != null){
 			result.add(IndividualInfo);

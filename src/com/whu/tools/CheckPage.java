@@ -14,8 +14,8 @@ public class CheckPage implements Serializable{
 	public String querySql ;   // 查询的Sql语句
 	public int totalPage;      // 总页数 
 	public int totalRows;      // 总行数 
-	public int lastPageRows;   // 最后一页的行数  
-	public ArrayList resultDataVec;  // 显示在当前页面中的数据
+	public int lastPageRows;   // 最后一页的行数 
+	public String[] params;   // sql parameters
 	
 	public CheckPage(){
 		try {
@@ -66,12 +66,11 @@ public class CheckPage implements Serializable{
 	public void setLastPageRows(int lastPageRows) {
 		this.lastPageRows = lastPageRows;
 	}
-	public ArrayList getResultDataVec() {
-		return resultDataVec;
+	public String[] getParams() {
+		return params;
 	}
-	public void setResultDataVec(ArrayList resultDataVec) {
-		this.resultDataVec = resultDataVec;
+	public void setParams( String[] params) {
+		this.params = params;
 	}
-	
 	
 }

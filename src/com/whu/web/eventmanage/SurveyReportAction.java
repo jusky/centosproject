@@ -75,20 +75,24 @@ public class SurveyReportAction extends DispatchAction {
 		if(reportName != null && !reportName.equals(""))
 		{
 			//String suveryReportPath = path2 + "\\" + reportName;
-			String tempsql="select * from TB_SURVEYREPORT where REPORTID='" + reportID + "'";
+			String tempsql="select * from TB_SURVEYREPORT where REPORTID=?";
+			String[] tempParams = new String[]{reportID};
 			String sql="";
+			String[] params = new String[0];
 			//String sql = "if not exists (select * from TB_SURVEYREPORT where REPORTID='" + reportID + "') insert into TB_SURVEYREPORT(REPORTID, FILENAME) values('" + reportID + "', '" + reportName + "') else update TB_SURVEYREPORT set FILENAME='" + reportName + "' where REPORTID='" + reportID + "'";
-			boolean flag=dbTools.queryISEXIST(tempsql);
+			boolean flag=dbTools.queryISEXIST(tempsql, tempParams);
 			if(flag)
 			{
-				sql="insert into TB_SURVEYREPORT(REPORTID, FILENAME) values('" + reportID + "', '" + reportName + "')";
+				sql="insert into TB_SURVEYREPORT(REPORTID, FILENAME) values(?, ?)";
+				params = new String[]{reportID, reportName};
 			}
 			else
 			{
-				sql="update TB_SURVEYREPORT set FILENAME='" + reportName + "' where REPORTID='" + reportID + "'";
+				sql="update TB_SURVEYREPORT set FILENAME=? where REPORTID=?";
+				params = new String[]{reportName, reportID};
 			}
 			request.getSession().setAttribute("SurveyReportName", "");
-			result = dbTools.insertItem(sql);
+			result = dbTools.insertItem(sql, params);
 		}
 		
 		

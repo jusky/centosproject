@@ -57,8 +57,11 @@ public class IndividualManageAction extends DispatchAction {
 		
 		String sql = "select a.*,ROUND(IFNULL(b.CREDIT, 1), 4) as CREDIT from (select m.*,n.NAME as INST_NAME from SYS_INDIVIDUAL_INFO m,SYS_INST_INFO n where m.INSTITUTE=n.CODE) as a left join VIEW_INDIVIDUAL_CREDIT b on a.PID=b.INDIID order by CREDIT asc";
 		
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryIndividualSql", sql);
+		request.getSession().setAttribute("queryIndividualParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryIndividualList(rs, rowsPerPage);
@@ -85,6 +88,7 @@ public class IndividualManageAction extends DispatchAction {
 		String operation = request.getParameter("operation");
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -93,28 +97,36 @@ public class IndividualManageAction extends DispatchAction {
 			String institute = individualManageForm.getInstitute();
 			String pid = individualManageForm.getPId();
 			String temp = "";
+			ArrayList<String> paramList = new ArrayList<String>();
 			if(!name.equals(""))
 			{
-				temp += " and NAME like '%" + name + "%'";
+				temp += " and NAME like ?";
+				paramList.add("%" + name + "%");
 			}
 			if(!institute.equals(""))
 			{
-				temp += " and INSTITUTE in (select CODE from SYS_INST_INFO where NAME like '%" + institute + "%')";
+				temp += " and INSTITUTE in (select CODE from SYS_INST_INFO where NAME like ?)";
+				paramList.add("%" + institute + "%");
 			}
 			if(!pid.equals(""))
 			{
-				temp += " and PID like '%" + pid + "%'";
+				temp += " and PID like ?";
+				paramList.add("%" + pid + "%");
 			}
+			params = paramList.toArray(new String[0]);
 			sql = "select a.*,ROUND(IFNULL(b.CREDIT, 1), 4) as CREDIT from (select m.*,n.NAME as INST_NAME from SYS_INDIVIDUAL_INFO m,SYS_INST_INFO n where m.INSTITUTE=n.CODE) as a left join VIEW_INDIVIDUAL_CREDIT b on a.PID=b.INDIID where 1=1 " + temp +" order by CREDIT asc";
 			request.getSession().setAttribute("queryIndividualSql", sql);
+			request.getSession().setAttribute("queryIndividualParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryIndividualSql");
+			params = (String[])request.getSession().getAttribute("queryIndividualParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -183,6 +195,7 @@ public class IndividualManageAction extends DispatchAction {
 		DBTools db = new DBTools();
 		
 		String sql = (String)request.getSession().getAttribute("queryIndividualSql");
+		String[] params = (String[])request.getSession().getAttribute("queryIndividualParams");
 		String num = request.getParameter("exportnum");
 		if( num != null && Integer.parseInt(num) > 0){
 			sql += " limit " + num;
@@ -194,7 +207,7 @@ public class IndividualManageAction extends DispatchAction {
 			response.reset();
 			response.setHeader("Content-disposition", "attachment;filename=" + fname + ".xls");
 			response.setContentType("application/msexcel");
-			ResultSet rs = db.queryRsList(sql);
+			ResultSet rs = db.queryRsList(sql, params);
 			rs.last();
 			int length = rs.getRow();
 			rs.beforeFirst();
@@ -229,9 +242,6 @@ public class IndividualManageAction extends DispatchAction {
 		
 		String pid = request.getParameter("pid");
 		String sql = "";
-		if(pid != ""){
-			sql = "select * from TB_MISCOUNT where INSTID='" + pid + "'";
-		}		
 		return mapping.findForward("detail");
 	}
 }

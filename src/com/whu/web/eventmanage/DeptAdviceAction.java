@@ -80,22 +80,29 @@ public class DeptAdviceAction extends DispatchAction {
 			attachName = "";
 		}
 		String sql = "";
+		String[] params = null;
 		//如果不为空，则说明是编辑
 		if(id != null && !id.equals(""))
 		{
 			if(attachName.equals(""))
 			{
-				sql = "update TB_DEPTADVICE set DEPT='" + dept + "', TIME='" + time + "', ADVICE='"  + advice + "',EXPERTADVICE='" + expertAdvice + "',ISFK='1' where ID=" + id;
+				sql = "update TB_DEPTADVICE set DEPT=?, TIME=?, ADVICE=?, EXPERTADVICE=?, ISFK='1' where ID=?";
+				params = new String[]{dept, time, advice, expertAdvice, id};
+			//	sql = "update TB_DEPTADVICE set DEPT='" + dept + "', TIME='" + time + "', ADVICE='"  + advice + "',EXPERTADVICE='" + expertAdvice + "',ISFK='1' where ID=" + id;
 			}
 			else
 			{
-				sql = "update TB_DEPTADVICE set DEPT='" + dept + "', TIME='" + time + "', ADVICE='"  + advice + "',EXPERTADVICE='" + expertAdvice + "',ISFK='1', ATTACHNAME='" + attachName + "' where ID=" + id;
+				sql = "update TB_DEPTADVICE set DEPT=?, TIME=?, ADVICE=?, EXPERTADVICE=?, ISFK='1', ATTACHNAME=? where ID=?";
+				params =  new String[]{dept, time, advice, expertAdvice, attachName, id};
+			//	sql = "update TB_DEPTADVICE set DEPT='" + dept + "', TIME='" + time + "', ADVICE='"  + advice + "',EXPERTADVICE='" + expertAdvice + "',ISFK='1', ATTACHNAME='" + attachName + "' where ID=" + id;
 			}
 			
 		}
 		else//如果为空，则说明是新增
 		{
-			sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,ADVICE,EXPERTADVICE,ISFK,ATTACHNAME,ISLETTER) values('" + reportID + "','" + dept + "','" + time + "','" + advice + "','" + expertAdvice + "','1','" + attachName + "', '0')";
+		//	sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,ADVICE,EXPERTADVICE,ISFK,ATTACHNAME,ISLETTER) values('" + reportID + "','" + dept + "','" + time + "','" + advice + "','" + expertAdvice + "','1','" + attachName + "', '0')";
+			sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,ADVICE,EXPERTADVICE,ISFK,ATTACHMENT,ISLETTER) values(?,?,?,?,?,'1',?,'0')";
+			params = new String[]{reportID, dept, time, advice, expertAdvice, attachName};
 		}
 		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
 		//String path1 = filePath + "temp";
@@ -106,7 +113,7 @@ public class DeptAdviceAction extends DispatchAction {
 		String relDirectory = "attachment" + "/" + reportID;
 		String createName = (String)request.getSession().getAttribute("UserName");
 		result = SystemShare.IOCopy(path1, path2, relDirectory, createName);
-		result = dbTools.insertItem(sql);
+		result = dbTools.insertItem(sql, params);
 		
 		if(result)
 		{
@@ -204,9 +211,9 @@ public class DeptAdviceAction extends DispatchAction {
 		if(type.equals("edit"))
 		{
 			String id = request.getParameter("id");
-			String sql = "select a.*,b.REPORTID from TB_DEPTSURVEYLETTER a,TB_DEPTADVICE b where a.DEPTADVICEID=b.ID and b.ID='" + id + "'";
+			String sql = "select a.*,b.REPORTID from TB_DEPTSURVEYLETTER a,TB_DEPTADVICE b where a.DEPTADVICEID=b.ID and b.ID=?";
 			DBTools dbTools = new DBTools();
-			dsl = dbTools.queryDeptSurveyLetter(sql);
+			dsl = dbTools.queryDeptSurveyLetter(sql, new String[]{id});
 		}
 		else if(type.equals("new"))
 		{
@@ -256,51 +263,66 @@ public class DeptAdviceAction extends DispatchAction {
 		String surveyContent = deptAdviceForm.getSurveyContent();
 		String isEdit = request.getParameter("isEdit");
 		DBTools dbTools = new DBTools();
-		String tempsql="select * from SYS_ED_USER where LOGINNAME='" + loginName + "'";
 		String sql = "";
+		String[] params = new String[0];
 		boolean result = false;
 		if(isEdit.equals("1"))//编辑
 		{
 			String id = deptAdviceForm.getAdviceID();
-			sql = "update TB_DEPTADVICE set DEPT = '" + deptName + "',TIME='" + fkTime + "' where ID=" + id;
-			result = dbTools.insertItem(sql);
+		//	sql = "update TB_DEPTADVICE set DEPT = '" + deptName + "',TIME='" + fkTime + "' where ID=" + id;
+			sql = "update TB_DEPTADVICE set DEPT=?, TIME=? where ID=?";
+			params = new String[]{deptName, fkTime, id};
+			result = dbTools.insertItem(sql, params);
 			if(result)
 			{
 				String dchID = deptAdviceForm.getDchID();
-				sql = "update TB_DEPTSURVEYLETTER set TITLE = '" + title + "',DEPTNAME='" + deptName + "',SHORTINFO='" + shortInfo + "',FKTIME='" + fkTime + "',SURVEYCONTENT='" + surveyContent + "' where ID=" + dchID;
-				result = dbTools.insertItem(sql);
+			//	sql = "update TB_DEPTSURVEYLETTER set TITLE = '" + title + "',DEPTNAME='" + deptName + "',SHORTINFO='" + shortInfo + "',FKTIME='" + fkTime + "',SURVEYCONTENT='" + surveyContent + "' where ID=" + dchID;
+				sql = "update TB_DEPTSURVEYLETTER set TITLE=?, DEPTNAME=?, SHORTINFO=?, FKTIME=?, SURVEYCONTENT=? where ID=?";
+				params = new String[]{title, deptName, shortInfo, fkTime, surveyContent, id};
+				result = dbTools.insertItem(sql, params);
 			}
 		}
 		else if(isEdit.equals("0"))//新增
 		{
 			//插入一条记录到依托单位调查结果表中
-			sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,SERIALNUM,ISFK, ISLETTER) values('" + reportID + "','" + deptName + "','" + fkTime + "','','0', '1')";
-			result = dbTools.insertItem(sql);
+		//	sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,SERIALNUM,ISFK, ISLETTER) values('" + reportID + "','" + deptName + "','" + fkTime + "','','0', '1')";
+			sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,SERIALNUM,ISFK, ISLETTER) values(?,?,?,'','0','1')";
+			params = new String[]{reportID, deptName, fkTime};
+			result = dbTools.insertItem(sql, params);
 			if(result)
 			{
 				String deptAdviceID = dbTools.queryLastInsertID("TB_DEPTADVICE");
-				sql = "insert into TB_DEPTSURVEYLETTER(DEPTADVICEID,TITLE,DEPTNAME,SHORTINFO,FKTIME,SURVEYCONTENT,FILEPATH,LOGINNAME,PASSWORD) values('" + deptAdviceID + "','" + title + "','" + deptName + "','" + shortInfo + "','" + fkTime + "','" + surveyContent + "','','" + loginName + "','" + password + "')";
-				result = dbTools.insertItem(sql);
+			//	sql = "insert into TB_DEPTSURVEYLETTER(DEPTADVICEID,TITLE,DEPTNAME,SHORTINFO,FKTIME,SURVEYCONTENT,FILEPATH,LOGINNAME,PASSWORD) values('" + deptAdviceID + "','" + title + "','" + deptName + "','" + shortInfo + "','" + fkTime + "','" + surveyContent + "','','" + loginName + "','" + password + "')";
+				sql = "insert into TB_DEPTSURVEYLETTER(DEPTADVICEID,TITLE,DEPTNAME,SHORTINFO,FKTIME,SURVEYCONTENT,FILEPATH,LOGINNAME,PASSWORD) values(?,?,?,?,?,?,'',?,?)";
+				params = new String[]{deptAdviceID, title, deptName, shortInfo, fkTime, surveyContent, loginName, password};
+				result = dbTools.insertItem(sql, params);
 				if(loginName != null && !loginName.equals(""))
 				{
 					//自动根据生成的账号和密码创建一个新的账户，分配“依托单位”的权限
 					//sql = "if not exists(select * from SYS_ED_USER where LOGINNAME='" + loginName + "') insert into SYS_ED_USER(LOGINNAME, PASSWORD, DEPTNAME, ROLEIDS, ISUSE) values('" + loginName + "','" + password + "','" + deptName + "','9','1') else update SYS_ED_USER set PASSWORD='" + password + "' where LOGINNAME='" + loginName + "'";
 					//System.out.println(tempsql);
-					boolean flag=dbTools.queryISEXIST(tempsql);
+					String tempsql="select * from SYS_ED_USER where LOGINNAME=?";
+					boolean flag=dbTools.queryISEXIST(tempsql, new String[]{loginName});
 					//System.out.println(flag);
 					if(flag)
 					{
-						sql="insert into SYS_ED_USER(LOGINNAME, PASSWORD, DEPTNAME, ROLEIDS, ISUSE) values('" + loginName + "','" + password + "','" + deptName + "','5','1')";
+					//	sql = "insert into SYS_ED_USER(LOGINNAME, PASSWORD, DEPTNAME, ROLEIDS, ISUSE) values('" + loginName + "','" + password + "','" + deptName + "','5','1')";
+						sql = "insert into SYS_ED_USER(LOGINNAME, PASSWORD, DEPTNAME, ROLEIDS, ISUSE) values(?, ?, ?, '5', '1')";
+						params = new String[]{loginName, password, deptName};
 					}
 					else
 					{
-						sql="update SYS_ED_USER set PASSWORD='" + password + "' where LOGINNAME='" + loginName + "'";
+					//	sql = "update SYS_ED_USER set PASSWORD='" + password + "' where LOGINNAME='" + loginName + "'";
+						sql = "update SYS_ED_USER set PASSWORD=? where LOGINNAME=?";
+						params = new String[]{password, loginName};
 					}
 					//System.out.println(sql);
-					result = dbTools.insertItem(sql);
+					result = dbTools.insertItem(sql, params);
 					//向单位反馈记录表中 插入一条记录
-					sql = "insert into TB_ED_ADVICE(REPORTID,LOGINNAME,EVENTTITLE,FKTIME,ISSUBMIT,ATTACHMENT,ADVICEID) values('" + reportID + "','" + loginName + "','" + title + "','" + fkTime + "','0','','" + deptAdviceID + "')";
-					result = dbTools.insertItem(sql);
+			//		sql = "insert into TB_ED_ADVICE(REPORTID,LOGINNAME,EVENTTITLE,FKTIME,ISSUBMIT,ATTACHMENT,ADVICEID) values('" + reportID + "','" + loginName + "','" + title + "','" + fkTime + "','0','','" + deptAdviceID + "')";
+					sql = "insert into TB_ED_ADVICE(REPORTID,LOGINNAME,EVENTTITLE,FKTIME,ISSUBMIT,ATTACHMENT,ADVICEID) values(?,?,?,?,'0','',?)";
+					params = new String[]{reportID, loginName, title, fkTime, deptAdviceID};
+					result = dbTools.insertItem(sql, params);
 				}
 			}
 			//获得当前日期
@@ -348,8 +370,8 @@ public class DeptAdviceAction extends DispatchAction {
 			return null;
 		}
 		DBTools dbTools = new DBTools();
-		String sql = "select a.REPORTID, b.* from TB_DEPTADVICE a, TB_DEPTSURVEYLETTER b where a.ID=b.DEPTADVICEID and b.ID=" + id;
-		DeptSurveyLetter dsl = dbTools.queryDeptSurveyLetter(sql);
+		String sql = "select a.REPORTID, b.* from TB_DEPTADVICE a, TB_DEPTSURVEYLETTER b where a.ID=b.DEPTADVICEID and b.ID=?";
+		DeptSurveyLetter dsl = dbTools.queryDeptSurveyLetter(sql, new String[]{id});
 		String templatePath = "";
 		if(dsl != null)
 		{

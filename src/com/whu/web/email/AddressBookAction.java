@@ -59,9 +59,14 @@ public class AddressBookAction extends DispatchAction {
 			queryPageNo = Integer.parseInt(request.getParameter("queryPageNo"));
 		}
 		pageBean.setQueryPageNo(queryPageNo);
-		String sql = "select ID,CONNAME,CONADDR from TB_CONTACT where LOGINNAME='" + loginName + "' or LOGINNAME='committee' or LOGINNAME='expert'";
+		// String sql = "select ID,CONNAME,CONADDR from TB_CONTACT where LOGINNAME='" + loginName + "' or LOGINNAME='committee' or LOGINNAME='expert'";
+		String sql = "select ID,CONNAME,CONADDR from TB_CONTACT where LOGINNAME=? or LOGINNAME='committee' or LOGINNAME='expert'";
+		String[] params = new String[]{loginName};
 		request.getSession().setAttribute("queryAddrSql", sql);
+		request.getSession().setAttribute("queryAddrParams", params);
+		
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryAddrList(rs, rowsPerPage);
@@ -88,6 +93,7 @@ public class AddressBookAction extends DispatchAction {
 		
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = null;
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -97,18 +103,25 @@ public class AddressBookAction extends DispatchAction {
 			String temp = "";
 			if(!addrName.equals(""))
 			{
-				temp += " and CONNAME like '%" + addrName + "%'";
+			//	temp += " and CONNAME like '%" + addrName + "%'";
+				temp += " and CONNAME like ?";
+				addrName = "%" + addrName + "%";
 			}
-			sql = "select ID,CONNAME,CONADDR from TB_CONTACT where (LOGINNAME='" + loginName + "' or LOGINNAME='committee' or LOGINNAME='expert') " + temp;
+			sql = "select ID,CONNAME,CONADDR from TB_CONTACT where (LOGINNAME=? or LOGINNAME='committee' or LOGINNAME='expert') " + temp;
+			// sql = "select ID,CONNAME,CONADDR from TB_CONTACT where (LOGINNAME='" + loginName + "' or LOGINNAME='committee' or LOGINNAME='expert') " + temp;
 			request.getSession().setAttribute("queryAddrSql", sql);
+			params = new String[]{loginName, addrName};
+			request.getSession().setAttribute("queryAddrParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryAddrSql");
+			params = (String[])request.getSession().getAttribute("queryAddrParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -144,8 +157,9 @@ public class AddressBookAction extends DispatchAction {
 		else if(type.equals("edit"))
 		{
 			String id = request.getParameter("uid");
-			String sql = "select * from TB_CONTACT where ID='" + id + "'";
-			contactBean = dbTools.queryAddrBean(sql);
+			// String sql = "select * from TB_CONTACT where ID='" + id + "'";
+			String sql = "select * from TB_CONTACT where ID=?";
+			contactBean = dbTools.queryAddrBean(sql, new String[]{id});
 			if(contactBean != null)
 			{
 				request.setAttribute("addrID", contactBean.getId());
@@ -181,13 +195,15 @@ public class AddressBookAction extends DispatchAction {
 		String sql = "";
 		if(addrID.equals(""))//新增
 		{
-			sql = "insert into TB_CONTACT(LOGINNAME,CONNAME,CONADDR) values('" + loginName + "','" + addrName + "','" + mailAddr + "')";
+			sql = "insert into TB_CONTACT(LOGINNAME,CONNAME,CONADDR) values(?,?,?)";
+		//	sql = "insert into TB_CONTACT(LOGINNAME,CONNAME,CONADDR) values('" + loginName + "','" + addrName + "','" + mailAddr + "')";
 		}
 		else
 		{
-			sql = "update TB_CONTACT set LOGINNAME='" + loginName + "',CONNAME='" + addrName + "',CONADDR='" + mailAddr + "' where ID='" + addrID + "'";
+			sql = "update TB_CONTACT set LOGINNAME=?, CONNAME=?, CONADDR=?";
+		//	sql = "update TB_CONTACT set LOGINNAME='" + loginName + "',CONNAME='" + addrName + "',CONADDR='" + mailAddr + "' where ID='" + addrID + "'";
 		}
-		boolean result = dbTools.insertItem(sql);
+		boolean result = dbTools.insertItem(sql, new String[]{loginName, addrName, mailAddr});
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
@@ -248,6 +264,7 @@ public class AddressBookAction extends DispatchAction {
 		DBTools db = new DBTools();
 		
 		String sql = (String)request.getSession().getAttribute("queryAddrSql");
+		String[] params= (String[])request.getSession().getAttribute("queryAddrParams");
 		try
 		{
 			String fname = "addressList";
@@ -255,7 +272,7 @@ public class AddressBookAction extends DispatchAction {
 			response.reset();
 			response.setHeader("Content-disposition", "attachment;filename=" + fname + ".xls");
 			response.setContentType("application/msexcel");
-			ResultSet rs = db.queryRsList(sql);
+			ResultSet rs = db.queryRsList(sql, params);
 			rs.last();
 			int length = rs.getRow();
 			rs.beforeFirst();

@@ -45,16 +45,19 @@ public class PosConfigAction extends DispatchAction {
 		DBTools dbTool = new DBTools();
 		
 		String sql = "";
+		String[] params = new String[0];
 		if(operation.equals("new"))
 		{
-			sql = "insert into SYS_POSITION(POSNAME,POSDESCRIBE) values('" + posName + "','" + posDescribe + "')";
+			sql = "insert into SYS_POSITION(POSNAME,POSDESCRIBE) values(?, ?)";
+			params = new String[]{posName, posDescribe};
 		}
 		else if(operation.equals("edit"))
 		{
 			String id = posConfigForm.getId();
-			sql = "update SYS_POSITION set POSNAME='" + posName + "', POSDESCRIBE='" + posDescribe + "' where ID=" + id;
+			sql = "update SYS_POSITION set POSNAME=?, POSDESCRIBE=? where ID=?";
+			params = new String[]{posName, posDescribe, id};
 		}
-		boolean result = dbTool.insertItem(sql);
+		boolean result = dbTool.insertItem(sql, params);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
@@ -91,8 +94,8 @@ public class PosConfigAction extends DispatchAction {
 		
 		String id = request.getParameter("uid");
 		DBTools dbTools = new DBTools();
-		String sql = "select * from SYS_POSITION where ID=" + id;
-		PosBean posBean = dbTools.queryPosBean(sql);
+		String sql = "select * from SYS_POSITION where ID=?";
+		PosBean posBean = dbTools.queryPosBean(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(posBean != null)
 		{

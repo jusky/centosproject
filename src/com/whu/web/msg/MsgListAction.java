@@ -48,8 +48,11 @@ public class MsgListAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select SENDNAME,TITLE,MSGTYPE,SENDTIME,RECVTIME from TB_RECVMSG where RECVNAME='admin'";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryMsgSql", sql);
+		request.getSession().setAttribute("queryMsgParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryRecvMsgList(rs, rowsPerPage);
@@ -84,6 +87,7 @@ public class MsgListAction extends DispatchAction {
 		
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -99,18 +103,22 @@ public class MsgListAction extends DispatchAction {
 			}
 			else
 			{
-				sql = "select SENDNAME,TITLE,MSGTYPE,SENDTIME,RECVTIME from TB_RECVMSG where RECVNAME='admin' and TITLE='" + title + "'";
+				sql = "select SENDNAME,TITLE,MSGTYPE,SENDTIME,RECVTIME from TB_RECVMSG where RECVNAME='admin' and TITLE=?";
+				params = new String[]{title};
 			}
 			request.getSession().setAttribute("queryMsgSql", sql);
+			request.getSession().setAttribute("queryMsgParams", params);
 		}
 		// ����Ƿ�ҳ
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryMsgSql");
+			params = (String[])request.getSession().getAttribute("queryMsgParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -149,6 +157,7 @@ public class MsgListAction extends DispatchAction {
 			HttpServletRequest request, HttpServletResponse response) {
 		DBTools db = new DBTools();
 		String sql = (String)request.getSession().getAttribute("queryMsgSql");
+		String[] params = (String[])request.getSession().getAttribute("queryMsgParams");
 		try
 		{
 			String fname = "message";
@@ -156,7 +165,7 @@ public class MsgListAction extends DispatchAction {
 			response.reset();
 			response.setHeader("Content-disposition", "attachment;filename=" + fname + ".xls");
 			response.setContentType("application/msexcel");
-			ResultSet rs = db.queryRsList(sql);
+			ResultSet rs = db.queryRsList(sql, params);
 			ExcelTools et = new ExcelTools();
 			et.createSheet(rs, os);
 			rs.close();

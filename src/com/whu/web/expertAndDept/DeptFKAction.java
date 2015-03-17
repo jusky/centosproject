@@ -41,9 +41,9 @@ public class DeptFKAction extends DispatchAction {
 			HttpServletRequest request, HttpServletResponse response) {
 		DeptFKForm deptFKForm = (DeptFKForm)form;
 		String loginName = (String)request.getSession().getAttribute("LoginName");
-		String sql = "select a.ID,a.REPORTID,a.ISSUBMIT,a.ADVICEID,b.TITLE,b.DEPTNAME,b.SHORTINFO,b.FKTIME,b.SURVEYCONTENT,b.FILEPATH,c.STATUS from TB_ED_ADVICE a, TB_DEPTSURVEYLETTER b, TB_REPORTINFO c where a.ADVICEID=b.DEPTADVICEID and a.LOGINNAME='" + loginName + "' and a.REPORTID=c.REPORTID";
+		String sql = "select a.ID,a.REPORTID,a.ISSUBMIT,a.ADVICEID,b.TITLE,b.DEPTNAME,b.SHORTINFO,b.FKTIME,b.SURVEYCONTENT,b.FILEPATH,c.STATUS from TB_ED_ADVICE a, TB_DEPTSURVEYLETTER b, TB_REPORTINFO c where a.ADVICEID=b.DEPTADVICEID and a.LOGINNAME=? and a.REPORTID=c.REPORTID";
 		DBTools db = new DBTools();
-		ArrayList result = db.queryDeptDCList(sql);
+		ArrayList result = db.queryDeptDCList(sql, new String[]{loginName});
 		if(result.size() > 0)
 		{
 			deptFKForm.setRecordNotFind("false");
@@ -80,8 +80,8 @@ public class DeptFKAction extends DispatchAction {
 		String title = dbTools.querySingleDate("TB_DEPTSURVEYLETTER", "TITLE", "DEPTADVICEID", adviceID);
 		request.setAttribute("title", title);
 		
-		String sql = "select a.ADVICE,a.EXPERTADVICE,b.LITIGANTNAME,b.LITIGANTTIME,b.LITIGANTCONTENT from TB_DEPTADVICE a, TB_LITIGANTSTATE b where a.ID=b.DEPTADVICEID and a.ID=" + adviceID;
-		DeptAdviceBean dab = dbTools.queryDeptAdvice(sql);
+		String sql = "select a.ADVICE,a.EXPERTADVICE,b.LITIGANTNAME,b.LITIGANTTIME,b.LITIGANTCONTENT from TB_DEPTADVICE a, TB_LITIGANTSTATE b where a.ID=b.DEPTADVICEID and a.ID=?";
+		DeptAdviceBean dab = dbTools.queryDeptAdvice(sql, new String[]{adviceID});
 		ArrayList result = new ArrayList();
 		if(dab==null)
 		{
@@ -156,9 +156,11 @@ public class DeptFKAction extends DispatchAction {
 		}
 
 		DBTools dbTools = new DBTools();
-		String tempsql="select ID from TB_LITIGANTSTATE where DEPTADVICEID='" + adviceID + "'";
-      String sql = "update TB_DEPTADVICE set ADVICE='" + deptAdvice + "',TIME='" + time + "',ISFK='1',ATTACHNAME='" + attachName + "',EXPERTADVICE='" + expertAdvice + "' where ID='" + adviceID + "'";
-      boolean result = dbTools.insertItem(sql);
+		String tempsql="select ID from TB_LITIGANTSTATE where DEPTADVICEID=?";
+		String[] tempParams = new String[]{adviceID};
+      String sql = "update TB_DEPTADVICE set ADVICE=?,TIME=?,ISFK=?,ATTACHNAME=?,EXPERTADVICE=? where ID=?";
+      String[] params = new String[]{deptAdvice, time, "1", attachName, expertAdvice, adviceID};
+      boolean result = dbTools.insertItem(sql, params);
         
       if(result)
         {
@@ -167,29 +169,32 @@ public class DeptFKAction extends DispatchAction {
 			result = dbTools.InsertHandleProcess(reportID, userName, SystemConstant.HP_DEPTADVICE, SystemConstant.SS_SURVEYING, SystemConstant.LCT_DWDC, describe);
 			
         	//将该反馈消息插入到数据库中，便于在管理平台首页可以查看到该反馈消息，提醒工作人员
-        	sql = "insert into TB_FKRECODER(REPORTID, TIME,TYPE,FKNAME) values('" + reportID + "','" + time + "','" + SystemConstant.REPLY_DEPT + "','" + userName + "')";
-        	dbTools.insertItem(sql);
+        	sql = "insert into TB_FKRECODER(REPORTID, TIME,TYPE,FKNAME) values(?, ?, ?, ?)";
+        	params = new String[]{reportID, time, SystemConstant.REPLY_DEPT, userName};
+        	dbTools.insertItem(sql, params);
         }
         
       if(result)
         {
         	//sql = "if not exists(select ID from TB_LITIGANTSTATE where DEPTADVICEID='" + adviceID + "') insert into TB_LITIGANTSTATE(REPORTID,LITIGANTNAME,LITIGANTTIME,LITIGANTCONTENT,DEPTADVICEID) values('" + reportID + "','" + litigantName + "','" + litigantTime + "','" + attitude + "','" + adviceID + "') else update TB_LITIGANTSTATE set LITIGANTNAME='" + litigantName + "', LITIGANTTIME='" + litigantTime + "',LITIGANTCONTENT='" + attitude +  "' where DEPTADVICEID='" + adviceID + "'";
-    	   boolean flag=dbTools.queryISEXIST(tempsql);
+    	   boolean flag=dbTools.queryISEXIST(tempsql, tempParams);
     	   if(flag)
     	   {
-    		   sql="insert into TB_LITIGANTSTATE(REPORTID,LITIGANTNAME,LITIGANTTIME,LITIGANTCONTENT,DEPTADVICEID) values('" + reportID + "','" + litigantName + "','" + litigantTime + "','" + attitude + "','" + adviceID + "')";
+    		   sql="insert into TB_LITIGANTSTATE(REPORTID,LITIGANTNAME,LITIGANTTIME,LITIGANTCONTENT,DEPTADVICEID) values(?, ?, ?, ?, ?)";
+    		   params = new String[]{reportID, litigantName, litigantTime, attitude, adviceID};
     	   }
     	   else
     	   {
-    		   sql="update TB_LITIGANTSTATE set LITIGANTNAME='" + litigantName + "', LITIGANTTIME='" + litigantTime + "',LITIGANTCONTENT='" + attitude +  "' where DEPTADVICEID='" + adviceID + "'";
+    		   sql="update TB_LITIGANTSTATE set LITIGANTNAME=?, LITIGANTTIME=?,LITIGANTCONTENT=? where DEPTADVICEID=?";
+    		   params = new String[]{litigantName, litigantTime, attitude, adviceID};
     	   }
-    	  result = dbTools.insertItem(sql);
+    	  result = dbTools.insertItem(sql, params);
         }
 
         if(result)
         {
-			sql = "update TB_ED_ADVICE set ISSUBMIT='1' where ID=" +id;
-			result = dbTools.insertItem(sql);
+			sql = "update TB_ED_ADVICE set ISSUBMIT='1' where ID=?";
+			result = dbTools.insertItem(sql, new String[]{id});
         }
         PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();

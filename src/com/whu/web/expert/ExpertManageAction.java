@@ -53,8 +53,11 @@ public class ExpertManageAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select * from SYS_EXPERTINFO";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryExpertSql", sql);
+		request.getSession().setAttribute("queryExpertParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryExpertList(rs, rowsPerPage);
@@ -81,6 +84,7 @@ public class ExpertManageAction extends DispatchAction {
 		String operation = request.getParameter("operation");
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -90,32 +94,41 @@ public class ExpertManageAction extends DispatchAction {
 			String faculty = expertManageForm.getFaculty();
 			String research = expertManageForm.getResearch();
 			String temp = "";
+			ArrayList<String> paramList = new ArrayList<String>();
 			if(!expertName.equals(""))
 			{
-				temp += " and NAME like '%" + expertName + "%'";
+				temp += " and NAME like ?";
+				paramList.add("%" + expertName + "%");
 			}
 			if(!dept.equals(""))
 			{
-				temp += " and DEPT like '%" + dept + "%'";
+				temp += " and DEPT like ?";
+				paramList.add("%" + dept + "%");
 			}
 			if(!research.equals(""))
 			{
-				temp += " and RESEARCH like '%" + research + "%'";
+				temp += " and RESEARCH like ?";
+				paramList.add('%' + research + "%");
 			}
 			if(!faculty.equals(""))
 			{
-				temp += " and FACULTY like '%" + faculty + "%'";
+				temp += " and FACULTY like ?";
+				paramList.add("%" + faculty + "%");
 			}
+			params = paramList.toArray(new String[0]);
 			sql = "select * from SYS_EXPERTINFO where 1=1 " + temp;
 			request.getSession().setAttribute("queryExpertSql", sql);
+			request.getSession().setAttribute("queryExpertParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryExpertSql");
+			params = (String[])request.getSession().getAttribute("queryExpertParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -181,8 +194,8 @@ public class ExpertManageAction extends DispatchAction {
 		
 		String id = request.getParameter("uid");
 		DBTools dbTools = new DBTools();
-		String sql = "select * from SYS_EXPERTINFO where ID=" + id;
-		ExpertInfo expertInfo = dbTools.queryExpertInfo(sql);
+		String sql = "select * from SYS_EXPERTINFO where ID=?";
+		ExpertInfo expertInfo = dbTools.queryExpertInfo(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(expertInfo!=null)
 		{
@@ -210,6 +223,7 @@ public class ExpertManageAction extends DispatchAction {
 		DBTools db = new DBTools();
 		
 		String sql = (String)request.getSession().getAttribute("queryExpertSql");
+		String[] params = (String[])request.getSession().getAttribute("queryExpertParams");
 		try
 		{
 			String fname = "expertList";
@@ -217,7 +231,7 @@ public class ExpertManageAction extends DispatchAction {
 			response.reset();
 			response.setHeader("Content-disposition", "attachment;filename=" + fname + ".xls");
 			response.setContentType("application/msexcel");
-			ResultSet rs = db.queryRsList(sql);
+			ResultSet rs = db.queryRsList(sql, params);
 			rs.last();
 			int length = rs.getRow();
 			rs.beforeFirst();

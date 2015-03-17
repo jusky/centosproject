@@ -55,7 +55,7 @@ public class TjManageAction extends DispatchAction {
 		//String sql = "select b.CAPTION as TITLE,count(*) as NUM from TB_REPORTINFO a, SYS_DATA_DIC b where a.ISDELETE='0' and a.STATUS=b.CODE and b.CODENAME='ZDBZ_SJZT' and a.LASTTIME >= '" + lastDate + "' and a.LASTTIME <= '" + nowDate + "' group by b.CAPTION";
 		String sql = "select b.CAPTION as TITLE,count(*) as NUM from TB_REPORTINFO a, SYS_DATA_DIC b where a.ISDELETE='0' and a.STATUS=b.CODE and b.CODENAME='ZDBZ_SJZT' group by b.CAPTION";
 		DBTools dbTools = new DBTools();
-		ArrayList itemList = dbTools.queryTjInfo(sql);
+		ArrayList itemList = dbTools.queryTjInfo(sql, new String[0]);
 		XmlTools xmlTool = new XmlTools();
 		String result = xmlTool.CreateXml("事件状态统计", xAxisName, yAxisName, numberPrefix, itemList, "2");
 		//String temp = xmlTool.CreateLineXml("每季度举报与受理总数","个数");
@@ -102,7 +102,7 @@ public class TjManageAction extends DispatchAction {
 			sql += temp;
 			sql += "  group by b.CAPTION";
 			DBTools dbTools = new DBTools();
-			ArrayList itemList = dbTools.queryTjInfo(sql);
+			ArrayList itemList = dbTools.queryTjInfo(sql, new String[0]);
 			
 			//如果没有查询到任何数据，则添加一个空记录，否则前台显示出错
 			if(itemList.size() == 0)
@@ -127,11 +127,11 @@ public class TjManageAction extends DispatchAction {
 			}
 			DBTools dbTools = new DBTools();
 			//查询受理个数
-			String sql = "select substring(CREATETIME,1,7) as MONTH,count(*) as NUM from TB_REPORTINFO where substring(CREATETIME,1,4)='" + year + "' group by substring(CREATETIME,1,7)";
-			HashMap slTable = dbTools.querySlAndLaInfo(sql);
+			String sql = "select substring(CREATETIME,1,7) as MONTH,count(*) as NUM from TB_REPORTINFO where substring(CREATETIME,1,4)=? group by substring(CREATETIME,1,7)";
+			HashMap slTable = dbTools.querySlAndLaInfo(sql, new String[]{year});
 			//查询立案个数
-			sql = "select substring(APPROVETIME,1,7) as MONTH,count(*) as NUM from TB_APPROVEINFO where substring(APPROVETIME,1,4)='" + year + "' group by substring(APPROVETIME,1,7)";
-			HashMap laTable = dbTools.querySlAndLaInfo(sql);
+			sql = "select substring(APPROVETIME,1,7) as MONTH,count(*) as NUM from TB_APPROVEINFO where substring(APPROVETIME,1,4)=? group by substring(APPROVETIME,1,7)";
+			HashMap laTable = dbTools.querySlAndLaInfo(sql, new String[]{year});
 			
 			String tempStr = xmlTool.CreateLineXml(year + "年每月受理与立案总数","个数", year, slTable, laTable);
 			request.setAttribute("chartXml2", tempStr);
@@ -148,8 +148,9 @@ public class TjManageAction extends DispatchAction {
 		String status = request.getParameter("status");
 		request.getSession().setAttribute("TjStatus", status);
 		String sql = "";
-		sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM from TB_REPORTINFO a, SYS_DATA_DIC b where  a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' and ISDELETE='0' and a.STATUS='" + status + "' order by REPORTTIME desc";
-		
+		sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM from TB_REPORTINFO a, SYS_DATA_DIC b where  a.STATUS=b.CODE and b.CODENAME=? and ISDELETE=? and a.STATUS=? order by REPORTTIME desc";
+
+		String[] params = new String[]{SystemConstant.sjzt, "0", status};
 		
 		CheckPage pageBean = new CheckPage();
 		int queryPageNo = 1;// 
@@ -161,7 +162,9 @@ public class TjManageAction extends DispatchAction {
 		pageBean.setQueryPageNo(queryPageNo);
 		
 		request.getSession().setAttribute("queryTJStatusSql", sql);
+		request.getSession().setAttribute("queryTJStatusParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryEventList(rs, rowsPerPage);
@@ -198,6 +201,7 @@ public class TjManageAction extends DispatchAction {
 
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -210,9 +214,11 @@ public class TjManageAction extends DispatchAction {
 			String jbBeginTime = tjManageForm.getJbBeginTime();
 			String jbEndTime = tjManageForm.getJbEndTime();
 			String temp = "";
+			ArrayList<String> paramList = new ArrayList<String>();
 			if(!serialNum.equals(""))
 			{
-				temp += " and a.SERIALNUM='" + serialNum + "'";
+				temp += " and a.SERIALNUM=?";
+				paramList.add(serialNum);
 			}
 			if(!reportName.equals(""))
 			{
@@ -235,24 +241,31 @@ public class TjManageAction extends DispatchAction {
 			}
 			if(!jbBeginTime.equals(""))
 			{
-				temp += " and a.REPORTTIME >= '" + jbBeginTime + "'";
+				temp += " and a.REPORTTIME >= ?";
+				paramList.add(jbBeginTime);
 			}
 			if(!jbEndTime.equals(""))
 			{
-				temp += " and a.REPORTTIME <= '" + jbEndTime + "'";
+				temp += " and a.REPORTTIME <= ?";
+				paramList.add(jbEndTime);
 			}
 			String tjStatus = (String)request.getSession().getAttribute("TjStatus");
-			sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM from TB_REPORTINFO a, SYS_DATA_DIC b where  a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' and a.ISDELETE='0' and a.STATUS='" + tjStatus + "'" + temp + " order by REPORTTIME desc";
+			sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM from TB_REPORTINFO a, SYS_DATA_DIC b where  a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' and a.ISDELETE='0' and a.STATUS=? " + temp + " order by REPORTTIME desc";
+			paramList.add(0, tjStatus);
+			params = paramList.toArray(new String[0]);
 			request.getSession().setAttribute("queryTJStatusSql", sql);
+			request.getSession().setAttribute("queryTJStatusParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryTJStatusSql");
+			params = (String[])request.getSession().getAttribute("queryTJStatusParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);

@@ -171,6 +171,7 @@
 				</fieldset>
 				<fieldset>
 					<legend>被举报人信息</legend>
+					<logic:notEmpty name="EventBean" property="beReportList">
 					<logic:iterate name="EventBean" property="beReportList" id="BeReportBean">
 						<dl class="nowrap">
 							<dt>被举报人姓名：</dt>
@@ -190,6 +191,7 @@
 						</dl>
 						<div class="divider"></div>
 					</logic:iterate>
+					</logic:notEmpty>
 				</fieldset>
 				<fieldset>
 					<legend>举报内容</legend>

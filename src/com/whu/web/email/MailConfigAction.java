@@ -55,21 +55,26 @@ public class MailConfigAction extends DispatchAction {
 		boolean result = false;
 		if(type.equals("new"))
 		{
-			sql = "Insert into TB_MAILCONFIG(ACCOUNTNAME,MAILBOXTYPE,MAILADDRESS,PWD,SMTPPC,SMTPPORT,POPPC,POPPORT,LOGINNAME,ISDEFAULT) values('"
+		/*	sql = "Insert into TB_MAILCONFIG(ACCOUNTNAME,MAILBOXTYPE,MAILADDRESS,PWD,SMTPPC,SMTPPORT,POPPC,POPPORT,LOGINNAME,ISDEFAULT) values('"
 				+ accountName + "','" + mailBoxType + "','" + mailBoxAddress + "','"
 				+ mailBoxPwd + "','" + smtpPC + "'," + smtpPort + ",'"
-				+ popPC + "'," + popPort + ",'" + loginName + "','0')";
-			result = dbTools.insertItem(sql);
+				+ popPC + "'," + popPort + ",'" + loginName + "','0')"; */
+			sql = "Insert into TB_MAILCONFIG(ACCOUNTNAME,MAILBOXTYPE,MAILADDRESS,PWD,SMTPPC,SMTPPORT,POPPC,POPPORT,LOGINNAME,ISDEFAULT) values(?,?,?,?,?,?,?,?,?'0')";
+			String[] params = {accountName, mailBoxType, mailBoxAddress, mailBoxPwd, smtpPC, smtpPort, popPC, popPort, loginName};
+			result = dbTools.insertItem(sql, params);
 		}
 		else if(type.equals("edit"))
 		{
 			String id = request.getParameter("id");
-			sql = "update TB_MAILCONFIG set ACCOUNTNAME='" + accountName + "', MAILBOXTYPE='" 
+		/*	sql = "update TB_MAILCONFIG set ACCOUNTNAME='" + accountName + "', MAILBOXTYPE='" 
 			+ mailBoxType + "', MAILADDRESS='" + mailBoxAddress +"',PWD='"
 			+ mailBoxPwd + "',SMTPPC='" + smtpPC + "',SMTPPORT="
 			+ smtpPort + ",POPPC='" + popPC + "',POPPORT="
-			+ popPort + " where ID=" + id;
-			result = dbTools.updateItem(sql);
+			+ popPort + " where ID=" + id; */
+			
+			sql = "update TB_MAILCONFIG set ACCOUNTNAME=?, MAILBOXTYPE=?, MAILADDRESS=?,PWD=?,SMTPPC=?,SMTPPORT=?,POPPC=?,POPPORT=? where ID=?"; 
+			String[] params = {accountName, mailBoxType, mailBoxAddress, mailBoxPwd, smtpPC, smtpPort, popPC, popPort, id};
+			result = dbTools.updateItem(sql, params);
 		}
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
@@ -95,8 +100,8 @@ public class MailConfigAction extends DispatchAction {
 		String id = request.getParameter("id");
 		MailConfigForm mailConfigForm = (MailConfigForm) form;
 		DBTools dbTools = new DBTools();
-		String sql = "select * from TB_MAILCONFIG where ID=" + id;
-		EmailBean emailBean = dbTools.queryEmailConfig(sql);
+		String sql = "select * from TB_MAILCONFIG where ID=?";
+		EmailBean emailBean = dbTools.queryEmailConfig(sql, new String[]{id});
 		if(emailBean!=null)
 		{
 			ArrayList result = new ArrayList();

@@ -143,53 +143,63 @@ public class UploadWordServlet extends HttpServlet {
 				//上传成功，则插入数据库
 				if (new File(fileRealPath).exists() && isEdit.equals("0") && !type.equals("combineReport")) {
 					DBTools dbTools = new DBTools();
-					String tempsql="select * from TB_EXPERTFILE where REPORTID='" + reportID + "'";
+					String tempsql="select * from TB_EXPERTFILE where REPORTID=?";
+					String[] tempParams = new String[]{reportID};
 					String sql = "";
+					String[] params = new String[0];
 					if(type.equals("surveyReport"))
 					{
 						
 						String createTime = SystemShare.GetNowTime("yyyy-MM-dd");
-						sql = "insert into TB_SURVEYREPORT(REPORTID, UPDATETIME, FILENAME) values('" + reportID + "','" + createTime + "','" + docUrl + "')";
+						sql = "insert into TB_SURVEYREPORT(REPORTID, UPDATETIME, FILENAME) values(?, ?, ?)";
+						params = new String[]{reportID, createTime, docUrl};
 					}
 					else if(type.equals("handleDecide"))
 					{
-						sql = "update TB_HANDLEDECIDE set FILEPATH='" + docUrl + "' where SERIALNUM='" + serialNum + "'";
+						sql = "update TB_HANDLEDECIDE set FILEPATH=? where SERIALNUM=?";
+						params = new String[]{docUrl, serialNum};
 					}
 					else if(type.equals("deptSurveyLetter"))
 					{
-						sql = "update TB_DEPTSURVEYLETTER set FILEPATH='" + docUrl + "' where ID=" + serialNum;
+						sql = "update TB_DEPTSURVEYLETTER set FILEPATH=? where ID=?";
+						params = new String[]{docUrl, serialNum};
 					}
 					else if(type.equals("expertJDH"))
 					{
 						//sql = "if not exists(select * from TB_EXPERTFILE where REPORTID='" + reportID + "') insert into TB_EXPERTFILE(REPORTID, JDHPATH) values('" + reportID + "','" + docUrl + "') else update TB_EXPERTFILE set JDHPATH='" + docUrl + "' where REPORTID='" + reportID + "'";
-						boolean flag=dbTools.queryISEXIST(tempsql);
+						boolean flag=dbTools.queryISEXIST(tempsql, tempParams);
 						if(flag)
 						{
-							sql="insert into TB_EXPERTFILE(REPORTID, JDHPATH) values('" + reportID + "','" + docUrl + "')";
+							sql="insert into TB_EXPERTFILE(REPORTID, JDHPATH) values(?, ?)";
+							params = new String[]{reportID, docUrl};
 						}
 						else
 						{
-							sql="update TB_EXPERTFILE set JDHPATH='" + docUrl + "' where REPORTID='" + reportID + "'";
+							sql="update TB_EXPERTFILE set JDHPATH=? where REPORTID=?";
+							params = new String[]{docUrl, reportID};
 						}
 					}
 					else if(type.equals("expertJDYJS"))
 					{
 						//sql = "if not exists(select * from TB_EXPERTFILE where REPORTID='" + reportID + "') insert into TB_EXPERTFILE(REPORTID, YJSPATH) values('" + reportID + "','" + docUrl + "') else update TB_EXPERTFILE set YJSPATH='" + docUrl + "' where REPORTID='" + reportID + "'";
-						boolean flag=dbTools.queryISEXIST(tempsql);
+						boolean flag=dbTools.queryISEXIST(tempsql, tempParams);
 						if(flag)
 						{
-							sql="insert into TB_EXPERTFILE(REPORTID, YJSPATH) values('" + reportID + "','" + docUrl + "')";
+							sql="insert into TB_EXPERTFILE(REPORTID, YJSPATH) values(?, ?)";
+							params = new String[]{reportID, docUrl};
 						}
 						else
 						{
-							sql="update TB_EXPERTFILE set YJSPATH='" + docUrl + "' where REPORTID='" + reportID + "'";
+							sql="update TB_EXPERTFILE set YJSPATH=? where REPORTID=?";
+							params = new String[]{docUrl, reportID};
 						}
 					}
 					else if(type.equals("sjybd"))
 					{
-						sql = "insert into TB_SJYBDINFO(REPORTID,FILEPATH) values('" + reportID + "','" + docUrl + "')";
+						sql = "insert into TB_SJYBDINFO(REPORTID,FILEPATH) values(?, ?)";
+						params = new String[]{reportID, docUrl};
 					}
-					dbTools.insertItem(sql);
+					dbTools.insertItem(sql, params);
 					//保存到数据库,供下次编辑时提供路径信息
 				}
 			}

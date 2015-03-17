@@ -51,7 +51,7 @@ public class ConfigMiscountAction extends DispatchAction {
 		String detail = configMiscountForm.getDetail();
 		String time = configMiscountForm.getTime();
 		String miscountId = "";
-		String[] mistypeId = mistype.split(",");
+		String[] mistypeIdArray = mistype.split(",");
 		
 		String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());;
 		
@@ -59,23 +59,19 @@ public class ConfigMiscountAction extends DispatchAction {
 	
 		DBTools dbTool = new DBTools();
 		String sql = "";
+		String[] params = new String[0];
 		if(operation.equals("new") && !mistype.equals("")) {
-			sql = "insert into TB_MISCOUNT(MISCOUNTID,TITLE,INDIID,INSTID,REPORTID,PUNISH,DETAIL,TIME) values('" + miscountId + "','" + title + "','" + individual + "','" + institute + "','" + reportId + "','" + punish + "','" + detail + "','" + time + "')";
+			sql = "insert into TB_MISCOUNT(MISCOUNTID,TITLE,INDIID,INSTID,REPORTID,PUNISH,DETAIL,TIME) values(?, ?, ?, ?, ?, ?, ?, ?)";
+			params = new String[]{miscountId, title, individual, institute, reportId, punish, detail, time};
 		} 
 	/*	else if(operation.equals("edit")) {
 			String id = configMiscountForm.getId();
 			// use update trigger delete TB_MISCOUNT_LIST before
 			sql = "update TB_MISCOUNT set TITLE='" + title + "', INDIID='" + individual + "', INSTID='" + institute + "', REPORTID='" + reportId + "', PUNISH='" + punish + "', TIME='" + time + "', DETAIL='" + detail + "' where ID='" + id + "'";
 		} */
-		String sql_list = "insert into TB_MISCOUNT_LIST(MISCOUNTID, MISTYPE) values ";
-		for (int i = 0; i < mistypeId.length; i++) {
-			sql_list += "('" + miscountId + "','" + mistypeId[i] + "'),"; 
-		}
-		sql_list = sql_list.substring(0, sql_list.length() - 1);
+	
 		
-		boolean result = dbTool.insertItem(sql);
-		if(result)
-			result = dbTool.insertItem(sql_list);
+		boolean result = dbTool.insertItem(sql, params) && dbTool.insertMiscountList(miscountId, mistypeIdArray);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
@@ -113,8 +109,8 @@ public class ConfigMiscountAction extends DispatchAction {
 		ConfigMiscountForm configMiscountForm = (ConfigMiscountForm)form;
 		String id = request.getParameter("uid");
 		DBTools dbTools = new DBTools();
-		String sql = "select a.ID,a.MISCOUNTID,a.TITLE,a.REPORTID,a.TIME,a.DETAIL,b.NAME as INDI,c.NAME as INST, GROUP_CONCAT(d.RID SEPARATOR ',') as MISLIST,GROUP_CONCAT(d.RNAME SEPARATOR ',') as MISNAME, e.CAPTION as PUNISHMENT from (select * from VIEW_FULL_MISCOUNT where ID='" + id + "') as a, SYS_INDIVIDUAL_INFO b, SYS_INST_INFO c, SYS_JBREASON as d, (select CODE,CAPTION from SYS_DATA_DIC where CODENAME='ZDBZ_CLJD')as e where a.INDIID=b.PID and a.INSTID=c.CODE and a.MISTYPE=d.RID and a.PUNISH=e.CODE group by a.MISCOUNTID";
-		MiscountInfo miscountInfo = dbTools.queryMiscountInfo(sql);
+		String sql = "select a.ID,a.MISCOUNTID,a.TITLE,a.REPORTID,a.TIME,a.DETAIL,b.NAME as INDI,c.NAME as INST, GROUP_CONCAT(d.RID SEPARATOR ',') as MISLIST,GROUP_CONCAT(d.RNAME SEPARATOR ',') as MISNAME, e.CAPTION as PUNISHMENT from (select * from VIEW_FULL_MISCOUNT where ID=?) as a, SYS_INDIVIDUAL_INFO b, SYS_INST_INFO c, SYS_JBREASON as d, (select CODE,CAPTION from SYS_DATA_DIC where CODENAME='ZDBZ_CLJD')as e where a.INDIID=b.PID and a.INSTID=c.CODE and a.MISTYPE=d.RID and a.PUNISH=e.CODE group by a.MISCOUNTID";
+		MiscountInfo miscountInfo = dbTools.queryMiscountInfo(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(miscountInfo != null){
 			result.add(miscountInfo);
@@ -138,9 +134,9 @@ public class ConfigMiscountAction extends DispatchAction {
 		ConfigMiscountForm configMiscountForm = (ConfigMiscountForm)form;
 		String id = request.getParameter("uid");
 		DBTools dbTools = new DBTools();
-		String sql = "select a.ID,a.MISCOUNTID,a.TITLE,a.REPORTID,a.TIME,a.DETAIL,b.NAME as INDI,c.NAME as INST, GROUP_CONCAT(d.RID SEPARATOR ',') as MISLIST,GROUP_CONCAT(d.RNAME SEPARATOR ',') as MISNAME, e.CAPTION as PUNISHMENT from (select * from VIEW_FULL_MISCOUNT where ID='" + id + "') as a, SYS_INDIVIDUAL_INFO b, SYS_INST_INFO c, SYS_JBREASON as d, (select CODE,CAPTION from SYS_DATA_DIC where CODENAME='ZDBZ_CLJD')as e where a.INDIID=b.PID and a.INSTID=c.CODE and a.MISTYPE=d.RID and a.PUNISH=e.CODE group by a.MISCOUNTID";
+		String sql = "select a.ID,a.MISCOUNTID,a.TITLE,a.REPORTID,a.TIME,a.DETAIL,b.NAME as INDI,c.NAME as INST, GROUP_CONCAT(d.RID SEPARATOR ',') as MISLIST,GROUP_CONCAT(d.RNAME SEPARATOR ',') as MISNAME, e.CAPTION as PUNISHMENT from (select * from VIEW_FULL_MISCOUNT where ID=?) as a, SYS_INDIVIDUAL_INFO b, SYS_INST_INFO c, SYS_JBREASON as d, (select CODE,CAPTION from SYS_DATA_DIC where CODENAME='ZDBZ_CLJD')as e where a.INDIID=b.PID and a.INSTID=c.CODE and a.MISTYPE=d.RID and a.PUNISH=e.CODE group by a.MISCOUNTID";
 		
-		MiscountInfo miscountInfo = dbTools.queryMiscountInfo(sql);
+		MiscountInfo miscountInfo = dbTools.queryMiscountInfo(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(miscountInfo != null){
 			result.add(miscountInfo);

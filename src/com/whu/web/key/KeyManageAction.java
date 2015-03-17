@@ -51,8 +51,11 @@ public class KeyManageAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select * from SYS_KEYINFO";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryKeySql", sql);
+		request.getSession().setAttribute("queryKeyParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryKeyList(rs, rowsPerPage);
@@ -91,6 +94,7 @@ public class KeyManageAction extends DispatchAction {
 
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -99,21 +103,26 @@ public class KeyManageAction extends DispatchAction {
 			String keyBeginTime = keyManageForm.getKeyBeginTime();
 			String keyEndTime = keyManageForm.getKeyEndTime();
 			String temp = "";
-			if(!keyBeginTime.equals(""))
+			ArrayList<String> paramList = new ArrayList<String>();
+			if(keyBeginTime != null && !keyBeginTime.equals(""))
 			{
-				temp += " and STARTTIME >= '" + keyBeginTime + "'";
+				temp += " and STARTTIME >= ?";
+				paramList.add(keyBeginTime);
 			}
-			if(!keyEndTime.equals(""))
+			if(keyEndTime != null && !keyEndTime.equals(""))
 			{
-				temp += " and ENDTIME <= '" + keyEndTime + "'";
+				temp += " and ENDTIME <= ?";
+				paramList.add(keyEndTime);
 			}
-			
+			params = paramList.toArray(new String[0]);
 			sql = "select * from SYS_KEYINFO where 1=1 " + temp;
 			request.getSession().setAttribute("queryKeySql", sql);
+			request.getSession().setAttribute("queryKeyParms", params);
 		}
 		
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryKeySql");
+			params = (String[])request.getSession().getAttribute("queryKeyParams");
 			/*
 			if(orderField != null && !orderField.equals(""))
 			{
@@ -127,6 +136,7 @@ public class KeyManageAction extends DispatchAction {
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -211,8 +221,9 @@ public class KeyManageAction extends DispatchAction {
 		if(result)
 		{
 			DBTools dbTools = new DBTools();
-			String sql = "insert into SYS_KEYINFO(KEYNAME,STARTTIME,ENDTIME,PATH,LOCALPATH,ISUSE) values('" + keyName + "', '', '', '" + serverPath + "','" + path + "', '0')";
-		    result = dbTools.insertItem(sql);
+			String sql = "insert into SYS_KEYINFO(KEYNAME,STARTTIME,ENDTIME,PATH,LOCALPATH,ISUSE) values(?, ?, ?, ?, ?, ?)";
+		   String[] params = new String[]{keyName, "", "", serverPath, path, "0"};
+			result = dbTools.insertItem(sql, params);
 		    
 		    dbTools.insertLogInfo((String)request.getSession().getAttribute("UserName"), SystemConstant.LOG_NEWKEY, "生成新的密钥文件，文件名为：" + keyName, request.getRemoteAddr());
 		}
@@ -253,12 +264,12 @@ public class KeyManageAction extends DispatchAction {
 
 		String time =SystemShare.GetNowTime("yyyy-MM-dd");
 		
-		String sql = "update SYS_KEYINFO set ENDTIME='" + time + "', ISUSE='0' where ISUSE='1'";
-		boolean result = dbTools.insertItem(sql);
+		String sql = "update SYS_KEYINFO set ENDTIME=?, ISUSE='0' where ISUSE='1'";
+		boolean result = dbTools.insertItem(sql, new String[]{time});
 		if(result)
 		{
-			sql = "update SYS_KEYINFO set STARTTIME='" + time + "', ISUSE='1' where ID=" + keyID;
-			result = dbTools.insertItem(sql);
+			sql = "update SYS_KEYINFO set STARTTIME=?, ISUSE='1' where ID=?";
+			result = dbTools.insertItem(sql, new String[]{time, keyID});
 			if(result)
 			{
 				//更新系统正在使用的密钥
@@ -305,8 +316,9 @@ public class KeyManageAction extends DispatchAction {
 		{
 			String localPath = (String)request.getSession().getAttribute("LocalPath");
 			String keyName =  (String)request.getSession().getAttribute("keyName");
-			String sql = "insert into SYS_KEYINFO(KEYNAME,PATH,LOCALPATH,ISUSE) values('" + keyName + "', '" + keyPath + "','" + localPath + "', '0')";
-			result = dbTools.insertItem(sql);
+			String sql = "insert into SYS_KEYINFO(KEYNAME,PATH,LOCALPATH,ISUSE) values(?, ?, ?, ?)";
+			String[] params = new String[]{keyName, keyPath, localPath, "0"};
+			result = dbTools.insertItem(sql, params);
 			if(result)
 			{
 				dbTools.insertLogInfo((String)request.getSession().getAttribute("UserName"), SystemConstant.LOG_IMPORTKEY, "导入密钥文件，文件名为：" + keyName, request.getRemoteAddr());

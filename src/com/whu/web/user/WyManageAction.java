@@ -51,8 +51,11 @@ public class WyManageAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select * from TB_WYINFO";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryWYSql", sql);
+		request.getSession().setAttribute("queryWYParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryWYList(rs, rowsPerPage);
@@ -79,6 +82,7 @@ public class WyManageAction extends DispatchAction {
 		String operation = request.getParameter("operation");
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -86,25 +90,32 @@ public class WyManageAction extends DispatchAction {
 			String wyName = wyManageForm.getWyName();
 			String dept = wyManageForm.getDept();
 			String temp = "";
+			ArrayList<String> paramList = new ArrayList<String>();
 			if(!wyName.equals(""))
 			{
-				temp += " and NAME like '%" + wyName + "%'";
+				temp += " and NAME like ?";
+				paramList.add("%" + wyName + "%");
 			}
 			if(!dept.equals(""))
 			{
-				temp += " and DEPT like '%" + dept + "%'";
+				temp += " and DEPT like ?";
+				paramList.add("%" + dept + "%");
 			}
 			
 			sql = "select * from TB_WYINFO where 1=1 " + temp;
+			params = paramList.toArray(new String[0]);
 			request.getSession().setAttribute("queryWYSql", sql);
+			request.getSession().setAttribute("queryWYParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryWYSql");
+			params = (String[])request.getSession().getAttribute("queryWYParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -186,14 +197,14 @@ public class WyManageAction extends DispatchAction {
 		else if(type.equals("edit"))
 		{
 			String id = request.getParameter("uid");
-			String sql = "select * from TB_WYINFO where ID='" + id + "'";
-			wyBean = dbTools.queryWYBean(sql);
+			String sql = "select * from TB_WYINFO where ID=?";
+			wyBean = dbTools.queryWYBean(sql, new String[]{id});
 			if(wyBean != null)
 			{
 				request.setAttribute("wyID", wyBean.getId());
 				String addrName=wyBean.getName();
-				String sqlAddr="select * from TB_CONTACT where CONNAME='" + addrName + "'and  LOGINNAME='committee'";
-				contactBean=dbTools.queryAddrBean(sqlAddr);
+				String sqlAddr="select * from TB_CONTACT where CONNAME=? and  LOGINNAME='committee'";
+				contactBean=dbTools.queryAddrBean(sqlAddr, new String[]{addrName});
 				if(contactBean != null)
 				{
 					request.setAttribute("addrID", contactBean.getId());
@@ -244,8 +255,8 @@ public class WyManageAction extends DispatchAction {
 		WyManageForm wyManageForm = (WyManageForm)form;
 		String id = request.getParameter("uid");
 		DBTools dbTools = new DBTools();
-		String sql = "select * from TB_WYINFO where ID='" + id + "'";
-		WYBean wyBean  = dbTools.queryWYBean(sql);
+		String sql = "select * from TB_WYINFO where ID=?";
+		WYBean wyBean  = dbTools.queryWYBean(sql, new String[]{id});
 		ArrayList list = new ArrayList();
 		list.add(wyBean);
 		wyManageForm.setRecordList(list);
@@ -278,19 +289,25 @@ public class WyManageAction extends DispatchAction {
 		String mark="committee";
 		String sql = "";
 		String sqlAddr="";
+		String[] params = null;
+		String[] addrParams = null;
 		if(wyID.equals(""))//新增
 		{
-			sql = "insert into TB_WYINFO(NAME,SEX,DEPT,TITLE,TXADDRESS,EMAIL,PHONE) values('" + name + "','" + sex + "','" + dept + "','" + title + "','" + txAddress + "','" + email + "','" + phone + "')";
-			sqlAddr="insert into TB_CONTACT(LOGINNAME,CONNAME,CONADDR) values('" + mark + "','" + name + "','" + email + "')";
+			sql = "insert into TB_WYINFO(NAME,SEX,DEPT,TITLE,TXADDRESS,EMAIL,PHONE) values(?, ?, ?, ?, ?, ?, ?)";
+			params = new String[]{name, sex, dept, title, txAddress, email, phone};
+			sqlAddr="insert into TB_CONTACT(LOGINNAME,CONNAME,CONADDR) values(?, ?, ?)";
+			params = new String[]{mark, name, email};
 		}
 		else
 		{
 			//System.out.println(addrID);
-			sql = "update TB_WYINFO set NAME='" + name + "',SEX='" + sex + "',DEPT='" + dept + "',TITLE='" + title + "',TXADDRESS='" + txAddress + "',EMAIL='" + email + "',PHONE='" + phone + "' where ID='" + wyID + "'";
-			sqlAddr="update TB_CONTACT set LOGINNAME='" + mark + "',CONNAME='" + name + "',CONADDR='" + email+ "' where ID='" + addrID + "'";
+			sql = "update TB_WYINFO set NAME=?,SEX=?,DEPT=?,TITLE=?,TXADDRESS=?,EMAIL=?,PHONE=? where ID=?";
+			params = new String[]{name, sex, dept, title, txAddress, email, phone, wyID};
+			sqlAddr="update TB_CONTACT set LOGINNAME=?,CONNAME=?,CONADDR=? where ID=?";
+			addrParams = new String[]{mark, name, email, addrID};
 		}
-		boolean result = dbTools.insertItem(sql);
-		boolean resuatAddr=dbTools.insertItem(sqlAddr);
+		boolean result = dbTools.insertItem(sql, params);
+		boolean resuatAddr=dbTools.insertItem(sqlAddr, addrParams);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result&&resuatAddr)
@@ -315,6 +332,7 @@ public class WyManageAction extends DispatchAction {
 		DBTools db = new DBTools();
 		
 		String sql = (String)request.getSession().getAttribute("queryWYSql");
+		String[] params = (String[])request.getSession().getAttribute("queryWYParams");;
 		try
 		{
 			String fname = "wyList";
@@ -322,7 +340,7 @@ public class WyManageAction extends DispatchAction {
 			response.reset();
 			response.setHeader("Content-disposition", "attachment;filename=" + fname + ".xls");
 			response.setContentType("application/msexcel");
-			ResultSet rs = db.queryRsList(sql);
+			ResultSet rs = db.queryRsList(sql, params);
 			rs.last();
 			int length = rs.getRow();
 			rs.beforeFirst();

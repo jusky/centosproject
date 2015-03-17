@@ -61,19 +61,25 @@ public class ConfigExpertAction extends DispatchAction {
 		String mark="expert";
 		String sql = "";
 		String sqlAddr="";
+		String[] params = new String[0];
+		String[] addrParams = new String[0];
 		if(operation.equals("new"))
 		{
-			sql = "insert into SYS_EXPERTINFO(NAME,SEX,AGE,TITLE,ISPHD,DEPT,SPECIALTY,RESEARCH,PHONE,EMAIL,ADDRESS,FACULTY) values('" + expertName + "','" + sex + "','" + age + "','" + title + "','" + isPHD + "','" + dept + "','" + specialty + "','" + research + "','" + phone + "','" + email + "','" + address + "','" + faculty + "')";
-			sqlAddr="insert into TB_CONTACT(LOGINNAME,CONNAME,CONADDR) values('" + mark + "','" + expertName + "','" + email + "')";
+			sql = "insert into SYS_EXPERTINFO(NAME,SEX,AGE,TITLE,ISPHD,DEPT,SPECIALTY,RESEARCH,PHONE,EMAIL,ADDRESS,FACULTY) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			params = new String[]{expertName, sex, age, title, isPHD, dept, specialty, research, phone, email, address, faculty};
+			sqlAddr="insert into TB_CONTACT(LOGINNAME,CONNAME,CONADDR) values(?, ?, ?)";
+			addrParams = new String[]{mark, expertName, email};
 		}
 		else if(operation.equals("edit"))
 		{
 			String id = configExpertForm.getId();
-			sql = "update SYS_EXPERTINFO set NAME='" + expertName + "',SEX='" + sex + "',AGE='" + age + "', TITLE='" + title + "', ISPHD='" + isPHD + "',DEPT='" + dept + "',SPECIALTY='" + specialty + "',RESEARCH='" + research + "',PHONE='" + phone + "',EMAIL='" + email + "',ADDRESS='" + address + "',FACULTY='" + faculty + "' where ID=" + id;
-			sqlAddr="update TB_CONTACT set LOGINNAME='" + mark + "',CONNAME='" + expertName + "',CONADDR='" + email+ "' where ID='" + addrID + "'";
+			sql = "update SYS_EXPERTINFO set NAME=?,SEX=?,AGE=?, TITLE=?, ISPHD=?,DEPT=?,SPECIALTY=?,RESEARCH=?,PHONE=?,EMAIL=?,ADDRESS=?,FACULTY=? where ID=?";
+			params = new String[]{expertName, sex, age, title, isPHD, dept, specialty, research, phone, email, address, faculty, id};
+			sqlAddr="update TB_CONTACT set LOGINNAME=?,CONNAME=?,CONADDR=? where ID=?";
+			addrParams = new String[]{mark, expertName, email, addrID};
 		}
-		boolean result = dbTool.insertItem(sql);
-		boolean resuatAddr=dbTool.insertItem(sqlAddr);
+		boolean result = dbTool.insertItem(sql, params);
+		boolean resuatAddr=dbTool.insertItem(sqlAddr, addrParams);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result&&resuatAddr)
@@ -112,8 +118,8 @@ public class ConfigExpertAction extends DispatchAction {
 		ContactBean contactBean = new ContactBean();
 		String id = request.getParameter("uid");
 		DBTools dbTools = new DBTools();
-		String sql = "select * from SYS_EXPERTINFO where ID='" + id + "'";
-		ExpertInfo expertInfo = dbTools.queryExpertInfo(sql);
+		String sql = "select * from SYS_EXPERTINFO where ID=?";
+		ExpertInfo expertInfo = dbTools.queryExpertInfo(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(expertInfo!=null)
 		{
@@ -123,8 +129,8 @@ public class ConfigExpertAction extends DispatchAction {
 			String addrName=expertInfo.getName();
 			request.setAttribute("eSex",expertInfo.getSex());
 			request.setAttribute("isPHD",expertInfo.getIsPHD());
-			String sqlAddr="select * from TB_CONTACT where CONNAME='" + addrName + "'and  LOGINNAME='expert'";
-			contactBean=dbTools.queryAddrBean(sqlAddr);
+			String sqlAddr="select * from TB_CONTACT where CONNAME=? and  LOGINNAME='expert'";
+			contactBean=dbTools.queryAddrBean(sqlAddr, new String[]{addrName});
 			if(contactBean != null)
 			{
 				request.setAttribute("addrID", contactBean.getId());

@@ -55,14 +55,17 @@ public class FacultyAdviceAction extends DispatchAction {
 		String isEdit = facultyAdviceForm.getIsEdit();
 		
 		String sql = "";
+		String[] params = new String[0];
 		if ( isEdit != null && isEdit.equals("0")) { // new advice
-			sql = "insert into TB_FACULTYADVICE(REPORTID,FACULTYID,ISFK,FKTIME,ADVICE) values('" + reportId + "','" + facultyId + "','1','" + time + "','" + advice + "')";
+			sql = "insert into TB_FACULTYADVICE(REPORTID,FACULTYID,ISFK,FKTIME,ADVICE) values(?, ?, ?, ?, ?)";
+			params = new String[]{reportId, facultyId, "1", time, advice};
 		} else if (isEdit != null && isEdit.equals("1")){
-			sql = "update TB_FACULTYADVICE set FKTIME='" + time + "', ADVICE='" + advice + "' where ID='" + id + "'";
+			sql = "update TB_FACULTYADVICE set FKTIME=?, ADVICE=? where ID=?";
+			params = new String[]{time, advice, id};
 		}
 		
 		DBTools dbTools = new DBTools();
-		boolean result = dbTools.insertItem(sql);
+		boolean result = dbTools.insertItem(sql, params);
 
 
 		String createName = (String)request.getSession().getAttribute("UserName");
@@ -135,14 +138,7 @@ public class FacultyAdviceAction extends DispatchAction {
 		String isNotify = "1";
 		
 		if(!surveyReport.equals("") && isHandled.equals("")) {
-			String sql = "insert into TB_FACULTYADVICE(REPORTID,FACULTYID,ISFK) values";
-			for (String faculty:facultyArray){
-				String facultyId = dbTools.querySingleDate("SYS_ZZINFO", "ZZID", "ZZNAME", faculty);
-				sql += "('" + reportId + "','" + facultyId + "','0'),";
-			}
-			if (facultyArray.length > 0) {
-				result = dbTools.insertItem(sql.substring(0, sql.length() - 1));
-			}
+			result = dbTools.insertFacultyAdvice(reportId, facultyArray);
 		}
 		String createName = (String)request.getSession().getAttribute("UserName");
 		String facultyUsers = dbTools.queryUserByZZName(facultys);
@@ -189,9 +185,9 @@ public class FacultyAdviceAction extends DispatchAction {
 		String id = request.getParameter("id");
 		String sql = "";
 		if( id != null && !id.equals("")) {
-			sql = "delete from TB_FACULTYADVICE where ID='" + id + "'";
+			sql = "delete from TB_FACULTYADVICE where ID=?";
 		}
-		boolean result = new DBTools().insertItem(sql);	
+		boolean result = new DBTools().insertItem(sql, new String[]{id});	
 
 		PrintWriter out = response.getWriter(); 
 		JSONObject json = new JSONObject();

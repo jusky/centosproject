@@ -57,8 +57,11 @@ public class DcbgManageAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select a.REPORTID, a.REPORTNAME, a.BEREPORTNAME, a.SERIALNUM, b.ID, b.UPDATETIME, b.FILENAME from TB_REPORTINFO a, TB_SURVEYREPORT b where a.REPORTID=b.REPORTID order by b.ID desc";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryDcbgSql", sql);
+		request.getSession().setAttribute("queryDcbgParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		String serverPath = SystemConstant.GetServerPath() + "/attachment/";
@@ -96,6 +99,7 @@ public class DcbgManageAction extends DispatchAction {
 
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -109,10 +113,13 @@ public class DcbgManageAction extends DispatchAction {
 			String temp = "";
 			if(!serialNum.equals(""))
 			{
-				temp += " and a.SERIALNUM='" + serialNum + "' ";
+			//	temp += " and a.SERIALNUM='" + serialNum + "' ";
+				temp += " and a.SERIALNUM=?";
+				params = new String[]{serialNum};
 			}
 			else
 			{
+				ArrayList<String> paramList = new ArrayList<String>();
 				if(!reportName.equals(""))
 				{
 					AESCrypto aes = new AESCrypto();
@@ -132,24 +139,30 @@ public class DcbgManageAction extends DispatchAction {
 				}
 				if(!createBeginTime.equals(""))
 				{
-					temp += " and b.UPDATETIME >= '" + createBeginTime + "' ";
+					temp += " and b.UPDATETIME >= ? ";
+					paramList.add(createBeginTime);
 				}
 				if(!createEndTime.equals(""))
 				{
-					temp += " and b.UPDATETIME <= '" + createEndTime + "' ";
+					temp += " and b.UPDATETIME <= ? ";
+					paramList.add(createEndTime);
 				}
+				params = paramList.toArray(new String[0]);
 			}
 			sql = "select a.REPORTID, a.REPORTNAME, a.BEREPORTNAME, a.SERIALNUM, b.ID, b.UPDATETIME, b.FILENAME from TB_REPORTINFO a, TB_SURVEYREPORT b where a.REPORTID=b.REPORTID " + temp + " order by b.ID desc";
 			request.getSession().setAttribute("queryDcbgSql", sql);
+			request.getSession().setAttribute("queryDcbgParams", sql);			
 		}
 		
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryDcbgSql");
+			params = (String[])request.getSession().getAttribute("queryDcbgParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -247,11 +260,19 @@ public class DcbgManageAction extends DispatchAction {
 		{
 			//暂存编号，在后面需要保存到数据库中
 			String tempIDs = ids;
+			String[] idArray = ids.split(",");
 			ids = ids.replaceAll(",", "','");
 			ids = "'" + ids + "'";
-			String sql = "select FILENAME from TB_SURVEYREPORT where REPORTID in (" + ids + ")";
+		//	String sql = "select FILENAME from TB_SURVEYREPORT where REPORTID in (" + ids + ")";
+			String sql = "select FILENAME from TB_SURVEYREPORT where REPORTID in (";
+			StringBuilder queryBuilder = new StringBuilder(sql);
+			for (int i = 0; i < idArray.length; i++) {
+				queryBuilder.append(" ?");
+				if(i != idArray.length -1) queryBuilder.append(",");
+			}
+			queryBuilder.append(")");
 			ArrayList resultList = new ArrayList();
-			resultList = dbTool.queryCombineReport(sql);
+			resultList = dbTool.queryCombineReport(queryBuilder.toString(), idArray);
 			
 			String files = "";
 			if(resultList.size() > 0) {
@@ -376,6 +397,7 @@ public class DcbgManageAction extends DispatchAction {
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select * from TB_COMBINEREPORT order by ID desc";
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(new String[0]);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		String serverPath = SystemConstant.GetServerPath() + "/attachment/";

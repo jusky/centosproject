@@ -46,21 +46,24 @@ public class ConfigPunishAction extends DispatchAction {
 		String rate = configPunishForm.getRate();
 		
 		String sql_dic = "";
+		String[] dicParams = null;
+		String[] rateParams = null;
 		String sql_rate = "";
 		DBTools dbTool = new DBTools();
 		if(operation.equals("new")) {
-			sql_dic = "insert into SYS_DATA_DIC(CODENAME,CODE,CAPTION,REMARK) values('" + codename + "','" + code + "','" + caption + "','" + remark + "')";
-			sql_rate = "insert into SYS_CLJD_RATE(CODE,YEAR,RATE) values('"  + code + "','" + year + "','" + rate + "')";
+			sql_dic = "insert into SYS_DATA_DIC(CODENAME,CODE,CAPTION,REMARK) values(?, ?, ?, ?)";
+			dicParams = new String[]{codename, code, caption, remark};
+			sql_rate = "insert into SYS_CLJD_RATE(CODE,YEAR,RATE) values(?, ?, ?)";
+			rateParams = new String[]{code, year, rate};
 		} 
 		else if(operation.equals("edit")) {
 			String id = configPunishForm.getId();
-			sql_dic = "update SYS_DATA_DIC set CODENAME='" + codename + "', CODE='" + code + "', CAPTION='" + caption + "', REMARK='" + remark + "' where ID='" + id + "'";
-			sql_rate = "update SYS_CLJD_RATE set YEAR='" + year + "', RATE='" + rate + "' where CODE='" + code + "'";
+			sql_dic = "update SYS_DATA_DIC set CODENAME=?, CODE=?, CAPTION=?, REMARK=? where ID=?";
+			dicParams = new String[]{codename, code, caption, remark, id};
+			sql_rate = "update SYS_CLJD_RATE set YEAR=?, RATE=? where CODE=?";
+			rateParams = new String[]{year, rate, code};
 		}
-		boolean result = dbTool.insertItem(sql_dic);
-		if(result){
-			result = dbTool.insertItem(sql_rate);
-		}
+		boolean result = dbTool.insertItem(sql_dic, dicParams) && dbTool.insertItem(sql_rate, rateParams);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)

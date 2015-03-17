@@ -42,15 +42,15 @@ public class SjybdManageAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		SjybdManageForm sjybdManageForm = (SjybdManageForm)form;
 		String reportID = request.getParameter("id");
-		String sql = "select * from TB_SJYBDINFO where REPORTID='" + reportID + "'";
+		String sql = "select * from TB_SJYBDINFO where REPORTID=?";
 		DBTools dbTools = new DBTools();
-		SjybdBean sb = dbTools.querySJYBD(sql);
+		SjybdBean sb = dbTools.querySJYBD(sql, new String[]{reportID});
 		ArrayList result = new ArrayList();
 		if(sb==null)
 		{
 			sb = new SjybdBean();
-			sql = "select * from TB_REPORTINFO where REPORTID='" + reportID + "'";
-			EventBean eb = dbTools.queryEvent(sql);
+			sql = "select * from TB_REPORTINFO where REPORTID=?";
+			EventBean eb = dbTools.queryEvent(sql, new String[]{reportID});
 
 			String serialNum = eb.getSerialNum();
 			String recvTime = eb.getCreateTime();
@@ -75,18 +75,21 @@ public class SjybdManageAction extends DispatchAction {
 		String title = sjybdManageForm.getTitle();
 
 		DBTools dbTools = new DBTools();
-		String checkSql="select * from TB_SJYBDINFO where REPORTID='" + reportID + "'";
-		SjybdBean sb = dbTools.querySJYBD(checkSql);
+		String checkSql="select * from TB_SJYBDINFO where REPORTID=?";
+		SjybdBean sb = dbTools.querySJYBD(checkSql, new String[]{reportID});
 		String sql="";
+		String[] params = new String[0];
 		if(sb==null)
 		{
-			sql = "insert into TB_SJYBDINFO(REPORTID,TITLE,SERIALNUM,COMENAME,RECVTIME) values('" + reportID + "','" + title + "','" + serialNum + "','" + comeName + "','" + recvTime + "')";
+			sql = "insert into TB_SJYBDINFO(REPORTID,TITLE,SERIALNUM,COMENAME,RECVTIME) values(?, ?, ?, ?, ?)";
+			params = new String[]{reportID, title, serialNum, comeName, recvTime};
 		}
 		else
 		{
-			sql = "update TB_SJYBDINFO set TITLE='" + title + "', SERIALNUM='" + serialNum + "',recvTime='" + recvTime + "',COMENAME='" + comeName + "' where REPORTID='" + reportID + "'";
+			sql = "update TB_SJYBDINFO set TITLE=?, SERIALNUM=?,recvTime=?,COMENAME=? where REPORTID=?";
+			params = new String[]{title, serialNum, recvTime, comeName, reportID};
 		}
-		boolean result = dbTools.insertItem(sql);
+		boolean result = dbTools.insertItem(sql, params);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
@@ -124,8 +127,8 @@ public class SjybdManageAction extends DispatchAction {
 			return null;
 		}
 		DBTools dbTools = new DBTools();
-		String sql = "select * from TB_SJYBDINFO where REPORTID='" + id + "'";
-		SjybdBean sb = dbTools.querySJYBD(sql);
+		String sql = "select * from TB_SJYBDINFO where REPORTID=?";
+		SjybdBean sb = dbTools.querySJYBD(sql, new String[]{id});
 		
 		String sjybdPath = "";
 		if(sb !=null) sjybdPath = sb.getFilePath();

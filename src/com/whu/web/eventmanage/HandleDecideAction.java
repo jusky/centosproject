@@ -57,6 +57,7 @@ public class HandleDecideAction extends DispatchAction {
 		String shortInfo = handleDecideForm.getShortInfo();
 		String id = handleDecideForm.getId();
 		String sql = "";
+		String[] params = new String[0];
 		String serialNum = "";
 		
 		DBTools dbTools = new DBTools();
@@ -78,11 +79,13 @@ public class HandleDecideAction extends DispatchAction {
 			editFlag = true;
 			if(attachName.equals(""))
 			{
-				sql = "update TB_HANDLEDECIDE set HANDLENAME='" + handleName + "', DEPTNAME='" + deptName + "', SHORTINFO='" + shortInfo + "', CONFERENCE='" + conference + "',HANDLETIME='" + handleTime + "',DECIDECONTENT='" + decideContent + "' where ID=" + id;
+				sql = "update TB_HANDLEDECIDE set HANDLENAME=?, DEPTNAME=?, SHORTINFO=?, CONFERENCE=?,HANDLETIME=?,DECIDECONTENT=? where ID=?";
+				params = new String[]{handleName, deptName, shortInfo, conference, handleTime, decideContent, id};
 			}
 			else
 			{
-				sql = "update TB_HANDLEDECIDE set HANDLENAME='" + handleName + "', DEPTNAME='" + deptName + "', SHORTINFO='" + shortInfo + "', CONFERENCE='" + conference + "',HANDLETIME='" + handleTime + "',DECIDECONTENT='" + decideContent + "',ATTACHNAME='" + attachName + "' where ID=" + id;
+				sql = "update TB_HANDLEDECIDE set HANDLENAME=?, DEPTNAME=?, SHORTINFO=?, CONFERENCE=?,HANDLETIME=?,DECIDECONTENT=?,ATTACHNAME=? where ID=?";
+				params = new String[]{handleName, deptName, shortInfo, conference, handleTime, decideContent, attachName, id};
 			}
 			
 		}
@@ -91,9 +94,10 @@ public class HandleDecideAction extends DispatchAction {
 			editFlag = false;
 			sql = "select SERIALNUM from TB_HANDLEDECIDE order by ID desc limit 1";
 			//生成处理决定编号
-			serialNum = SystemShare.GetSerialNum(sql);
+			serialNum = SystemShare.GetSerialNum(sql, new String[0]);
 			
-			sql = "insert into TB_HANDLEDECIDE(REPORTID,SERIALNUM,HANDLENAME,DEPTNAME,SHORTINFO,CONFERENCE,HANDLETIME,DECIDECONTENT,FILEPATH,ATTACHNAME) values('" + reportID + "','" + serialNum + "','" + handleName + "','" + deptName + "','" + shortInfo + "','" + conference + "','" + handleTime + "','" + decideContent + "','','" + attachName + "')";
+			sql = "insert into TB_HANDLEDECIDE(REPORTID,SERIALNUM,HANDLENAME,DEPTNAME,SHORTINFO,CONFERENCE,HANDLETIME,DECIDECONTENT,FILEPATH,ATTACHNAME) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			params = new String[]{reportID, serialNum, handleName, deptName, shortInfo, conference, handleTime,decideContent,"",attachName};
 		}
 		
 		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
@@ -102,17 +106,18 @@ public class HandleDecideAction extends DispatchAction {
 		String path1 = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";
 		String path2 = filePath + reportID;
 		//获得服务器的IP地址路径，存放在数据库中，便于下载
-		String relDirectory = "attachment" + "/" + reportID;
+		String relDirectory = "attachment" + "/";
 		//将临时文件夹中的附件转存到以警情编号为目录的文件夹下
 		String createName = (String)request.getSession().getAttribute("UserName");
 		boolean result = SystemShare.IOCopy(path1, path2, relDirectory, createName);
 
-		result = dbTools.insertItem(sql);
+		result = dbTools.insertItem(sql, params);
 		
 		if(result && !editFlag)
 		{
-			sql = "update TB_REPORTINFO set STATUS='" + SystemConstant.SS_HANDLEDECIDE + "',LASTTIME='" + handleTime + "' where REPORTID='" + reportID + "'";
-			result = dbTools.insertItem(sql);
+			sql = "update TB_REPORTINFO set STATUS=?,LASTTIME=? where REPORTID=?";
+			params = new String[]{SystemConstant.SS_HANDLEDECIDE, handleTime, reportID};
+			result = dbTools.insertItem(sql, params);
 			//插入处理过程到数据库中
 			String describe = handleTime + "," + createName + "提交处理决定,处理决定为：" + decideContent;
 			dbTools.InsertHandleProcess(reportID, createName, SystemConstant.HP_HANDLEDECIDE, SystemConstant.SS_HANDLEDECIDE, SystemConstant.LCT_CLJD, describe);
@@ -203,8 +208,8 @@ public class HandleDecideAction extends DispatchAction {
 			return null;
 		}
 		DBTools dbTools = new DBTools();
-		String sql = "select * from TB_HANDLEDECIDE where ID=" + id;
-		HandleDecide hd = dbTools.queryHandleDecideBean(sql);
+		String sql = "select * from TB_HANDLEDECIDE where ID=?";
+		HandleDecide hd = dbTools.queryHandleDecideBean(sql, new String[]{id});
 		String conference = hd.getConference();
 		if(conference != null && !conference.equals(""))
 		{

@@ -11,6 +11,8 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -65,19 +67,29 @@ public class EventManageAction extends DispatchAction {
 		//获得阶段编号
 		String jdID = request.getParameter("jdid");
 		String sql = "";
+		String[] params = new String[0];
 		String jdName = SystemShare.GetJDName(jdID);
 		//事件审核
 		if(jdID.equals("4"))
 		{
 			//String loginName = (String)request.getSession().getAttribute("LoginName");
 			String recvName =  (String)request.getSession().getAttribute("UserName");
-			String tempSql = "select REPORTID from TB_MSGNOTIFY where RECVNAME='" + recvName + "' and TYPE='" + SystemConstant.MSG_GZTX + "' and ISHANDLE='0'";
-			String ids = db.queryUnApprove(tempSql);
+			String tempSql = "select REPORTID from TB_MSGNOTIFY where RECVNAME=? and TYPE=? and ISHANDLE='0'";
+			String ids = db.queryUnApprove(tempSql, new String[]{recvName, SystemConstant.MSG_GZTX});
 			if(!ids.equals(""))
 			{
-				ids = ids.substring(0, ids.length() - 1);
-				ids.replace(",", "','");
-				sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.REPORTID in (" + ids + ") and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' and a.STATUS='" + SystemConstant.SS_CHECKEVENT + "' and a.ISDELETE='0' order by REPORTTIME asc";
+				
+				StringBuilder sqlBuilder = new StringBuilder("select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.REPORTID in (");
+				String[] idArray = ids.split(",");
+				for(int i = 0; i < idArray.length; i++) {
+					sqlBuilder.append(" ?,");
+					if(i == idArray.length - 1) sqlBuilder.replace(sqlBuilder.length()-1, sqlBuilder.length(), ")");					
+				}
+				sqlBuilder.append(" and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' and a.STATUS='" + SystemConstant.SS_CHECKEVENT + "' and a.ISDELETE='0' order by REPORTTIME asc");
+				
+		//		sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.REPORTID in (" + ids + ") and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' and a.STATUS='" + SystemConstant.SS_CHECKEVENT + "' and a.ISDELETE='0' order by REPORTTIME asc";
+				sql = sqlBuilder.toString();
+				params = idArray;
 			}
 			else//没有记录，但是也需要设置一下查询语句，否则会报错，返回没有结果集
 			{
@@ -90,8 +102,10 @@ public class EventManageAction extends DispatchAction {
 			
 			if ( isHead != null && isHead.equals("1")) {
 				sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where " +  tempStr + " and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' order by REPORTTIME asc";				
+				params = new String[0];
 			} else { // officer only see events belong to himself
-				sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.OFFICER='" + officer + "' and " +  tempStr + " and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' order by REPORTTIME asc";
+				sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.OFFICER=? and " +  tempStr + " and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' order by REPORTTIME asc";
+				params = new String[]{officer};
 			}			
 		}
 		
@@ -106,7 +120,9 @@ public class EventManageAction extends DispatchAction {
 		pageBean.setQueryPageNo(queryPageNo);
 		
 		request.getSession().setAttribute("query" + jdName + "Sql", sql);
+		request.getSession().setAttribute("query" + jdName + "Params", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryEventList(rs, rowsPerPage);
@@ -159,6 +175,7 @@ public class EventManageAction extends DispatchAction {
 		
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -169,7 +186,9 @@ public class EventManageAction extends DispatchAction {
 		if(gjSearchFlag!=null && gjSearchFlag.equals("true"))
 		{
 			sql = (String)request.getSession().getAttribute("GjSearchSql");
+			params = (String[])request.getSession().getAttribute("GjSearchParams");
 			request.getSession().setAttribute("queryallSql", sql);
+			request.getSession().setAttribute("queryallParams", params);
 			jdName = "all";
 		}else
 		{
@@ -185,9 +204,11 @@ public class EventManageAction extends DispatchAction {
 				String jbBeginTime = eventManageForm.getJbBeginTime();
 				String jbEndTime = eventManageForm.getJbEndTime();
 				String temp = "";
+				ArrayList<String> paramList = new ArrayList<String>();
 				if(!serialNum.equals(""))
 				{
-					temp += " and a.SERIALNUM='" + serialNum + "'";
+					temp += " and a.SERIALNUM=?";
+					paramList.add(serialNum);
 				}
 				if(IsNi != null)//匿名举报，勾选了复选框
 				{
@@ -216,44 +237,65 @@ public class EventManageAction extends DispatchAction {
 				}
 				if(!jbBeginTime.equals(""))
 				{
-					temp += " and a.REPORTTIME >= '" + jbBeginTime + "'";
+					temp += " and a.REPORTTIME >= ?";
+					paramList.add(jbBeginTime);
 				}
 				if(!jbEndTime.equals(""))
 				{
-					temp += " and a.REPORTTIME <= '" + jbEndTime + "'";
+					temp += " and a.REPORTTIME <= ?";
+					paramList.add(jbEndTime);
 				}
 				
 				if(jdID.equals("4"))
 				{
 					String loginName = (String)request.getSession().getAttribute("UserName");
-					String tempSql = "select REPORTID from TB_MSGNOTIFY where TYPE='" + SystemConstant.MSG_GZTX + "' and ISHANDLE='0' and RECVNAME='"+loginName+"'";
-					String ids = db.queryUnApprove(tempSql);
+					String tempSql = "select REPORTID from TB_MSGNOTIFY where TYPE='" + SystemConstant.MSG_GZTX + "' and ISHANDLE='0' and RECVNAME=?'";
+					String ids = db.queryUnApprove(tempSql, new String[]{loginName});
 					if(!ids.equals(""))
 					{
 						ids = ids.substring(0, ids.length() - 1);
 						ids.replace(",", "','");
-						sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.REPORTID in (" + ids + ") and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' " + temp + " order by REPORTTIME asc";
+						String[] idArray = ids.split(",");
+						StringBuilder sqlBuilder = new StringBuilder("select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.REPORTID in (");
+						for (int i = 0; i < idArray.length; i++){
+							sqlBuilder.append(" ?,");
+							if(i == idArray.length - 1) {
+								sqlBuilder.replace(sqlBuilder.length()-1, sqlBuilder.length(), ")");
+							}
+						}
+						sqlBuilder.append(" and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' " + temp + " order by REPORTTIME asc");
+					//	sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.REPORTID in (" + ids + ") and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' " + temp + " order by REPORTTIME asc";
+						sql = sqlBuilder.toString();
+						List<String> idList = Arrays.asList(idArray);
+						idList.addAll(paramList);
+						params = idList.toArray(new String[0]);
 					}
 					else
 					{
 						sql = "select * from TB_REPORTINFO where 1=0";
+						params = new String[0];
 					}
 				}
 				else {
 					String tempStr = GetQuerySql(jdID);
 					
-					if(isHead != null && !isHead.equals("1"))
+					if(isHead != null && isHead.equals("1"))
 					{
-						sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where " +  tempStr + temp + " and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' order by REPORTTIME asc";					
-					}
-					sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.OFFICER='" + officer + "' " +  tempStr + temp + " and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' order by REPORTTIME asc";
+						sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where " +  tempStr + temp + " and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' order by REPORTTIME asc";				
+					} else {
+						sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.OFFICER=? and " +  tempStr + temp + " and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' order by REPORTTIME asc";
+						paramList.add(0, officer);
+					}	
+					params = paramList.toArray(new String[0]);
 				}
 				request.getSession().setAttribute("query" + jdName + "Sql", sql);
+				request.getSession().setAttribute("query" + jdName + "Params", params);
 			}
 		}
 		
 		if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("query" + jdName + "Sql");
+			params = (String[])request.getSession().getAttribute("query" + jdName + "params");
 			if(orderField != null && !orderField.equals(""))
 			{
 				sql = sql.substring(0, sql.indexOf("order"));
@@ -263,9 +305,9 @@ public class EventManageAction extends DispatchAction {
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
-		}
-				
+		}		
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -436,7 +478,7 @@ public class EventManageAction extends DispatchAction {
 		}
 		else//其他阶段的事件
 		{
-			tempStr = "ISDELETE='0' and " + jdID + " = substring(a.STATUS,1,1) ";
+			tempStr = " ISDELETE='0' and " + jdID + " = substring(a.STATUS,1,1) ";
 		}
 		return tempStr;
 	}
@@ -457,9 +499,9 @@ public class EventManageAction extends DispatchAction {
 		//得到查询详情的类别：举报信息、核实信息等等
 		String id = request.getParameter("id");
 		
-		String sql = "select * from TB_REPORTINFO where REPORTID='" + id + "'";
+		String sql = "select * from TB_REPORTINFO where REPORTID=?";
 		DBTools db = new DBTools();
-		EventBean eb = db.queryEvent(sql);
+		EventBean eb = db.queryEvent(sql, new String[]{id});
 		/**
 		String accessory = eb.getAccessory();
 		if(accessory != null && !accessory.equals(""))
@@ -472,8 +514,8 @@ public class EventManageAction extends DispatchAction {
 		}
 		eb.setAccessory(accessory);
 		*/
-		sql = "select * from TB_BEREPORTPE where REPORTID='" + id + "'";
-		ArrayList beReportList = db.queryBeReport(sql);
+		sql = "select * from TB_BEREPORTPE where REPORTID=?";
+		ArrayList beReportList = db.queryBeReport(sql, new String[]{id});
 		if(beReportList != null && beReportList.size() > 0)
 		{
 			eb.setBeReportList(beReportList);
@@ -512,7 +554,7 @@ public class EventManageAction extends DispatchAction {
 		
 		String sql = "select b.CAPTION as TITLE,count(*) as NUM from TB_REPORTINFO a, SYS_DATA_DIC b where a.ISDELETE='0' and a.STATUS=b.CODE and b.CODENAME='ZDBZ_SJZT' group by b.CAPTION";
 		DBTools dbTools = new DBTools();
-		ArrayList itemList = dbTools.queryTjInfo(sql);
+		ArrayList itemList = dbTools.queryTjInfo(sql, new String[0]);
 		XmlTools xmlTool = new XmlTools();
 		String result = xmlTool.CreateXml("事件状态统计", xAxisName, yAxisName, numberPrefix, itemList, "2");
 		//String temp = xmlTool.CreateLineXml("每季度举报与受理总数","个数");
@@ -539,17 +581,17 @@ public class EventManageAction extends DispatchAction {
 		String sql = "";
 		if(type.equals("approve"))//如果是审核时间，则查询出初步核实信息
 		{
-			sql = "select * from TB_CHECKINFO where REPORTID='" + id + "'";
-			CheckBean cb = db.queryCheckInfo(sql);
+			sql = "select * from TB_CHECKINFO where REPORTID=?";
+			CheckBean cb = db.queryCheckInfo(sql, new String[]{id});
 			request.setAttribute("CheckInfo", cb.getPreAdvice());
 			request.setAttribute("CheckName", cb.getCheckName());
 			request.setAttribute("CheckTime", cb.getCheckTime());
 		}
 		else
 		{
-			sql = "select * from TB_REPORTINFO where REPORTID='" + id + "'";
+			sql = "select * from TB_REPORTINFO where REPORTID=?";
 			
-			EventBean eb = db.queryEvent(sql);
+			EventBean eb = db.queryEvent(sql, new String[]{id});
 			String reportInfo = "";
 			String bz = "";
 			if(eb!=null)
@@ -581,9 +623,9 @@ public class EventManageAction extends DispatchAction {
 		EventManageForm eventManageForm =  (EventManageForm) form;
 		String id = request.getParameter("id");
 		
-		String sql = "select * from TB_REPORTINFO where REPORTID='" + id + "'";
+		String sql = "select * from TB_REPORTINFO where REPORTID=?";
 		DBTools db = new DBTools();
-		EventBean eb = db.queryEvent(sql);
+		EventBean eb = db.queryEvent(sql, new String[]{id});
 		if(eb != null)
 		{
 			ArrayList result = new ArrayList();
@@ -667,9 +709,9 @@ public class EventManageAction extends DispatchAction {
 		String templatePath = SystemConstant.GetServerPath() + "/web/template/sjybd.docx";
 		String templateName = SystemConstant.TemplateLocalPath + "sjybd.docx";
 		//templatePath = templatePath.replaceAll("\\\\","//");
-		String sql = "select * from TB_REPORTINFO where REPORTID='" + id + "'";
+		String sql = "select * from TB_REPORTINFO where REPORTID=?";
 		DBTools db = new DBTools();
-		EventBean eb = db.queryEvent(sql);
+		EventBean eb = db.queryEvent(sql, new String[]{id});
 		/*
 		sql = "select * from TB_BEREPORTPE where REPORTID='" + id + "'";
 		ArrayList beReportList = db.queryBeReport(sql);
@@ -714,9 +756,9 @@ public class EventManageAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		String id = request.getParameter("id");
 		
-		String sql = "update TB_REPORTINFO set ISDELETE='0' where REPORTID=" + id;
+		String sql = "update TB_REPORTINFO set ISDELETE='0' where REPORTID=?";
 		DBTools dbTools = new DBTools();
-		boolean result = dbTools.insertItem(sql);
+		boolean result = dbTools.insertItem(sql, new String[]{id});
 		
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
@@ -750,11 +792,11 @@ public class EventManageAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		EventManageForm eventManageForm =  (EventManageForm) form;
 		String reportID = request.getParameter("id");
-		String sql = "select * from TB_DEPTADVICE where REPORTID='" + reportID + "'";
+		String sql = "select * from TB_DEPTADVICE where REPORTID=?";
 		request.setAttribute("reportID", reportID);
 		request.getSession().setAttribute("deptReportID", reportID);
 		DBTools dbTools = new DBTools();
-		ArrayList result = dbTools.queryDeptAdvice(sql, "1");
+		ArrayList result = dbTools.queryDeptAdvice(sql, "1", new String[]{reportID});
 		if(result.size() > 0)
 		{
 			
@@ -785,10 +827,10 @@ public class EventManageAction extends DispatchAction {
 		EventManageForm eventManageForm =  (EventManageForm) form;
 		String reportID = request.getParameter("id");
 		request.getSession().setAttribute("expertReportID", reportID);
-		String sql = "select * from TB_EXPERTADVICE where REPORTID='" + reportID + "'";
+		String sql = "select * from TB_EXPERTADVICE where REPORTID=?";
 		request.setAttribute("reportID", reportID);
 		DBTools dbTools = new DBTools();
-		ArrayList result = dbTools.queryExpertAdvice(sql, "1");
+		ArrayList result = dbTools.queryExpertAdvice(sql, "1", new String[]{reportID});
 		if(result.size() > 0)
 		{
 			eventManageForm.setRecordNotFind("false");
@@ -817,10 +859,10 @@ public class EventManageAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		EventManageForm eventManageForm =  (EventManageForm) form;
 		String reportID = request.getParameter("id");
-		String sql = "select * from TB_LITIGANTSTATE where REPORTID='" + reportID + "'";
+		String sql = "select * from TB_LITIGANTSTATE where REPORTID=?";
 		request.setAttribute("reportID", reportID);
 		DBTools dbTools = new DBTools();
-		ArrayList result = dbTools.queryLitigantState(sql, "1");
+		ArrayList result = dbTools.queryLitigantState(sql, "1", new String[]{reportID});
 		if(result.size() > 0)
 		{
 			eventManageForm.setRecordNotFind("false");
@@ -846,10 +888,10 @@ public class EventManageAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		EventManageForm eventManageForm = (EventManageForm)form;
 		String reportId = request.getParameter("id");
-		String sql = "select a.*,b.ZZNAME as FACULTYNAME,c.SERIALNUM,c.REPORTNAME,c.BEREPORTNAME from TB_FACULTYADVICE a, SYS_ZZINFO b, TB_REPORTINFO c where a.REPORTID='" + reportId + "' and a.FACULTYID=b.ZZID and c.REPORTID='" + reportId + "'";
+		String sql = "select a.*,b.ZZNAME as FACULTYNAME,c.SERIALNUM,c.REPORTNAME,c.BEREPORTNAME from TB_FACULTYADVICE a, SYS_ZZINFO b, TB_REPORTINFO c where a.REPORTID=? and a.FACULTYID=b.ZZID and c.REPORTID=?";
 		request.setAttribute("reportId", reportId);
 		DBTools dbTools = new DBTools();
-		ArrayList result = dbTools.queryFacultyAdvice(sql, "1");
+		ArrayList result = dbTools.queryFacultyAdvice(sql, "1", new String[]{reportId, reportId});
 		if(result.size() > 0) {
 			eventManageForm.setRecordNotFind("false");
 			request.setAttribute("totalRows", result.size());
@@ -877,10 +919,10 @@ public class EventManageAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		EventManageForm eventManageForm =  (EventManageForm) form;
 		String reportID = request.getParameter("id");
-		String sql = "select * from TB_HANDLEDECIDE where REPORTID='" + reportID + "'";
+		String sql = "select * from TB_HANDLEDECIDE where REPORTID=?";
 		request.setAttribute("reportID", reportID);
 		DBTools dbTools = new DBTools();
-		ArrayList result = dbTools.queryHandleDecide(sql, "1");
+		ArrayList result = dbTools.queryHandleDecide(sql, "1", new String[]{reportID});
 		if(result.size() > 0)
 		{
 			eventManageForm.setRecordNotFind("false");
@@ -910,9 +952,9 @@ public class EventManageAction extends DispatchAction {
 		EventManageForm eventManageForm =  (EventManageForm) form;
 		String reportID = eventManageForm.getReportID();
 		String bz = eventManageForm.getBz();
-		String sql = "update TB_REPORTINFO set BZ='" + bz + "' where REPORTID='" + reportID + "'";
+		String sql = "update TB_REPORTINFO set BZ=? where REPORTID=?";
 		DBTools dbTools = new DBTools();
-		boolean result = dbTools.insertItem(sql);
+		boolean result = dbTools.insertItem(sql, new String[]{bz, reportID});
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
@@ -965,13 +1007,16 @@ public class EventManageAction extends DispatchAction {
 		//所以需要灵活的添加数据库表
 		//String sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM from TB_REPORTINFO a, SYS_DATA_DIC b where a.ISDELETE='0' and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "'  and c.REPORTID=a.REPORTID";
 		String sql = "";
+		ArrayList<String> paramList = new ArrayList<String>();
 		String sqlResult = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from";
 		String sqlTable = " TB_REPORTINFO a, SYS_DATA_DIC b";
-		String sqlEnd = " where a.ISDELETE='0' and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "'";
+		String sqlEnd = " where a.ISDELETE='0' and a.STATUS=b.CODE and b.CODENAME=?";
+		paramList.add(SystemConstant.sjzt);
 		String isHead = (String)request.getSession().getAttribute("IsHead");
 		String officer = (String)request.getSession().getAttribute("LoginName");
 		if( isHead != null && isHead.equals("0")) {
-			sqlEnd = " where a.OFFICER='" + officer + "' and a.ISDELETE='0' and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "'";
+			sqlEnd = " where a.OFFICER=? and a.ISDELETE='0' and a.STATUS=b.CODE and b.CODENAME=?";
+			paramList.add(0, officer);
 		}
 		
 		String temp = "";
@@ -980,7 +1025,8 @@ public class EventManageAction extends DispatchAction {
 		
 		if(!serialNum.equals(""))//如果输入了编号，则其他的条件都可以忽略了
 		{
-			temp += " and a.SERIALNUM='" + serialNum + "'";
+			temp += " and a.SERIALNUM=?";
+			paramList.add(serialNum);
 		}
 		else
 		{
@@ -990,19 +1036,23 @@ public class EventManageAction extends DispatchAction {
 			String key = "TB_REPORTINFO";
 			if(isNi != null && isNi.equals("匿名"))//查询匿名举报列表
 			{
-				temp += " and hex(a.REPORTNAME) = '" + SystemShare.getHexString(aes.createEncryptor("匿名举报", key)) + "'";
+				temp += " and hex(a.REPORTNAME) = ?";
+				paramList.add(SystemShare.getHexString(aes.createEncryptor("匿名举报", key)));
 			}
 			else if(isNi != null && isNi.equals("实名"))//查询所有实名举报列表
 			{
-				temp += " and hex(a.REPORTNAME) <> '" + SystemShare.getHexString(aes.createEncryptor("匿名举报", key)) + "'";
+				temp += " and hex(a.REPORTNAME) <> ?";
+				paramList.add(SystemShare.getHexString(aes.createEncryptor("匿名举报", key)));
 			}
 			else if(isNi != null && isNi.equals("高相似度"))//查询所有高相似度案件列表
 			{
-				temp += " and hex(a.REPORTNAME) = '" + SystemShare.getHexString(aes.createEncryptor("信息中心", key)) + "'";
+				temp += " and hex(a.REPORTNAME) = ?";
+				paramList.add(SystemShare.getHexString(aes.createEncryptor("信息中心", key)));
 			}
 			else if(!reportName.equals(""))
 			{
-				temp += " and hex(a.REPORTNAME) = '" + SystemShare.getHexString(aes.createEncryptor(reportName, key)) + "'";
+				temp += " and hex(a.REPORTNAME) = ?";
+				paramList.add(SystemShare.getHexString(aes.createEncryptor(reportName, key)));
 			}
 			if(!beReportName.equals(""))
 			{
@@ -1014,23 +1064,28 @@ public class EventManageAction extends DispatchAction {
 			}
 			if(!faculty.equals(""))
 			{
-				temp += " and a.FACULTY like '%" + faculty + "%'";
+				temp += " and a.FACULTY like ?";
+				paramList.add("%" + faculty + "%");
 			}
 			if(!jbBeginTime.equals(""))
 			{
-				temp += " and a.REPORTTIME >= '" + jbBeginTime + "'";
+				temp += " and a.REPORTTIME >= ?";
+				paramList.add(jbBeginTime);
 			}
 			if(!jbEndTime.equals(""))
 			{
-				temp += " and a.REPORTTIME <= '" + jbEndTime + "'";
+				temp += " and a.REPORTTIME <= ?";
+				paramList.add(jbEndTime);
 			}
 			if(!createBeginTime.equals(""))
 			{
-				temp += " and a.CREATETIME >= '" + createBeginTime + "'";
+				temp += " and a.CREATETIME >= ?";
+				paramList.add(createBeginTime);
 			}
 			if(!createEndTime.equals(""))
 			{
 				temp += " and a.CREATETIME <= '" + createEndTime + "'";
+				paramList.add(createEndTime);
 			}
 			/*
 			if(!reportReason.equals(""))
@@ -1042,13 +1097,15 @@ public class EventManageAction extends DispatchAction {
 			*/
 			if(!conference.equals(""))
 			{
-				temp += " and a.REPORTID in (select distinct REPORTID from TB_HANDLEDECIDE where CONFERENCE like '%" + conference + "%')";
+				temp += " and a.REPORTID in (select distinct REPORTID from TB_HANDLEDECIDE where CONFERENCE like ?";
+				paramList.add("%" + conference + "%");
 			}
 			if(!status.equals(""))
 			{
-				temp += " and a.STATUS='" + status + "'";
+				temp += " and a.STATUS=?";
+				paramList.add(status);
 			}
-			if(!orderWay.equals(""))
+			if(!orderWay.equals("") && !orderWay.matches(".*[=<>].*"))
 			{
 				temp += " order by " + orderWay + " desc";
 			}
@@ -1061,21 +1118,25 @@ public class EventManageAction extends DispatchAction {
 			{
 				AESCrypto aes = new AESCrypto();
 				String key = "TB_BEREPORTPE";
-				temp += " and hex(BEREPORTNAME) = '" + SystemShare.getHexString(aes.createEncryptor(beReportName, key)) + "'";
+				temp += " and hex(BEREPORTNAME) = ?";
+				paramList.add(SystemShare.getHexString(aes.createEncryptor(beReportName, key)));
 			}
 			if(!dept.equals(""))
 			{
 				AESCrypto aes = new AESCrypto();
 				String key = "TB_BEREPORTPE";
 				beReportPeFlag = true;
-				temp += " and hex(DEPTNAME) = '" + SystemShare.getHexString(aes.createEncryptor(dept, key)) + "'";
+				temp += " and hex(DEPTNAME) = ?";
+				paramList.add(SystemShare.getHexString(aes.createEncryptor(dept, key)));
 			}
 			temp += ")";
 		}
 		sql = sqlResult + sqlTable + sqlEnd + temp;
-		//sql += temp;
+		String[] params = paramList.toArray(new String[0]);
+		
 		request.getSession().setAttribute("GjSearch", "true");
 		request.getSession().setAttribute("GjSearchSql", sql);
+		request.getSession().setAttribute("GjSearchParams", params);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		json.put("statusCode", 200);
@@ -1140,15 +1201,15 @@ public class EventManageAction extends DispatchAction {
 		//如果不是编辑，则查询数据库，得到各个默认的信息
 		if(!isEdit)
 		{
-			String sql = "select * from TB_REPORTINFO where REPORTID='" + id + "'";
-			EventBean eb = dbTools.queryEvent(sql);
+			String sql = "select * from TB_REPORTINFO where REPORTID=?";
+			EventBean eb = dbTools.queryEvent(sql, new String[]{id});
 			beReportName = eb.getBeReportName();
 			reportContent = eb.getReportReason();
 
 			checkInfo = dbTools.querySingleDate("TB_CHECKINFO", "PREADVICE", "REPORTID", id);
 			ArrayList result = new ArrayList();
-			sql = "select * from TB_DEPTADVICE where REPORTID = '" + id + "' and ISFK='1'";
-			result = dbTools.queryDeptAdvice(sql, "1");
+			sql = "select * from TB_DEPTADVICE where REPORTID = ? and ISFK=?";
+			result = dbTools.queryDeptAdvice(sql, "1", new String[]{id, "1"});
 			DeptAdvice da;
 			if(result.size() > 0)
 			{
@@ -1159,8 +1220,8 @@ public class EventManageAction extends DispatchAction {
 				}
 			}
 			
-			sql = "select * from TB_EXPERTADVICE where REPORTID='" + id + "' and ISFK='1'";
-			result = dbTools.queryExpertAdvice(sql, "1");
+			sql = "select * from TB_EXPERTADVICE where REPORTID=? and ISFK=?";
+			result = dbTools.queryExpertAdvice(sql, "1", new String[]{id, "1"});
 			ExpertAdvice ea;
 			if(result.size() > 0)
 			{
@@ -1171,8 +1232,8 @@ public class EventManageAction extends DispatchAction {
 				}
 			}
 			
-			sql = "select * from TB_LITIGANTSTATE where REPORTID='" + id + "'";
-			result = dbTools.queryLitigantState(sql, "1");
+			sql = "select * from TB_LITIGANTSTATE where REPORTID=?";
+			result = dbTools.queryLitigantState(sql, "1", new String[]{id});
 			LitigantState ls;
 			if(result.size() > 0)
 			{
@@ -1183,8 +1244,8 @@ public class EventManageAction extends DispatchAction {
 				}
 			}
 
-			sql = "select a.*, b.ZZNAME as FACULTYNAME from TB_FACULTYADVICE a, SYS_ZZINFO b where REPORTID='" + id + "' and ISFK='1' and a.FACULTYID=b.ZZID";
-			result = dbTools.queryFacultyAdvice(sql, "1");
+			sql = "select a.*, b.ZZNAME as FACULTYNAME from TB_FACULTYADVICE a, SYS_ZZINFO b where REPORTID=? and ISFK=? and a.FACULTYID=b.ZZID";
+			result = dbTools.queryFacultyAdvice(sql, "1", new String[]{id, "1"});
 			FacultyAdviceBean fab;
 			if(result.size() > 0)
 			{
@@ -1237,8 +1298,8 @@ public class EventManageAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		DBTools dbTools = new DBTools();
 		String reportID = request.getParameter("id");
-		String sql = "update TB_REPORTINFO set STATUS='" + SystemConstant.SS_END + "' where REPORTID='" + reportID + "'";
-		boolean result = dbTools.insertItem(sql);
+		String sql = "update TB_REPORTINFO set STATU=? where REPORTID=?";
+		boolean result = dbTools.insertItem(sql, new String[]{SystemConstant.SS_END, reportID});
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
@@ -1270,6 +1331,7 @@ public class EventManageAction extends DispatchAction {
 		String jdID = request.getParameter("id");
 		String jdName = SystemShare.GetJDName(jdID);
 		String sql = (String)request.getSession().getAttribute("query" + jdName + "Sql");
+		String[] params = (String[])request.getSession().getAttribute("query" + jdName + "Params");
 		try
 		{
 			String fname = "event";
@@ -1277,7 +1339,7 @@ public class EventManageAction extends DispatchAction {
 			response.reset();
 			response.setHeader("Content-disposition", "attachment;filename=" + fname + ".xls");
 			response.setContentType("application/msexcel");
-			ResultSet rs = db.queryRsList(sql);
+			ResultSet rs = db.queryRsList(sql, params);
 			rs.last();
 			int length = rs.getRow();
 			rs.beforeFirst();
@@ -1316,10 +1378,10 @@ public class EventManageAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		EventManageForm eventManageForm =  (EventManageForm) form;
 		String reportID = request.getParameter("id");
-		String sql = "select * from TB_FYAPPLY where REPORTID='" + reportID + "'";
+		String sql = "select * from TB_FYAPPLY where REPORTID=?";
 		request.setAttribute("reportID", reportID);
 		DBTools dbTools = new DBTools();
-		ArrayList result = dbTools.queryFYApplyList(sql, "1");
+		ArrayList result = dbTools.queryFYApplyList(sql, "1", new String[]{reportID});
 		if(result.size() > 0)
 		{
 			eventManageForm.setRecordNotFind("false");
@@ -1352,8 +1414,9 @@ public class EventManageAction extends DispatchAction {
 		
 		String time = SystemShare.GetNowTime("yyyy-MM-dd");
 		
-		String sql = "update TB_REPORTINFO set STATUS='" + SystemConstant.SS_SURVEYING + "',LASTTIME='" + time + "' where REPORTID='" + reportID + "'";
-		boolean result = dbTools.insertItem(sql);
+		String sql = "update TB_REPORTINFO set STATUS=?,LASTTIME=? where REPORTID=?";
+		String[] params = new String[]{SystemConstant.SS_SURVEYING, time, reportID};
+		boolean result = dbTools.insertItem(sql, params);
 		
 		String createName = (String)request.getSession().getAttribute("UserName");
 		//插入处理过程到数据库中
@@ -1423,9 +1486,9 @@ public class EventManageAction extends DispatchAction {
 		//如果不是编辑，则查询数据库，得到各个默认的信息
 		if(!isEdit)
 		{
-			String sql = "select * from TB_REPORTINFO where REPORTID='" + id + "'";
+			String sql = "select * from TB_REPORTINFO where REPORTID=?";
 			DBTools db = new DBTools();
-			EventBean eb = db.queryEvent(sql);
+			EventBean eb = db.queryEvent(sql, new String[]{id});
 
 			String serialNum = eb.getSerialNum();
 			String numYear =serialNum.substring(0, 4);
@@ -1468,9 +1531,10 @@ public class EventManageAction extends DispatchAction {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 		String reportID = request.getParameter("id");
-		String sql = "update TB_REPORTINFO set STATUS='" + SystemConstant.SS_END + "' where REPORTID='" + reportID + "'";
+		String sql = "update TB_REPORTINFO set STATUS=? where REPORTID=?";
+		String[] params = new String[]{SystemConstant.SS_END, reportID};
 		DBTools dbTools = new DBTools();
-		boolean result = dbTools.insertItem(sql);
+		boolean result = dbTools.insertItem(sql, params);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)

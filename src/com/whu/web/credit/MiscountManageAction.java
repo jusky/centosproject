@@ -54,8 +54,11 @@ public class MiscountManageAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select a.ID,a.MISCOUNTID,a.TITLE,a.REPORTID,a.TIME,a.DETAIL,b.NAME as INDI,c.NAME as INST, GROUP_CONCAT(d.RID SEPARATOR ',') as MISLIST,GROUP_CONCAT(d.RNAME SEPARATOR ',') as MISNAME, e.CAPTION as PUNISHMENT from VIEW_FULL_MISCOUNT a, SYS_INDIVIDUAL_INFO b, SYS_INST_INFO c, SYS_JBREASON as d, (select CODE,CAPTION from SYS_DATA_DIC where CODENAME='ZDBZ_CLJD')as e where a.INDIID=b.PID and a.INSTID=c.CODE and a.MISTYPE=d.RID and a.PUNISH=e.CODE group by a.MISCOUNTID";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryMiscountSql", sql);
+		request.getSession().setAttribute("queryMiscountParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryMiscountList(rs, rowsPerPage);
@@ -85,6 +88,7 @@ public class MiscountManageAction extends DispatchAction {
 			
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -93,8 +97,10 @@ public class MiscountManageAction extends DispatchAction {
 			String pid = request.getParameter("pid");
 			if(pid != null && pid != "")
 			{
-				sql = "select a.ID,a.MISCOUNTID,a.TITLE,a.REPORTID,a.TIME,a.DETAIL,b.NAME as INDI,c.NAME as INST, GROUP_CONCAT(d.RID SEPARATOR ',') as MISLIST,GROUP_CONCAT(d.RNAME SEPARATOR ',') as MISNAME, e.CAPTION as PUNISHMENT from (select * from VIEW_FULL_MISCOUNT where INDIID='" + pid + "') as a, SYS_INDIVIDUAL_INFO b, SYS_INST_INFO c, SYS_JBREASON as d, (select CODE,CAPTION from SYS_DATA_DIC where CODENAME='ZDBZ_CLJD')as e where a.INDIID=b.PID and a.INSTID=c.CODE and a.MISTYPE=d.RID and a.PUNISH=e.CODE group by a.MISCOUNTID";
+				sql = "select a.ID,a.MISCOUNTID,a.TITLE,a.REPORTID,a.TIME,a.DETAIL,b.NAME as INDI,c.NAME as INST, GROUP_CONCAT(d.RID SEPARATOR ',') as MISLIST,GROUP_CONCAT(d.RNAME SEPARATOR ',') as MISNAME, e.CAPTION as PUNISHMENT from (select * from VIEW_FULL_MISCOUNT where INDIID=?) as a, SYS_INDIVIDUAL_INFO b, SYS_INST_INFO c, SYS_JBREASON as d, (select CODE,CAPTION from SYS_DATA_DIC where CODENAME='ZDBZ_CLJD')as e where a.INDIID=b.PID and a.INSTID=c.CODE and a.MISTYPE=d.RID and a.PUNISH=e.CODE group by a.MISCOUNTID";
 				request.getSession().setAttribute("queryIndiMiscountSql", sql);
+				params = new String[]{pid};
+				request.getSession().setAttribute("queryIndiMiscountParams", params);
 				request.setAttribute("instDetail", "1");
 			}		
 			else if (operation.equalsIgnoreCase("search")) {
@@ -109,19 +115,24 @@ public class MiscountManageAction extends DispatchAction {
 				
 				indi_sql = "select PID,NAME from SYS_INDIVIDUAL_INFO where NAME like '%" + individual + "%'";
 				inst_sql = "select CODE,NAME from SYS_INST_INFO where NAME like '%" + institute + "%'";
-				punish_sql = "select CODE,CAPTION from SYS_DATA_DIC where CODENAME='ZDBZ_CLJD' and CAPTION like '%" + punish + "%'";
 				mis_sql = "select RID,RNAME from SYS_JBREASON where RNAME like '%"  + mistype + "%'";
+				punish_sql = "select CODE,CAPTION from SYS_DATA_DIC where CODENAME='ZDBZ_CLJD' and CAPTION like '%" + punish + "%'";
+				
+				params = new String[]{"%" + individual + "%", "%" + institute + "%", "%" + mistype + "%", "%" + punish + "%"};
 				
 				sql = "select a.ID,a.MISCOUNTID,a.TIME,a.TITLE,a.REPORTID,a.DETAIL,b.NAME as INDI,c.NAME as INST, GROUP_CONCAT(d.RID SEPARATOR ',') as MISLIST,GROUP_CONCAT(d.RNAME SEPARATOR ',') as MISNAME, e.CAPTION as PUNISHMENT from VIEW_FULL_MISCOUNT a, (" + indi_sql + ") b, (" + inst_sql + ") c, (" + mis_sql + ") d, (" + punish_sql + ") e where a.INDIID=b.PID and a.INSTID=c.CODE and a.MISTYPE=d.RID and a.PUNISH=e.CODE group by a.MISCOUNTID";
 				request.getSession().setAttribute("queryMiscountSql", sql);
+				request.getSession().setAttribute("queryMiscountParams", params);
 			}
 			else if(operation.equalsIgnoreCase("changePage")){
 				sql = (String)request.getSession().getAttribute("queryMiscountSql");
+				params = (String[])request.getSession().getAttribute("queryMiscountParams");
 				if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 					queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 				}
 			}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -185,10 +196,16 @@ public class MiscountManageAction extends DispatchAction {
 			HttpServletRequest request, HttpServletResponse response) {
 		DBTools db = new DBTools();
 		String sql = "";
+		String[] params = null;
 		String indi = request.getParameter("indi");
 		if( indi !=null && indi.equals("true")){
-			sql = (String)request.getSession().getAttribute("queryIndiMiscountSql");}
-		else sql = (String)request.getSession().getAttribute("queryMiscountSql");
+			sql = (String)request.getSession().getAttribute("queryIndiMiscountSql");
+			params = (String[])request.getSession().getAttribute("queryIndiMiscountParams");
+		}
+		else {
+			sql = (String)request.getSession().getAttribute("queryMiscountSql");
+			params = (String[])request.getSession().getAttribute("queryMiscountParams");
+		}
 		String num = request.getParameter("exportnum");
 		if( num != null && Integer.parseInt(num) > 0){
 			sql += " limit " + num;
@@ -200,7 +217,7 @@ public class MiscountManageAction extends DispatchAction {
 			response.reset();
 			response.setHeader("Content-disposition", "attachment;filename=" + fname + ".xls");
 			response.setContentType("application/msexcel");
-			ResultSet rs = db.queryRsList(sql);
+			ResultSet rs = db.queryRsList(sql, params);
 			rs.last();
 			int length = rs.getRow();
 			rs.beforeFirst();
@@ -239,7 +256,7 @@ public class MiscountManageAction extends DispatchAction {
 
 		DBTools dbTools = new DBTools();
 		
-      List<String> lstTree = dbTools.queryPunishTree(sql);
+      List<String> lstTree = dbTools.queryPunishTree(sql, new String[0]);
       response.getWriter().print(JSONArray.fromObject(lstTree).toString()); 
 	}
 }

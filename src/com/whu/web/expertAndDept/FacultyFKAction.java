@@ -55,8 +55,8 @@ public class FacultyFKAction extends DispatchAction {
 		
 		String loginName = (String)request.getSession().getAttribute("LoginName");
 		String facultyId = db.querySingleDate("SYS_USER", "ZZID", "LOGINNAME", loginName);
-		String sql = "select a.*, b.SERIALNUM,b.REPORTNAME,b.BEREPORTNAME,b.REPORTREASON, c.FILENAME from TB_FACULTYADVICE a, TB_REPORTINFO b, TB_SURVEYREPORT c where a.FACULTYID='" + facultyId + "' and a.REPORTID=b.REPORTID and a.REPORTID=c.REPORTID order by ISFK asc, FKTIME asc";
-		
+		String sql = "select a.*, b.SERIALNUM,b.REPORTNAME,b.BEREPORTNAME,b.REPORTREASON, c.FILENAME from TB_FACULTYADVICE a, TB_REPORTINFO b, TB_SURVEYREPORT c where a.FACULTYID=? and a.REPORTID=b.REPORTID and a.REPORTID=c.REPORTID order by ISFK asc, FKTIME asc";
+		String[] params = new String[]{facultyId};
 		
 		CheckPage pageBean = new CheckPage();
 		int queryPageNo = 1;// 
@@ -68,7 +68,9 @@ public class FacultyFKAction extends DispatchAction {
 		pageBean.setQueryPageNo(queryPageNo);
 		
 		request.getSession().setAttribute("queryFacultyAdviceList", sql);
+		request.getSession().setAttribute("queryFacultyAdviceListParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		String serverPath = SystemConstant.GetServerPath() + "/attachment/";
@@ -98,6 +100,7 @@ public class FacultyFKAction extends DispatchAction {
 		String beReportName = facultyFKForm.getBeReportName();
 		
 		String sql = "";
+		String[] params = new String[0];
 		String orderField = request.getParameter("orderField");
 		String orderDirection = request.getParameter("orderDirection");
 		String isfk = request.getParameter("isfk");
@@ -112,22 +115,28 @@ public class FacultyFKAction extends DispatchAction {
 		String operation = request.getParameter("operation");
 		if(operation.equals("search")) {
 			String temp = "";
+			ArrayList<String> paramList = new ArrayList<String>();
 			if(isfk != null && isfk.equals("1")) {
 				temp += " and a.ISFK='1'";
 			}
 			if(serialNum != null && !("".equals(serialNum))){
-				temp += " and b.SERIALNUM like '%" + serialNum + "%'";
+				temp += " and b.SERIALNUM like ?";
+				paramList.add("%" + serialNum + "%");
 			}
 			if(beReportName != null && !("").equals(beReportName)) {
 				AESCrypto aes = new AESCrypto();
 				String key = "TB_REPORTINFO";
 				temp += " and hex(b.BEREPORTNAME) = '" + SystemShare.getHexString(aes.createEncryptor(beReportName, key)) + "'";
 			}
-			sql =  "select a.*, b.SERIALNUM,b.REPORTNAME,b.BEREPORTNAME,b.REPORTREASON, c.FILENAME from TB_FACULTYADVICE a, TB_REPORTINFO b, TB_SURVEYREPORT c where a.FACULTYID='" + facultyId + "' and a.REPORTID=b.REPORTID and a.REPORTID=c.REPORTID" + temp + " order by ISFK asc, FKTIME asc";
+			sql =  "select a.*, b.SERIALNUM,b.REPORTNAME,b.BEREPORTNAME,b.REPORTREASON, c.FILENAME from TB_FACULTYADVICE a, TB_REPORTINFO b, TB_SURVEYREPORT c where a.FACULTYID=? and a.REPORTID=b.REPORTID and a.REPORTID=c.REPORTID" + temp + " order by ISFK asc, FKTIME asc";
+			paramList.add(0, facultyId);
+			params = paramList.toArray(new String[0]);
 			request.getSession().setAttribute("queryFacultyAdviceList", sql);
+			request.getSession().setAttribute("queryFacultyAdviceListParams", params);
 		} else if (operation.equals("changePage")) {
 			sql = (String)request.getSession().getAttribute("queryFacultyAdviceList");
-			if(orderField != null && !orderField.equals(""))
+			params = (String[])request.getSession().getAttribute("queryFacultyAdviceListParams");
+			if(orderField != null && !orderField.equals("") && !orderField.matches(".*[=<>].*") && (orderDirection.equalsIgnoreCase("asc") || orderDirection.equalsIgnoreCase("DESC")))
 			{
 				sql = sql.substring(0, sql.indexOf("order"));
 				sql += " order by " + orderField + " " + orderDirection;
@@ -148,7 +157,9 @@ public class FacultyFKAction extends DispatchAction {
 		pageBean.setQueryPageNo(queryPageNo);
 		
 		request.getSession().setAttribute("queryFacultyAdviceList", sql);
+		request.getSession().setAttribute("queryFacultyAdviceListParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		String serverPath = SystemConstant.GetServerPath() + "/attachment/";
@@ -181,12 +192,20 @@ public class FacultyFKAction extends DispatchAction {
 		if(reportIds == null || reportIds.equals("")) {
 			return null;
 		} else {		
-			reportIds = "('" + reportIds.replace(",", "','") + "')";
-			int len = reportIds.split(",").length;
-			String sql = "select FILENAME from TB_SURVEYREPORT where REPORTID in " + reportIds;
+			
+			String[] reportArray = reportIds.split(",");
+			int len  = reportArray.length;
+			StringBuilder sqlBuilder = new StringBuilder("select FILENAME from TB_SURVEYREPORT where REPORTID in (");
+			
+			for(int i = 0; i < len ; i++) {
+				sqlBuilder.append(" ?,");
+				if(i == len -1) sqlBuilder.replace(sqlBuilder.length()-1, sqlBuilder.length(), ")");
+			}
+			String sql = sqlBuilder.toString();
+			
 			DBTools db = new DBTools();
 			String dirPath = request.getSession().getServletContext().getRealPath("/");
-			String[] files = db.queryDcbgFiles(sql, len, dirPath);
+			String[] files = db.queryDcbgFiles(sql, reportArray, dirPath);
 			if (files != null) {
 				
 		        ZipOutputStream output = null;
@@ -227,17 +246,20 @@ public class FacultyFKAction extends DispatchAction {
 		FacultyFKForm facultyFKForm = (FacultyFKForm)form;
 		
 		String sql = "";
+		String[] params = null;
 		String id = request.getParameter("id");
 		String reportId = request.getParameter("reportId");
 		if (id != null && !id.equals("")) {
-			sql = "select a.*,b.SERIALNUM,b.REPORTNAME,b.BEREPORTNAME,c.FILENAME from TB_FACULTYADVICE a, TB_REPORTINFO b, TB_SURVEYREPORT c where a.ID='" + id +"' and b.REPORTID=a.REPORTID and c.REPORTID=a.REPORTID";
+			sql = "select a.*,b.SERIALNUM,b.REPORTNAME,b.BEREPORTNAME,c.FILENAME from TB_FACULTYADVICE a, TB_REPORTINFO b, TB_SURVEYREPORT c where a.ID=? and b.REPORTID=a.REPORTID and c.REPORTID=a.REPORTID";
+			params = new String[]{id};
 		} else if (reportId != null && !reportId.equals("")) {
-			sql = "select a.*,b.SERIALNUM,b.REPORTNAME,b.BEREPORTNAME,c.FILENAME from TB_FACULTYADVICE a, TB_REPORTINFO b, TB_SURVEYREPORT c where a.REPORTID='" + reportId +"' and b.REPORTID=a.REPORTID and c.REPORTID=a.REPORTID"; 
+			sql = "select a.*,b.SERIALNUM,b.REPORTNAME,b.BEREPORTNAME,c.FILENAME from TB_FACULTYADVICE a, TB_REPORTINFO b, TB_SURVEYREPORT c where a.REPORTID=? and b.REPORTID=a.REPORTID and c.REPORTID=a.REPORTID"; 
+			params = new String[]{reportId};
 		} else {
 			return null;
 		}
 		DBTools db = new DBTools();
-		ArrayList result = db.queryFacultyAdvice(sql, "0");
+		ArrayList result = db.queryFacultyAdvice(sql, "0", params);
 		if(result.size() > 0) {
 			facultyFKForm.setRecordNotFind("false");
 			request.setAttribute("totalRows", result.size());
@@ -263,16 +285,17 @@ public class FacultyFKAction extends DispatchAction {
 
 		String fktime = SystemShare.GetNowTime("yyyy-MM-dd");
 		
-		String sql = "update TB_FACULTYADVICE set ISFK='1',FKTIME='" + fktime + "',ADVICE='" + advice + "' where ID='" + id + "'";
+		String sql = "update TB_FACULTYADVICE set ISFK=?,FKTIME=?,ADVICE=? where ID=?";
+		String[] params = new String[]{"1", fktime, advice, id};
 		DBTools db = new DBTools();
-		boolean result = db.insertItem(sql);
+		boolean result = db.insertItem(sql, params);
 		
 		if (result) {
 
 			String reportId = db.querySingleDate("TB_FACULTYADVICE", "REPORTID", "ID", id);
 			String LoginName = (String)request.getSession().getAttribute("LoginName");
-			sql = "select ZZNAME from SYS_USER a, SYS_ZZINFO b where a.LOGINNAME='" + LoginName + "' and a.ZZID=b.ZZID";
-			String ZZNAME = db.queryZZName(sql);
+			sql = "select ZZNAME from SYS_USER a, SYS_ZZINFO b where a.LOGINNAME=? and a.ZZID=b.ZZID";
+			String ZZNAME = db.queryZZName(sql, new String[]{LoginName});
 			// insert facultyAdvice to survey Report doc
 			String dcbgPath = dirPath + "/attachment/" + db.querySingleDate("TB_SURVEYREPORT", "FILENAME", "REPORTID", reportId);
 
@@ -280,18 +303,18 @@ public class FacultyFKAction extends DispatchAction {
 			new POIHWPFHelper().fillBookmark("facultyAdvice", advice, dcbgPath);
 			
 			//更新消息提醒状态
-			String UserName = (String)request.getSession().getAttribute("UserName");
-			sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME='" + UserName + "' and REPORTID='" + reportId + "'";
-			db.insertItem(sql);		
+			String userName = (String)request.getSession().getAttribute("UserName");
+			sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME=? and REPORTID=?";
+			params = new String[]{userName, reportId};
+			db.insertItem(sql, params);		
 	
 			String time = SystemShare.GetNowTime("yyyy-MM-dd");
-			String userName = (String)request.getSession().getAttribute("UserName");
 			String describe = time + "," + userName + "在线提交学部意见";
 			//插入处理过程到数据库中
 			result = db.InsertHandleProcess(reportId, userName, SystemConstant.HP_FACULTYADVICE, SystemConstant.SS_SURVEYING, SystemConstant.LCT_FACULTY, describe);
 			
 			//写入日志文件
-			db.insertLogInfo(UserName, SystemConstant.LOG_FACULTYADVICE, "编辑学部意见，事件编号为：" + reportId, request.getRemoteAddr());
+			db.insertLogInfo(userName, SystemConstant.LOG_FACULTYADVICE, "编辑学部意见，事件编号为：" + reportId, request.getRemoteAddr());
 		}
 		
 		PrintWriter out = response.getWriter();

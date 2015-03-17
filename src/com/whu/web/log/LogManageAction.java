@@ -46,8 +46,11 @@ public class LogManageAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select * from SYS_LOGINFO order by ID desc";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryLogSql", sql);
+		request.getSession().setAttribute("queryLogParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryLogList(rs, rowsPerPage);
@@ -86,6 +89,7 @@ public class LogManageAction extends DispatchAction {
 
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -96,30 +100,37 @@ public class LogManageAction extends DispatchAction {
 			String logBeginTime = logManageForm.getLogBeginTime();
 			String logEndTime = logManageForm.getLogEndTime();
 			String temp = "";
+			ArrayList<String> paramList= new ArrayList<String>();
 			if(!operator.equals(""))
 			{
-				temp += " and OPERATOR like '%" + operator + "%'";
+				temp += " and OPERATOR like ?";
+				paramList.add("%" + operator + "%");
 			}
 			if(!logType.equals(""))
 			{
-				temp += " and LOGTYPE='" + logType + "'";
+				temp += " and LOGTYPE=?";
+				paramList.add(logType);
 			}
 			if(!logBeginTime.equals(""))
 			{
-				temp += " and TIME >= '" + logBeginTime + "'";
+				temp += " and TIME >= ?";
+				paramList.add(logBeginTime);
 			}
 			if(!logEndTime.equals(""))
 			{
-				temp += " and TIME <= '" + logEndTime + "'";
+				temp += " and TIME <= ?";
+				paramList.add(logEndTime);
 			}
-			
+			params = paramList.toArray(new String[0]);
 			sql = "select * from SYS_LOGINFO where 1=1 " + temp + " order by ID desc";
 			request.getSession().setAttribute("queryLogSql", sql);
+			request.getSession().setAttribute("queryLogParams", params);
 		}
 		
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryLogSql");
-			if(orderField != null && !orderField.equals(""))
+			params = (String[])request.getSession().getAttribute("queryLogParams");
+			if(orderField != null && !orderField.equals("") && !orderField.matches("[=<>]") && (orderDirection.equalsIgnoreCase("asc") || orderDirection.equalsIgnoreCase("desc")))
 			{
 				//去掉默认的以ID排序，即ID desc共7个字符，然后附加上用户选择的排序字段
 				//有些时候默认不是以ID排序，所以不能用这种分割方法！可以用查找order位置的方法，替换后面的order by ID asc
@@ -132,6 +143,7 @@ public class LogManageAction extends DispatchAction {
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);

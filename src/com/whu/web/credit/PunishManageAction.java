@@ -48,8 +48,11 @@ public class PunishManageAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select A.ID, CODENAME, A.CODE, CAPTION, REMARK, YEAR, RATE from (select * from SYS_DATA_DIC where CODENAME='ZDBZ_CLJD') as A join SYS_CLJD_RATE as B where A.CODE=B.CODE";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryPunishSql", sql);
+		request.getSession().setAttribute("queryPunishParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryPunishList(rs, rowsPerPage);
@@ -78,6 +81,7 @@ public class PunishManageAction extends DispatchAction {
 		String operation = request.getParameter("operation");
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -86,18 +90,22 @@ public class PunishManageAction extends DispatchAction {
 			String temp = "";
 			if(!name.equals(""))
 			{
-				temp += " and CAPTION like '%" + name + "%'";
+				temp += " and CAPTION like ?";
+				params = new String[]{"%" + name + "%"};
 			}
 			sql = "select A.ID, CODENAME, A.CODE, CAPTION, REMARK, YEAR, RATE from (select * from SYS_DATA_DIC where CODENAME='ZDBZ_CLJD') as A join SYS_CLJD_RATE as B where A.CODE=B.CODE " + temp;
 			request.getSession().setAttribute("queryPunishSql", sql);
+			request.getSession().setAttribute("queryPunishParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryPunishSql");
+			params = (String[])request.getSession().getAttribute("queyrPunishParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);

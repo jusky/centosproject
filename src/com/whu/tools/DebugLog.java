@@ -19,7 +19,8 @@ import com.whu.web.common.SystemShare;
 public class DebugLog {
 
 	public static BufferedReader bufread;
-	private static String path = "C:\\test.txt";
+//	private static String path = "C:\\test.txt";
+	private static String path = "/home/tmp/test.txt";
 	//private static File filename = new File(path);
 	private static File filename;
 	private static String readStr   = "";

@@ -68,9 +68,9 @@ public class ExpertFKAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		ExpertFKForm expertFKForm = (ExpertFKForm) form;
 		String loginName = (String)request.getSession().getAttribute("LoginName");
-		String sql = "select a.* from SYS_EXPERTINFO a, SYS_ED_USER b where b.LOGINNAME='" + loginName + "' and b.EXPERTID=a.ID";
+		String sql = "select a.* from SYS_EXPERTINFO a, SYS_ED_USER b where b.LOGINNAME=? and b.EXPERTID=a.ID";
 		DBTools dbTools = new DBTools();
-		ExpertInfo expertInfo = dbTools.queryExpertInfo(sql);
+		ExpertInfo expertInfo = dbTools.queryExpertInfo(sql, new String[]{loginName});
 		ArrayList result = new ArrayList();
 		if(expertInfo!=null)
 		{
@@ -97,9 +97,9 @@ public class ExpertFKAction extends DispatchAction {
 			HttpServletRequest request, HttpServletResponse response) {
 		ExpertFKForm expertFKForm = (ExpertFKForm)form;
 		String loginName = (String)request.getSession().getAttribute("LoginName");
-		String sql = "select a.*, b.STATUS from TB_ED_ADVICE a, TB_REPORTINFO b where a.LOGINNAME='" + loginName + "' and a.REPORTID=b.REPORTID";
+		String sql = "select a.*, b.STATUS from TB_ED_ADVICE a, TB_REPORTINFO b where a.LOGINNAME=? and a.REPORTID=b.REPORTID";
 		DBTools db = new DBTools();
-		ArrayList result = db.queryExpertJDList(sql);
+		ArrayList result = db.queryExpertJDList(sql, new String[]{loginName});
 		if(result.size() > 0)
 		{
 			ArrayList tempList = new ArrayList();
@@ -107,13 +107,13 @@ public class ExpertFKAction extends DispatchAction {
 			{
 				ExpertIdentityBean eb = (ExpertIdentityBean)result.get(i);
 				String reportID = eb.getReportID();
-				sql = "select * from TB_EXPERTFILE where REPORTID='" + reportID + "'";
-				ExpertFile ef = db.queryExpertFile(sql);
+				sql = "select * from TB_EXPERTFILE where REPORTID=?";
+				ExpertFile ef = db.queryExpertFile(sql, new String[]{reportID});
 				eb.setLetterPath(ef.getJdhPath());
 				eb.setAdviceLetterPath(ef.getYjsPath());
 				
-				sql = "select * from TB_JDYJSINFO where REPORTID='" + reportID + "'";
-				JDYJSBean jb = db.queryJDYJS(sql);
+				sql = "select * from TB_JDYJSINFO where REPORTID=?";
+				JDYJSBean jb = db.queryJDYJS(sql, new String[]{reportID});
 				if(jb!=null)
 				{
 					eb.setEventReason(jb.getEventReason());
@@ -151,8 +151,8 @@ public class ExpertFKAction extends DispatchAction {
 		String reportID = request.getParameter("reportID");
 		String adviceID = request.getParameter("adviceID");
 		DBTools dbTools = new DBTools();
-		String sql = "select a.*,b.CONCLUSION,b.ADVICE from TB_JDYJSINFO a,TB_EXPERTADVICE b where a.REPORTID='" + reportID + "' and b.ID=" + adviceID + " and a.REPORTID=b.REPORTID";
-		JDYJSBean jb = dbTools.queryExpertFK(sql);
+		String sql = "select a.*,b.CONCLUSION,b.ADVICE from TB_JDYJSINFO a,TB_EXPERTADVICE b where a.REPORTID=? and b.ID=? and a.REPORTID=b.REPORTID";
+		JDYJSBean jb = dbTools.queryExpertFK(sql, new String[]{reportID, adviceID});
 		int count = 0;
 		if(jb != null)
 		{
@@ -268,8 +268,9 @@ public class ExpertFKAction extends DispatchAction {
 			attachName = "";
 		}
 
-        String sql = "update TB_EXPERTADVICE set CONCLUSION='" + jdConclusion + "',ADVICE='" + jdAdvice + "',TIME='" + time + "',ISFK='1',ATTACHNAME='" + attachName + "' where ID=" + adviceID;
-        result = dbTools.insertItem(sql);
+        String sql = "update TB_EXPERTADVICE set CONCLUSION=?,ADVICE=?,TIME=?,ISFK=?,ATTACHNAME=? where ID=?";
+        String[] params = new String[]{jdConclusion, jdAdvice, time, "1", attachName, adviceID};
+        result = dbTools.insertItem(sql, params);
         
         if(result)
         {
@@ -278,14 +279,15 @@ public class ExpertFKAction extends DispatchAction {
 			result = dbTools.InsertHandleProcess(reportID, expertName, SystemConstant.HP_EXPERTADVICE, SystemConstant.SS_SURVEYING, SystemConstant.LCT_ZJJD, describe);
 			
         	//将该反馈消息插入到数据库中，便于在管理平台首页可以查看到该反馈消息，提醒工作人员
-        	sql = "insert into TB_FKRECODER(REPORTID, TIME,TYPE,FKNAME) values('" + reportID + "','" + time + "','" + SystemConstant.REPLY_EXPERT + "','" + expertName + "')";
-        	dbTools.insertItem(sql);
+        	sql = "insert into TB_FKRECODER(REPORTID, TIME,TYPE,FKNAME) values(?, ?, ?, ?)";
+        	params = new String[]{reportID, time, SystemConstant.REPLY_EXPERT, expertName};
+        	dbTools.insertItem(sql, params);
         }
 
         if(result)
         {
-			sql = "update TB_ED_ADVICE set ISSUBMIT='1' where ID=" +id;
-			result = dbTools.insertItem(sql);
+			sql = "update TB_ED_ADVICE set ISSUBMIT='1' where ID=?";
+			result = dbTools.insertItem(sql, new String[]{id});
         }
         PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();

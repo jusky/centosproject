@@ -57,22 +57,26 @@ public class LitigantStateAction extends DispatchAction {
 		}
 		
 		String sql = "";
+		String[] params = new String[0];
 		//如果不为空，则说明是编辑
 		if(id != null && !id.equals(""))
 		{
 			if(attachName.equals(""))
 			{
-				sql = "update TB_LITIGANTSTATE set LITIGANTNAME='" + name + "', LITIGANTTIME='" + time + "',LITIGANTCONTENT='" + content + "',TALKRECORDER='" + talkRecorder + "' where ID=" + id;
+				sql = "update TB_LITIGANTSTATE set LITIGANTNAME=?, LITIGANTTIME=?,LITIGANTCONTENT=?,TALKRECORDER=? where ID=?";
+				params = new String[]{name, time, content, talkRecorder, id};
 			}
 			else
 			{
-				sql = "update TB_LITIGANTSTATE set LITIGANTNAME='" + name + "', LITIGANTTIME='" + time + "',LITIGANTCONTENT='" + content + "',TALKRECORDER='" + talkRecorder + "',ATTACHNAME='" + attachName + "' where ID=" + id;
+				sql = "update TB_LITIGANTSTATE set LITIGANTNAME=?, LITIGANTTIME=?,LITIGANTCONTENT=?,TALKRECORDER=?,ATTACHNAME=? where ID=?";
+				params = new String[]{name, time, content, talkRecorder, attachName, id};
 			}
 			
 		}
 		else//如果为空，则说明是新增
 		{
-			sql = "insert into TB_LITIGANTSTATE(REPORTID,LITIGANTNAME,LITIGANTTIME,LITIGANTCONTENT,TALKRECORDER,ATTACHNAME) values('" + reportID + "','" + name + "','" + time + "','" + content + "','" + talkRecorder + "','" + attachName + "')";
+			sql = "insert into TB_LITIGANTSTATE(REPORTID,LITIGANTNAME,LITIGANTTIME,LITIGANTCONTENT,TALKRECORDER,ATTACHNAME) values(?, ?, ?, ?, ?, ?)";
+			params = new String[]{reportID, name, time, content, talkRecorder, attachName};
 		}
 		
 		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
@@ -87,7 +91,7 @@ public class LitigantStateAction extends DispatchAction {
 		boolean result = SystemShare.IOCopy(path1, path2, relDirectory, createName);
 		
 		DBTools dbTools = new DBTools();
-		result = dbTools.insertItem(sql);
+		result = dbTools.insertItem(sql, params);
 		
 		if(result)
 		{

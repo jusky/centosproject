@@ -50,8 +50,8 @@ public class CheckIdentityServlet extends HttpServlet {
 		if(type.equals("real"))
 		{
 			//如果身份真实，则将ISNI修改为2，表示已经核实过，且身份真实
-			sql = "update TB_REPORTINFO set ISNI = '2' where REPORTID = '" + reportID + "'";
-			result = dbTools.insertItem(sql);
+			sql = "update TB_REPORTINFO set ISNI = '2' where REPORTID = ?'";
+			result = dbTools.insertItem(sql, new String[]{reportID});
 		}
 		else if(type.equals("noreal"))//身份虚假，修改为匿名举报
 		{

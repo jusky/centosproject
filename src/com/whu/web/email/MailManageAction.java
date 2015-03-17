@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,7 +23,7 @@ import org.apache.struts.actions.DispatchAction;
 import com.whu.tools.CheckPage;
 import com.whu.tools.DBTools;
 import com.whu.tools.EmailTools;
-import com.whu.tools.ReciveEmail;
+import com.whu.tools.ReceiveEmail;
 import com.whu.web.common.SystemShare;
 import com.whu.web.position.PosBean;
 import com.whu.web.position.PosManageForm;
@@ -52,9 +53,13 @@ public class MailManageAction extends DispatchAction {
 			queryPageNo = Integer.parseInt(request.getParameter("queryPageNo"));
 		}
 		pageBean.setQueryPageNo(queryPageNo);
-		String sql = "select ID,ACCOUNTNAME,MAILADDRESS,ISDEFAULT from TB_MAILCONFIG where LOGINNAME='" + loginName + "'";
+		String sql = "select ID,ACCOUNTNAME,MAILADDRESS,ISDEFAULT from TB_MAILCONFIG where LOGINNAME=?";
+		String[] params = new String[]{loginName};
+		// String sql = "select ID,ACCOUNTNAME,MAILADDRESS,ISDEFAULT from TB_MAILCONFIG where LOGINNAME='" + loginName + "'";
 		request.getSession().setAttribute("queryMailSql", sql);
+		request.getSession().setAttribute("queryMailParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryMailList(rs, rowsPerPage);
@@ -82,32 +87,43 @@ public class MailManageAction extends DispatchAction {
 		
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = null;
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
 		if (operation.equalsIgnoreCase("search")) {
+
+			ArrayList<String> paramsList = new ArrayList<String>();
+			paramsList.add(loginName);
 			String accountName = mailManageForm.getAccountName();
 			String mailAddress = mailManageForm.getMailAddress();
 			//System.out.println(mailAddress);
 			String temp = "";
 			if(!accountName.equals(""))
 			{
-				temp += " and ACCOUNTNAME like '%" + accountName + "%'";
+				temp += " and ACCOUNTNAME like ?";
+				paramsList.add("%" + accountName + "%");
 			}
 			if(!mailAddress.equals(""))
 			{
-				temp +=" and MAILADDRESS like '%" + mailAddress +"%'";
+				temp +=" and MAILADDRESS like ?";
+				paramsList.add("%" + mailAddress + "%");
 			}
-			sql = "select ID,ACCOUNTNAME,MAILADDRESS,ISDEFAULT from TB_MAILCONFIG where LOGINNAME='" + loginName + "' " + temp;
+			//sql = "select ID,ACCOUNTNAME,MAILADDRESS,ISDEFAULT from TB_MAILCONFIG where LOGINNAME='" + loginName + "' " + temp;
+			sql = "select ID,ACCOUNTNAME,MAILADDRESS,ISDEFAULT from TB_MAILCONFIG where LOGINNAME=? " + temp;
 			request.getSession().setAttribute("queryMailSql", sql);
+			params = paramsList.toArray(new String[paramsList.size()]);
+			request.getSession().setAttribute("queryMailParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryMailSql");
+			params = (String[])request.getSession().getAttribute("queryMailparams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
@@ -182,11 +198,11 @@ public class MailManageAction extends DispatchAction {
 		DBTools dbTools = new DBTools();
 		String sql = "update TB_MAILCONFIG set ISDEFAULT='0' where ISDEFAULT='1'";
 		
-		boolean result = dbTools.insertItem(sql);
+		boolean result = dbTools.insertItem(sql, new String[0]);
 		if(result)
 		{
-			sql = "update TB_MAILCONFIG set ISDEFAULT='1' where ID=" + id;
-			result = dbTools.insertItem(sql);
+			sql = "update TB_MAILCONFIG set ISDEFAULT='1' where ID=?";
+			result = dbTools.insertItem(sql, new String[]{id});
 		}
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
@@ -222,8 +238,8 @@ public class MailManageAction extends DispatchAction {
 		String id = request.getParameter("id");
 		DBTools dbTools = new DBTools();
 		EmailTools emailTool = new EmailTools();
-		String sql = "select * from TB_MAILCONFIG where ID=" + id;
-		EmailBean emailBean = dbTools.queryEmailConfig(sql);
+		String sql = "select * from TB_MAILCONFIG where ID=?";
+		EmailBean emailBean = dbTools.queryEmailConfig(sql, new String[]{id});
 		if(emailBean!=null)
 		{
 			boolean result = emailTool.TestConnection(emailBean);
@@ -262,8 +278,8 @@ public class MailManageAction extends DispatchAction {
 		MailManageForm mailManageForm = (MailManageForm)form;
 		String id = request.getParameter("id");
 		DBTools dbTools = new DBTools();
-		String sql = "select * from TB_MAILCONFIG where ID=" + id;
-		EmailBean emailBean = dbTools.queryEmailConfig(sql);
+		String sql = "select * from TB_MAILCONFIG where ID=?";
+		EmailBean emailBean = dbTools.queryEmailConfig(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(emailBean!=null)
 		{
@@ -425,7 +441,7 @@ public class MailManageAction extends DispatchAction {
 		EmailBean emailBean = dbTools.queryEmailConfig(id);
 		if(emailBean != null)
 		{			
-			ReciveEmail recvEmail = new ReciveEmail();
+			ReceiveEmail recvEmail = new ReceiveEmail();
 			try {
 				ArrayList resultList = recvEmail.RecvEmailList(emailBean);
 				if(resultList.size() > 0)

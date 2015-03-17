@@ -53,8 +53,9 @@ public class DeptAdviceServlet extends HttpServlet {
 			DBTools dbTools = new DBTools();
 			
 			String createTime = SystemShare.GetNowTime("yyyy-MM-dd");
-			String sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,SERIALNUM,ISFK) values('" + reportID + "','" + deptName + "','" + createTime + "','" + serialNum + "','0')";
-			boolean result = dbTools.insertItem(sql);
+			String sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,SERIALNUM,ISFK) values(?, ?, ?, ?, ?)";
+			String[] params = new String[]{reportID, deptName, createTime, serialNum, "0"};
+			boolean result = dbTools.insertItem(sql, params);
 			response.getWriter().write("生成成功！");
 		}
 		else if(type.equals("query"))

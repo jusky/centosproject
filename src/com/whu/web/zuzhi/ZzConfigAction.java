@@ -54,12 +54,13 @@ public class ZzConfigAction extends DispatchAction {
 		String pzzID = zzConfigForm.getPzzID();
 		int zzSort = 2;
 		String sql = "";
+		String[] params = new String[0];
 		String zzID = "";
 		DBTools dbTool = new DBTools();	
 		boolean result = false;
 		
-		sql = "select ZZID from SYS_ZZINFO where PZZID='" + pzzID + "' order by ZZID desc limit 1";
-		String maxZzID = dbTool.queryZZID(sql);
+		sql = "select ZZID from SYS_ZZINFO where PZZID=? ' order by ZZID desc limit 1";
+		String maxZzID = dbTool.queryZZID(sql, new String[]{pzzID});
 
 		if(!maxZzID.equals(""))
 		{
@@ -68,14 +69,16 @@ public class ZzConfigAction extends DispatchAction {
 			if(operation.equals("new"))
 			{
 				zzID = String.valueOf(mzzID);
-				sql = "insert into SYS_ZZINFO(ZZID,ZZNAME,ZZDESCRIBE,ZZSORT,ISJC,PZZID) values('" + zzID + "','" + zzName + "','" + zzDescribe +"', " + zzSort + ", '0','" + pzzID + "')";
+				sql = "insert into SYS_ZZINFO(ZZID,ZZNAME,ZZDESCRIBE,ZZSORT,ISJC,PZZID) values(?, ?, ?, ?, ?, ?)";
+				params = new String[]{zzID, zzName, zzDescribe, String.valueOf(zzSort), "0", pzzID};
 			}
 			else if(operation.equals("edit"))
 			{
 				zzID = zzConfigForm.getZzID();
-				sql = "update SYS_ZZINFO set ZZID='" + String.valueOf(mzzID) + "', ZZNAME='" + zzName + "',ZZDESCRIBE='" + zzDescribe + "', PZZID='" + pzzID + "' where ZZID='" + zzID + "'";
+				sql = "update SYS_ZZINFO set ZZID=?, ZZNAME=?,ZZDESCRIBE=?, PZZID=? where ZZID=?";
+				params = new String[]{String.valueOf(mzzID), zzName, zzDescribe, pzzID, zzID};
 			}
-			result = dbTool.insertItem(sql);
+			result = dbTool.insertItem(sql, params);
 		}
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
@@ -103,8 +106,8 @@ public class ZzConfigAction extends DispatchAction {
 		ZzConfigForm zzConfigForm = (ZzConfigForm) form;
 		String id = request.getParameter("id");
 		DBTools dbTools = new DBTools();
-		String sql = "select a.*,b.ZZNAME as PZZNAME from SYS_ZZINFO a, SYS_ZZINFO b where a.PZZID=b.ZZID and a.ID=" + id;
-		ZZBean zzBean = dbTools.queryZZBean(sql);
+		String sql = "select a.*,b.ZZNAME as PZZNAME from SYS_ZZINFO a, SYS_ZZINFO b where a.PZZID=b.ZZID and a.ID=?";
+		ZZBean zzBean = dbTools.queryZZBean(sql, new String[]{id});
 		ArrayList result = new ArrayList();
 		if(zzBean!=null)
 		{

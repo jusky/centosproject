@@ -64,7 +64,7 @@ public class NewMailAction extends DispatchAction {
 		
 		DBTools dbTools = new DBTools();
 		String sql = "select ID,ACCOUNTNAME,MAILADDRESS,ISDEFAULT from TB_MAILCONFIG where LOGINNAME='" + loginName + "' order by ISDEFAULT desc";
-		ArrayList result = dbTools.queryMailList(sql);
+		ArrayList result = dbTools.queryMailList(sql, new String[0]);
 		if(result.size() > 0)
 		{
 			newMailForm.setRecordNotFind("false");
@@ -101,8 +101,8 @@ public class NewMailAction extends DispatchAction {
 		String title = newMailForm.getTitle();
 		
 		DBTools dbTools = new DBTools();
-		String sql = "select * from TB_MAILCONFIG where ID=" + id;
-		EmailBean emailBean = dbTools.queryEmailConfig(sql);
+		String sql = "select * from TB_MAILCONFIG where ID=?";
+		EmailBean emailBean = dbTools.queryEmailConfig(sql, new String[]{id});
 		
 		EmailTools emailTools = new EmailTools();
 		boolean result = false;

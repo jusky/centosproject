@@ -51,6 +51,7 @@ public class FYApplyManageAction extends DispatchAction {
 		String shortInfo = fyApplyManageForm.getShortInfo();
 		String id = fyApplyManageForm.getId();
 		String sql = "";
+		String[] params = new String[0];
 		boolean editFlag = false;
 		//如果不为空，则说明是编辑
 		if(id != null && !id.equals(""))
@@ -80,16 +81,18 @@ public class FYApplyManageAction extends DispatchAction {
 		
 		if(!editFlag)//新增异议申请
 		{
-			sql = "insert into TB_FYAPPLY(REPORTID,FYAPPLYNAME,FYTIME,SHORTINFO,ATTACHPATH) values('" + reportID + "','" + fyApplyName + "','" + fyTime + "','" + shortInfo + "','" + fyAttachName + "')";
-			result = dbTools.insertItem(sql);
+			sql = "insert into TB_FYAPPLY(REPORTID,FYAPPLYNAME,FYTIME,SHORTINFO,ATTACHPATH) values(?, ?, ?, ?, ?)";
+			params = new String[]{reportID, fyApplyName, fyTime, shortInfo, fyAttachName};
+			result = dbTools.insertItem(sql, params);
 			
 			if(result)
 			{
 				
 	    		String time = SystemShare.GetNowTime("yyyy-MM-dd");
 	    		
-				sql = "update TB_REPORTINFO set STATUS='" + SystemConstant.SS_FYAPPLY + "',LASTTIME='" + time + "' where REPORTID='" + reportID + "'";
-				result = dbTools.insertItem(sql);
+				sql = "update TB_REPORTINFO set STATUS=?,LASTTIME=? where REPORTID=?";
+				params = new String[]{SystemConstant.SS_FYAPPLY, time, reportID};
+				result = dbTools.insertItem(sql, params);
 				
 				String describe = time + "," + createName + "编辑" + fyApplyName + "的复议申请";
 				//插入处理过程到数据库中
@@ -100,13 +103,15 @@ public class FYApplyManageAction extends DispatchAction {
 		{
 			if(fyAttachName.equals(""))//如果没有上传附件，则不更新附件路径
 			{
-				sql = "update TB_FYAPPLY set FYAPPLYNAME='" + fyApplyName + "', FYTIME='" + fyTime + "', SHORTINFO='"  + shortInfo + "' where ID=" + id;
+				sql = "update TB_FYAPPLY set FYAPPLYNAME=?, FYTIME=?, SHORTINFO=? where ID=?";
+				params = new String[]{fyApplyName, fyTime, shortInfo, id};
 			}
 			else//如果重新上传了附件，则更新路径信息
 			{
-				sql = "update TB_FYAPPLY set FYAPPLYNAME='" + fyApplyName + "', FYTIME='" + fyTime + "', SHORTINFO='"  + shortInfo + "',ATTACHPATH='" + fyAttachName + "' where ID=" + id;
+				sql = "update TB_FYAPPLY set FYAPPLYNAME=?, FYTIME=?, SHORTINFO=?, ATTACHPATH=? where ID=?";
+				params = new String[]{fyApplyName, fyTime, shortInfo, fyAttachName, id};
 			}
-			result = dbTools.insertItem(sql);
+			result = dbTools.insertItem(sql, params);
 		}
 
 		//写入日志文件
@@ -155,8 +160,8 @@ public class FYApplyManageAction extends DispatchAction {
 		{
 			String id = request.getParameter("id");
 			String dirPath = request.getSession().getServletContext().getRealPath("/");
-			String sql = "select * from TB_FYAPPLY where ID=" + id;
-			FYApply fyApply = dbTool.queryFYApplyInfo(sql);
+			String sql = "select * from TB_FYAPPLY where ID=?";
+			FYApply fyApply = dbTool.queryFYApplyInfo(sql, new String[]{id});
 			if(fyApply != null)
 			{
 				String filePath = fyApply.getAttachPath();

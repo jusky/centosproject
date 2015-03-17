@@ -50,8 +50,11 @@ public class EventFKAction extends DispatchAction {
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select * from TB_FKRECODER order by ID desc";
+		String[] params = new String[0];
 		request.getSession().setAttribute("queryEventFKSql", sql);
+		request.getSession().setAttribute("queryEventFKParams", params);
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryEventFKList(rs, rowsPerPage);
@@ -79,6 +82,7 @@ public class EventFKAction extends DispatchAction {
 		
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
@@ -87,28 +91,36 @@ public class EventFKAction extends DispatchAction {
 			String fkName = eventFKForm.getFkName();
 			String fkBeginTime = eventFKForm.getFkBeginTime();
 			String fkEndTime = eventFKForm.getFkEndTime();
+			ArrayList<String> paramList= new ArrayList<String>();
 			if(!fkName.equals(""))
 			{
-				temp += " and FKNAME like '%" + fkName +   "%' ";
+				temp += " and FKNAME like ?";
+				paramList.add('%' + fkName + "%");
 			}
 			if(!fkBeginTime.equals(""))
 			{
-				temp += " and TIME  >= '" + fkBeginTime + "' ";
+				temp += " and TIME  >= ?";
+				paramList.add(fkBeginTime);
 			}
 			if(!fkEndTime.equals(""))
 			{
-				temp += " and TIME <='" + fkEndTime + "' ";
+				temp += " and TIME <= ?";
+				paramList.add(fkEndTime);
 			}
+			params = paramList.toArray(new String[0]);
 			sql = "select * from TB_FKRECODER where 1=1 " + temp + " order by ID desc";
 			request.getSession().setAttribute("queryEventFKSql", sql);
+			request.getSession().setAttribute("queryEventFKParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryEventFKSql");
+			params = (String[])request.getSession().getAttribute("queryEventFKParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
 		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
