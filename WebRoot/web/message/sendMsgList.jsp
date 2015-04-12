@@ -18,9 +18,9 @@
 				</td>
 				<td>
 					发送时间：
-					 <input type="text" class="date" readonly="true" name="sendBeginTime"/>
+					 <input type="text" class="date" readonly name="sendBeginTime"/>
                                                    至：
-        			<input type="text" class="date" readonly="true" name="sendEndTime"/>
+        			<input type="text" class="date" readonly name="sendEndTime"/>
 				</td>
 			</tr>
 		</table>

@@ -98,21 +98,21 @@
 			<div class="unit">
 				<label>所属组织：</label>
 				<input type="hidden" id="zzID" name="zzID" value=""/>
-				<input id="zzName" readonly="true" name="zzName" type="text" size="30" />
+				<input id="zzName" readonly name="zzName" type="text" size="30" />
 				<a id="menuBtn" class="btnLook" href="#" onclick="showMenu(); return false;">选择</a>
 				<span class="info">选择</span>
 			</div>
 			<div class="unit">
 				<label>担任职务：</label>
 					<input name="org8.posID" value="" type="hidden">
-					<input id="pos" name="org8.posName" type="text" size="40" readonly="true" value=""/>
+					<input id="pos" name="org8.posName" type="text" size="40" readonly value=""/>
 					<a class="btnLook" href="<%=path%>/lookUpGroupAction.do?method=init&type=pos" lookupGroup="org8">选择角色</a>
 					<span class="info">选择</span>
 			</div>
 			<div class="unit">
 				<label>系统角色：</label>
 				<input id="roleID" name="org7.roleID" type="hidden"/>
-				<input id="role" name="org7.roleName" type="text" size="40" readonly="true" value=""/>
+				<input id="role" name="org7.roleName" type="text" size="40" readonly value=""/>
 				<a class="btnLook" href="<%=path%>/lookUpGroupAction.do?method=init&type=role" lookupGroup="org7">选择角色</a>
 				<span class="info">选择</span>
 			</div>

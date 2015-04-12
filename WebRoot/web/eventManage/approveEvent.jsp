@@ -11,15 +11,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<legend>初步核实意见</legend>
 					<dl class="nowrap">
 						<dt>核实意见：</dt>
-						<dd><textarea rows="7" cols="80" readonly="true"><%=request.getAttribute("CheckInfo") %></textarea></dd>
+						<dd><textarea rows="7" cols="80" readonly><%=request.getAttribute("CheckInfo") %></textarea></dd>
 					</dl>
 					<dl>
 						<dt>核实人：</dt>
-						<dd><input type="text" class="readonly" size="20" name="checkName" value="<%=request.getAttribute("CheckName") %>"/></dd>
+						<dd><input type="text" readonly size="20" name="checkName" value="<%=request.getAttribute("CheckName") %>"/></dd>
 					</dl>
 					<dl>
 						<dt>核实时间：</dt>
-						<dd><input type="text" class="readonly" size="20" name="checkTime" value="<%=request.getAttribute("CheckTime") %>"/></dd>
+						<dd><input type="text" readonly size="20" name="checkTime" value="<%=request.getAttribute("CheckTime") %>"/></dd>
 					</dl>
 			</fieldset>
 			<fieldset>

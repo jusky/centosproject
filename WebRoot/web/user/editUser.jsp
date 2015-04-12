@@ -15,7 +15,7 @@
 			<input type="hidden" name="id" value="${UserBean.id}">
 			<dl class="nowrap">
 				<dt>登陆账号：</dt>
-				<dd><input class="required" minlength="5" maxlength="20" name="loginName" readonly="true" type="text" size="30" value="${UserBean.loginName }"/><span class="info">字母、数字、下划线 5-20位</span></dd>
+				<dd><input class="required" minlength="5" maxlength="20" name="loginName" readonly type="text" size="30" value="${UserBean.loginName }"/><span class="info">字母、数字、下划线 5-20位</span></dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>姓名：</dt>
@@ -57,7 +57,7 @@
 			<dl class="nowrap">
 				<dt>所属组织：</dt>
 				<dd>
-					<input id="zuzhi" name="org6.zzName" type="text" size="40" readonly="true" value="${UserBean.zzName }"/>
+					<input id="zuzhi" name="org6.zzName" type="text" size="40" readonly value="${UserBean.zzName }"/>
 					<a class="btnLook" href="<%=path%>/lookUpGroupAction.do?method=init&type=sszz" lookupGroup="org6">选择组织</a>
 					<span class="info">选择</span>
 				</dd>
@@ -65,14 +65,14 @@
 			<dl class="nowrap">
 				<dt>组织编号：</dt>
 					<dd>
-						<input class="readonly" name="org6.zzID" readonly="readonly" value="${UserBean.zzID }" type="text"/>
+						<input readonly name="org6.zzID" readonly="readonly" value="${UserBean.zzID }" type="text"/>
 					</dd>
 				</dl>
 			<div class="divider"></div>
 			<dl class="nowrap">
 				<dt>担任职务：</dt>
 				<dd>
-					<input id="pos" name="org8.posName" type="text" size="40" readonly="true" value="${UserBean.posNames }"/>
+					<input id="pos" name="org8.posName" type="text" size="40" readonly value="${UserBean.posNames }"/>
 					<a class="btnLook" href="<%=path%>/lookUpGroupAction.do?method=init&type=pos" lookupGroup="org8">选择职务</a>
 					<span class="info">选择</span>
 				</dd>
@@ -80,14 +80,14 @@
 			<dl class="nowrap">
 				<dt>职务编号：</dt>
 					<dd>
-						<input class="readonly" name="org8.posID" readonly="readonly" value="${UserBean.posIDs }" type="text"/>
+						<input readonly name="org8.posID" readonly="readonly" value="${UserBean.posIDs }" type="text"/>
 					</dd>
 				</dl>
 			<div class="divider"></div>
 			<dl class="nowrap">
 				<dt>角色分配：</dt>
 				<dd>
-					<input id="role" name="org7.roleName" type="text" size="40" readonly="true" value="${UserBean.roleNames }"/>
+					<input id="role" name="org7.roleName" type="text" size="40" readonly value="${UserBean.roleNames }"/>
 					<a class="btnLook" href="<%=path%>/lookUpGroupAction.do?method=init&type=role" lookupGroup="org7">选择角色</a>
 					<span class="info">选择</span>
 				</dd>
@@ -95,7 +95,7 @@
 			<dl class="nowrap">
 				<dt>角色编号：</dt>
 					<dd>
-						<input class="readonly" name="org7.roleID" readonly="readonly" value="${UserBean.roleIDs }" type="text"/>
+						<input readonly name="org7.roleID" readonly="readonly" value="${UserBean.roleIDs }" type="text"/>
 					</dd>
 				</dl>
 			<div class="divider"></div>

@@ -49,7 +49,7 @@
     <form-bean name="deptFKForm" type="com.whu.web.expertAndDept.DeptFKForm" />
     <form-bean name="wsjbManageForm" type="com.whu.web.wsjb.WsjbManageForm" />
     <form-bean name="sjybdManageForm" type="com.whu.web.eventmanage.SjybdManageForm" />
-    <form-bean name="eventFKForm" type="com.whu.web.expertAndDept.EventFKForm" />
+    <form-bean name="eventFKForm" type="com.whu.web.eventmanage.EventFKForm" />
     <form-bean name="wyManageForm" type="com.whu.web.user.WyManageForm" />
     <form-bean name="addressBookForm" type="com.whu.web.email.AddressBookForm" />
     <form-bean name="configInstituteForm" type="com.whu.web.credit.ConfigInstituteForm" />
@@ -64,7 +64,7 @@
     <form-bean name="configMistypeForm" type="com.whu.web.credit.ConfigMistypeForm" />
     <form-bean name="dispatchEventForm" type="com.whu.web.eventmanage.DispatchEventForm" />
     <form-bean name="facultyAdviceForm" type="com.whu.web.eventmanage.FacultyAdviceForm" />
-    <form-bean name="facultyFKForm" type="com.whu.web.expertAndDept.FacultyFKForm" />
+    <form-bean name="facultyFKForm" type="com.whu.web.faculty.FacultyFKForm" />
   </form-beans>
   
   <global-exceptions />
@@ -595,9 +595,9 @@
       parameter="method"
       path="/eventFKAction"
       scope="request"
-      type="com.whu.web.expertAndDept.EventFKAction">
+      type="com.whu.web.eventmanage.EventFKAction">
       <set-property property="cancellable" value="true" />
-      <forward name="init" path="/web/expertAndDept/eventFKManage.jsp" />
+      <forward name="init" path="/web/eventManage/eventFKManage.jsp" />
     </action>
     <action
       attribute="wyManageForm"
@@ -753,10 +753,10 @@
       parameter="method"
       path="/facultyFKAction"
       scope="request"
-      type="com.whu.web.expertAndDept.FacultyFKAction">
+      type="com.whu.web.faculty.FacultyFKAction">
       <set-property property="cancellable" value="true" />
-      <forward name="init" path="/web/expertAndDept/facultyFKList.jsp" />
-      <forward name="editFacultyAdvice" path="/web/expertAndDept/editFacultyAdvice.jsp" />
+      <forward name="init" path="/web/faculty/facultyFKList.jsp" />
+      <forward name="editFacultyAdvice" path="/web/faculty/editFacultyAdvice.jsp" />
     </action>
     </action-mappings>
   <message-resources parameter="ApplicationResources_cn" />

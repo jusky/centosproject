@@ -109,7 +109,7 @@ public class ExpertAdviceAction extends DispatchAction {
 				}
 				else//邮件发送成功后，需要将附件转存到举报文件夹下，用于专家反馈页面查看所有的附件
 				{
-					String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
+					String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/expert/";
 					String path1 = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";
 					String path2 = filePath + reportID;
 					attachNames = SystemShare.SaveEmailAttach(path1, path2);
@@ -169,15 +169,15 @@ public class ExpertAdviceAction extends DispatchAction {
 			String createName = (String)request.getSession().getAttribute("UserName");
 			if(attachName != null && !attachName.equals(""))
 			{
-				attachName = reportID + "/" + attachName;
+				attachName = "expert/" + reportID + "/" + attachName;
 				request.getSession().setAttribute("EventAttachName", "");
 				
-				String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
+				String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/expert/";
 				//String path1 = filePath + "temp";
 				String path1 = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";
 				String path2 = filePath + reportID;
 				//获得服务器的IP地址路径，存放在数据库中，便于下载
-				String relDirectory = "attachment" + "/" + reportID;
+				String relDirectory = "attachment/expert/" + reportID;
 				//将临时文件夹中的附件转存到以警情编号为目录的文件夹下
 
 				result = SystemShare.IOCopy(path1, path2, relDirectory, createName);

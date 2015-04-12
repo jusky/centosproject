@@ -22,9 +22,9 @@
 			<tr>
 				<td>
 					使用时间从：
-					 <input type="text" class="date" readonly="true" name="keyBeginTime"/>
+					 <input type="text" class="date" readonly name="keyBeginTime"/>
                                                    至：
-        			<input type="text" class="date" readonly="true" name="keyEndTime"/>
+        			<input type="text" class="date" readonly name="keyEndTime"/>
 				</td>
 			</tr>
 		</table>

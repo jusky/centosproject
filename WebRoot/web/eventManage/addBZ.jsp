@@ -11,7 +11,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<legend>举报内容</legend>
 					<dl class="nowrap">
 						<dt>事件简述：</dt>
-						<dd><textarea rows="8" cols="60" readonly="true"><%=request.getAttribute("ReportInfo") %></textarea></dd>
+						<dd><textarea rows="8" cols="60" readonly><%=request.getAttribute("ReportInfo") %></textarea></dd>
 					</dl>
 			</fieldset>
 			<fieldset>

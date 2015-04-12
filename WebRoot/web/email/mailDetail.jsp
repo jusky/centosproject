@@ -14,31 +14,31 @@
 			<input type="hidden" name="id" value="${EmailBean.ID}">
 			<p>
 				<label>账号名称：</label>
-				<input class="readonly" name="accountName" type="text" size="30" value='${EmailBean.accountName}'/>
+				<input readonly name="accountName" type="text" size="30" value='${EmailBean.accountName}'/>
 			</p>
 			<p>
 				<label>邮箱类型：</label>
-				<input class="readonly" name="accountName" type="text" size="20" value='${EmailBean.mailBoxType}'/>
+				<input readonly name="accountName" type="text" size="20" value='${EmailBean.mailBoxType}'/>
 			</p>
 			<p>
 				<label>邮箱地址：</label>
-				<input type="text" name="mailBoxAddress" class="readonly" size="40" value='${EmailBean.mailBoxAddress}'/>
+				<input type="text" name="mailBoxAddress" readonly size="40" value='${EmailBean.mailBoxAddress}'/>
 			</p>
 			<p>
 				<label>smtp主机：</label>
-				<input class="readonly" name="smtpPC" type="text" size="40" value='${EmailBean.smtpPC}'/>
+				<input readonly name="smtpPC" type="text" size="40" value='${EmailBean.smtpPC}'/>
 			</p>
 			<p>
 				<label>smtp端口：</label>
-				<input class="readonly" name="smtpPort" type="text" size="20" value='${EmailBean.smtpPort}'/>
+				<input readonly name="smtpPort" type="text" size="20" value='${EmailBean.smtpPort}'/>
 			</p>
 			<p>
 				<label>pop主机：</label>
-				<input class="readonly" name="popPC" type="text" size="40" value='${EmailBean.popPC}'/>
+				<input readonly name="popPC" type="text" size="40" value='${EmailBean.popPC}'/>
 			</p>
 			<p>
 				<label>pop端口：</label>
-				<input class="readonly" name="popPort" type="text" size="20" value='${EmailBean.popPort}'/>
+				<input readonly name="popPort" type="text" size="20" value='${EmailBean.popPort}'/>
 			</p>
 			</div>
 			<div class="formBar">

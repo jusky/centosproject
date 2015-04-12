@@ -44,7 +44,7 @@
 			<dl class="nowrap">
 				<dt>调查内容：</dt>
 				<dd>
-					<textarea name="surveyContnet" cols="90" rows="10" class="readonly">${DeptDCBean.surveyContent }</textarea>
+					<textarea name="surveyContnet" cols="90" rows="10" readonly>${DeptDCBean.surveyContent }</textarea>
 				</dd>
 			</dl>
 			<dl class="nowrap">

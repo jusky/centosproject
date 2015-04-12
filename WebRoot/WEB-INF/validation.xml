@@ -115,6 +115,33 @@
 						<var-value>1</var-value>
 					</var>
 				</field>
+				
+				<field property="file" depends="fileType">
+		         <arg0 key="report.input.file" />
+		         <var>
+	               <var-name>fileTypeProperty</var-name>
+                  <var-value>.jpg;.jpeg;.bmp;.png;.svg;.doc;.docx;.pdf;.tiff;.ppt;.pptx;.xls;.xlsx</var-value>
+		        </var>
+		      </field>
+		</form>
+	
+	
+
+
+		<form name="ExpertFKForm">
+				<field property="jdAdvice" depends="minlength,maxlength">
+					<arg0 key="expertadvice.input.advice"/>
+					<arg1 name="minlength" key="${var:minlength}" resource="false"/>
+					<var>
+						<var-name>minlength</var-name>
+						<var-value>2</var-value>
+					</var>
+					<arg2 name="maxlength" key="${var:maxlength}" resource="false"/>
+					<var>
+						<var-name>maxlength</var-name>
+						<var-value>2500</var-value>
+					</var>
+				</field>			
 		</form>
 		
 		<form name="facultyFKForm">

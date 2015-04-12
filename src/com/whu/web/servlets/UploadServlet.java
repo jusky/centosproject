@@ -1,4 +1,4 @@
-package com.whu.tools;
+package com.whu.web.servlets;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -22,6 +22,8 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
 
+import com.whu.tools.DBTools;
+import com.whu.tools.SystemConstant;
 import com.whu.web.common.DocConverter;
 import com.whu.web.common.SystemShare;
 

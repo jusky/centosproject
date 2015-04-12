@@ -20,9 +20,9 @@
 				</td>
 				<td class="dateRange">
 					日期从:
-					<input type="text" class="date" readonly="true" name="recvBeginTime"/>
+					<input type="text" class="date" readonly name="recvBeginTime"/>
 					至：
-					<input type="text" class="date" readonly="true" name="recvEndTime"/>
+					<input type="text" class="date" readonly name="recvEndTime"/>
 				</td>
 				<td class="dateRange">
 					<select class="combox" name="isRead">

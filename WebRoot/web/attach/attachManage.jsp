@@ -57,9 +57,9 @@
 				</td>
 				<td>
 					 创建时间从：
-					 <input type="text" class="date" readonly="true" name="createBeginTime"/>
+					 <input type="text" class="date" readonly name="createBeginTime"/>
                                                    至：
-        			<input type="text" class="date" readonly="true" name="createEndTime"/>
+        			<input type="text" class="date" readonly name="createEndTime"/>
 				</td>
 			</tr>
 		</table>

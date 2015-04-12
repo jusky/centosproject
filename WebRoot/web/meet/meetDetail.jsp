@@ -13,15 +13,15 @@
 			</dl>
 			<dl class="nowrap">
 				<dt>召开时间：</dt>
-				<dd><input class="readonly" name="time" type="text" size="60" value='${MeetInfo.time}'/></dd>
+				<dd><input readonly name="time" type="text" size="60" value='${MeetInfo.time}'/></dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>召开地点：</dt>
-				<dd><input class="readonly" name="location" type="text" size="60" value='${MeetInfo.location}'/></dd>
+				<dd><input readonly name="location" type="text" size="60" value='${MeetInfo.location}'/></dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>参会人员：</dt>
-				<dd><textarea class="readonly" name="members" rows="10" cols="80">${MeetInfo.members }</textarea></dd>
+				<dd><textarea readonly name="members" rows="10" cols="80">${MeetInfo.members }</textarea></dd>
 			</dl>
 		</div>
 		</logic:iterate>

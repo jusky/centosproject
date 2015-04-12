@@ -17,31 +17,31 @@
 					<logic:equal value="0" name="WsjbInfo" property="isNi">
 						<dl class="nowrap">
 							<dt>姓名：</dt>
-							<dd><input readonly="true" type="text" size="30" value='${WsjbInfo.reportName}'/></dd>
+							<dd><input readonly type="text" size="30" value='${WsjbInfo.reportName}'/></dd>
 						</dl>
 						<dl>
 							<dt>性别：</dt>
-							<dd><input readonly="true" type="text" size="10" value='${WsjbInfo.sex}'/></dd>
+							<dd><input readonly type="text" size="10" value='${WsjbInfo.sex}'/></dd>
 						</dl>
 						<dl>
 							<dt>民族：</dt>
-							<dd><input readonly="true" type="text" size="20" value='${WsjbInfo.nation}'/></dd>
+							<dd><input readonly type="text" size="20" value='${WsjbInfo.nation}'/></dd>
 						</dl>
 						<dl class="nowrap">
 							<dt>工作单位：</dt>
-							<dd><input readonly="true" type="text" size="60" value='${WsjbInfo.dept}'/></dd>
+							<dd><input readonly type="text" size="60" value='${WsjbInfo.dept}'/></dd>
 						</dl>
 						<dl class="nowrap">
 							<dt>邮箱地址：</dt>
-							<dd><input readonly="true" type="text" size="40" value='${WsjbInfo.mailAddres}'/></dd>
+							<dd><input readonly type="text" size="40" value='${WsjbInfo.mailAddres}'/></dd>
 						</dl>
 						<dl>
 							<dt>固定电话：</dt>
-							<dd><input readonly="true" type="text" size="30" value='${WsjbInfo.gdPhone}'/></dd>
+							<dd><input readonly type="text" size="30" value='${WsjbInfo.gdPhone}'/></dd>
 						</dl>
 						<dl>
 							<dt>手机号码：</dt>
-							<dd><input readonly="true" type="text" size="30" value='${WsjbInfo.telPhone}'/></dd>
+							<dd><input readonly type="text" size="30" value='${WsjbInfo.telPhone}'/></dd>
 						</dl>
 					</logic:equal>
 				</fieldset>
@@ -49,35 +49,35 @@
 					<legend>被举报人信息</legend>
 					<dl>
 						<dt>姓名：</dt>
-						<dd><input readonly="true" type="text" size="30" value='${WsjbInfo.beReportName}'/></dd>
+						<dd><input readonly type="text" size="30" value='${WsjbInfo.beReportName}'/></dd>
 					</dl>
 					<dl>
 						<dt>性别：</dt>
-						<dd><input readonly="true" type="text" size="10" value='${WsjbInfo.beSex}'/></dd>
+						<dd><input readonly type="text" size="10" value='${WsjbInfo.beSex}'/></dd>
 					</dl>
 					<dl class="nowrap">
 						<dt>工作单位：</dt>
-						<dd><input readonly="true" type="text" size="60" value='${WsjbInfo.beDept}'/></dd>
+						<dd><input readonly type="text" size="60" value='${WsjbInfo.beDept}'/></dd>
 					</dl>
 					<dl class="nowrap">
 						<dt>职称：</dt>
-						<dd><input readonly="true" type="text" size="30" value='${WsjbInfo.bePosition}'/></dd>
+						<dd><input readonly type="text" size="30" value='${WsjbInfo.bePosition}'/></dd>
 					</dl>
 					<dl class="nowrap">
 						<dt>联系方式：</dt>
-						<dd><input readonly="true" type="text" size="30" value='${WsjbInfo.bePhone}'/></dd>
+						<dd><input readonly type="text" size="30" value='${WsjbInfo.bePhone}'/></dd>
 					</dl>
 				</fieldset>
 				<fieldset>
 					<legend>举报内容</legend>
 					<dl class="nowrap">
 						<dt>举报事由：</dt>
-						<dd><textarea rows="3" cols="80" readonly="true">${WsjbInfo.jbsy2 }</textarea></dd>
+						<dd><textarea rows="3" cols="80" readonly>${WsjbInfo.jbsy2 }</textarea></dd>
 					</dl>
 					<dl class="nowrap">
 						<dt>内容详情：</dt>
 						<dd>
-							<textarea rows="15" cols="80" readonly="true">${WsjbInfo.detail }</textarea>
+							<textarea rows="15" cols="80" readonly>${WsjbInfo.detail }</textarea>
 						</dd>
 					</dl>
 					<dl class="nowrap">

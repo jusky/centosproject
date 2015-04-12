@@ -229,7 +229,7 @@ $(function(a) {
 <script type="text/javascript">
 $(function(){
 	DWZ.init("<%=path%>/dwz/dwz.frag.xml", {
-		loginUrl:"login_dialog.html", loginTitle:"登录",	// 弹出登录对话框
+		loginUrl:"login_dialog.jsp", loginTitle:"登录",	// 弹出登录对话框
 		pageInfo:{pageNum:"currentPage", numPerPage:"pageSize", orderField:"orderField", orderDirection:"orderDirection"}, //【可选】
 		debug:false,	// 调试模式 【true|false】
 		callback:function(){
@@ -248,7 +248,8 @@ $(function(){
 				<ul class="nav">
 					<li><a href = "#"><%=request.getSession().getAttribute("UserName") %></a></li>
 					<li><a href="<%=path%>/web/changePwd.jsp" target="dialog" width="450" height="230" title="修改密码">修改密码</a></li>
-					<li><a href="<%=path%>/login.jsp">退出</a></li>
+					<!-- <li><a href="<%=path%>/login.jsp">退出</a></li>  -->
+					<li><a href="<%=path%>/servlet/LogoutServlet">退出</a></li>
 				</ul>
 				<ul class="themeList" id="themeList">
 					<li theme="default"><div class="selected">蓝色</div></li>

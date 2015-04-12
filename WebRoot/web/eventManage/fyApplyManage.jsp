@@ -136,7 +136,7 @@ function addFYApply()
 				<dl class="nowrap">
 					<dt>复议申请时间：</dt>
 					<dd>
-						<input id="fyTime" type="text" name="fyTime" class="date" size="20" readonly="true"/><a class="inputDateButton" href="javascript:;">选择</a>
+						<input id="fyTime" type="text" name="fyTime" class="date" size="20" readonly/><a class="inputDateButton" href="javascript:;">选择</a>
 					</dd>
 				</dl>
 				<dl class="nowrap">

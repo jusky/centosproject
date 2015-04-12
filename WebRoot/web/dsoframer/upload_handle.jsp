@@ -95,6 +95,11 @@
 			else
 			{
 				physicsPath = request.getRealPath("") + "/attachment/" + reportID + "/";
+				if(type.equals("deptSurveyLetter")) {
+					physicsPath = request.getRealPath("") + "/attachment/dept/" + reportID + "/";
+				} else if (type.equals("expertJDH") || type.equals("expertJDYJS")) {
+					physicsPath = request.getRealPath("") + "/attachment/expert/" + reportID + "/";
+				}
 				File file = new File(physicsPath);
 				if (!file.isDirectory()) {
 					file.mkdir();
@@ -109,6 +114,11 @@
 					fileRealPath = physicsPath + fileName;//文件存放真实地址
 				}
 				docUrl = reportID + "/" + fileName;
+				if(type.equals("deptSurveyLetter")) {
+					docUrl = "dept/" + reportID + "/" + fileName;
+				} else if (type.equals("expertJDH") || type.equals("expertJDYJS")) {
+					docUrl = "expert/" + reportID + "/" + fileName;
+				}
 			}
 			
 			BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(new File(fileRealPath)));// 获得文件输出流

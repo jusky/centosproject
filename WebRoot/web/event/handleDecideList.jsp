@@ -40,9 +40,9 @@ function showDetail(id)
 				</td>
 				<td>
 					 处理时间：
-					 <input type="text" class="date" readonly="true" name="handleBeginTime"/>
+					 <input type="text" class="date" readonly name="handleBeginTime"/>
                                                    至：
-        			<input type="text" class="date" readonly="true" name="handleEndTime"/>
+        			<input type="text" class="date" readonly name="handleEndTime"/>
 				</td>
 			</tr>
 		</table>

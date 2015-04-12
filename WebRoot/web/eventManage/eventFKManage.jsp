@@ -21,9 +21,9 @@
 				</td>
 				<td>
 					 反馈时间：
-					 <input type="text" class="date" readonly="true" name="fkBeginTime"/>
+					 <input type="text" class="date" readonly name="fkBeginTime"/>
                                                    至：
-        			<input type="text" class="date" readonly="true" name="fkEndTime"/>
+        			<input type="text" class="date" readonly name="fkEndTime"/>
 				</td>
 			</tr>
 		</table>

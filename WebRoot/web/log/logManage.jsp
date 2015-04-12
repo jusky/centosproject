@@ -39,9 +39,9 @@
 				</td>
 				<td>
 					时间从：
-					 <input type="text" class="date" readonly="true" name="logBeginTime"/>
+					 <input type="text" class="date" readonly name="logBeginTime"/>
                                                    至：
-        			<input type="text" class="date" readonly="true" name="logEndTime"/>
+        			<input type="text" class="date" readonly name="logEndTime"/>
 				</td>
 			</tr>
 		</table>

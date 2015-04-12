@@ -88,9 +88,9 @@ function showAllDiv(aID)
 				</td>
 				<td>
 					 举报时间：
-					 <input type="text" class="date" readonly="true" name="jbBeginTime"/>
+					 <input type="text" class="date" readonly name="jbBeginTime"/>
                                                    至：
-        			<input type="text" class="date" readonly="true" name="jbEndTime"/>
+        			<input type="text" class="date" readonly name="jbEndTime"/>
 				</td>
 			</tr>
 		</table>

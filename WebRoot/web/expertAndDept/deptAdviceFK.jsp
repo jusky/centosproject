@@ -96,7 +96,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<dl class="nowrap">
 					<dt>面谈时间：</dt>
 					<dd>
-						<input id="litigantTime" type="text" name="litigantTime" class="date" size="20" readonly="true" value="${DeptAdviceBean.litigantTime }"/><a class="inputDateButton" href="javascript:;">选择</a>
+						<input id="litigantTime" type="text" name="litigantTime" class="date" size="20" readonly value="${DeptAdviceBean.litigantTime }"/><a class="inputDateButton" href="javascript:;">选择</a>
 					</dd>
 				</dl>
 				</div>
@@ -131,7 +131,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		</div>
 		<div class="formBar">
 			<ul>
-				<li><div id="submitHide" class="button"><div class="buttonContent"><button type="submit">提交</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="submit">提交</button></div></div></li>
 				<li><div class="button"><div class="buttonContent"><button type="button" class="close">返回</button></div></div></li>
 			</ul>
 		</div>

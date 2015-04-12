@@ -137,7 +137,7 @@
 			<dl class="nowrap">
 				<dt>所属学部：</dt>
 				<dd>
-					<input id="citySel" class="required" readonly="true" name="faculty" type="text" size="30" />
+					<input id="citySel" class="required" readonly name="faculty" type="text" size="30" />
 					<a id="menuBtn" class="btnLook" href="#" onclick="showMenu(); return false;">选择</a>
 					<span class="info">选择</span>
 				</dd>

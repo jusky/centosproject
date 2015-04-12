@@ -43,7 +43,7 @@ function makeExpertJDH()
 				<dl class="nowrap">
 					<dt>反馈日期：</dt>
 					<dd>
-						<input id="time1" type="text" name="fkTime" class="date" size="20" readonly="true" value="${ExpertJDH.fkTime }"/><a class="inputDateButton" href="javascript:;">选择</a>
+						<input id="time1" type="text" name="fkTime" class="date" size="20" readonly value="${ExpertJDH.fkTime }"/><a class="inputDateButton" href="javascript:;">选择</a>
 					</dd>
 				</dl>
 				<dl class="nowrap">

@@ -181,7 +181,7 @@ function NewHandleDecideDoc(id)
 				<dl class="nowrap">
 					<dt>会议名称：</dt>
 					<dd>
-						<input id="conference" name="org5.conference" type="text" size="60" readonly="true" value=""/>
+						<input id="conference" name="org5.conference" type="text" size="60" readonly value=""/>
 						<a class="btnLook" href="<%=path%>/lookUpGroupAction.do?method=init&type=hymc" lookupGroup="org5">选择会议</a>
 						<span class="info">选择会议</span>
 					</dd>
@@ -189,7 +189,7 @@ function NewHandleDecideDoc(id)
 				<dl class="nowrap">
 					<dt>处理时间：</dt>
 					<dd>
-						<input id="handleTime" type="text" name="handleTime" class="date" size="20" readonly="true"/><a class="inputDateButton" href="javascript:;">选择</a>
+						<input id="handleTime" type="text" name="handleTime" class="date" size="20" readonly/><a class="inputDateButton" href="javascript:;">选择</a>
 					</dd>
 				</dl>
 				<dl class="nowrap">

@@ -18,7 +18,7 @@
 			</dl>
 			<dl class="nowrap">
 				<dt>召开时间：</dt>
-				<dd><input type="text" name="time" class="required date" size="20" readonly="true" value='${MeetInfo.time}'/><a class="inputDateButton" href="javascript:;">选择</a></dd>
+				<dd><input type="text" name="time" class="required date" size="20" readonly value='${MeetInfo.time}'/><a class="inputDateButton" href="javascript:;">选择</a></dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>召开地点：</dt>

@@ -20,7 +20,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						</dl>
 						<dl class="nowrap">
 							<dt>初步核实意见：</dt>
-							<dd><textarea rows="10" cols="80" readonly="true">${ApproveInfo.nibanAdvice}</textarea></dd>
+							<dd><textarea rows="10" cols="80" readonly>${ApproveInfo.nibanAdvice}</textarea></dd>
 						</dl>
 				</fieldset>
 				<fieldset>
@@ -35,7 +35,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						</dl>
 						<dl class="nowrap">
 							<dt>领导批示：</dt>
-							<dd><textarea rows="12" cols="80" readonly="true">${ApproveInfo.headAdvice}</textarea></dd>
+							<dd><textarea rows="12" cols="80" readonly>${ApproveInfo.headAdvice}</textarea></dd>
 						</dl>
 				</fieldset>
 			</logic:iterate>

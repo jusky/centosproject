@@ -21,9 +21,9 @@
 				</td>
 				<td>
 					 接收时间：
-					 <input type="text" class="date" readonly="true" name="revBeginTime"/>
+					 <input type="text" class="date" readonly name="revBeginTime"/>
                                                    至：
-        			<input type="text" class="date" readonly="true" name="revEndTime"/>
+        			<input type="text" class="date" readonly name="revEndTime"/>
 				</td>
 			</tr>
 		</table>

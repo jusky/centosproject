@@ -1,6 +1,7 @@
 <%@ page language="java" pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
 <%@ page import="com.whu.web.eventbean.DeptSurveyLetter" %>
 <%@ page import="com.whu.tools.SystemConstant" %>
+<%@ page import="com.whu.web.common.SystemShare" %>
 <%
 String domainName = SystemConstant.domainName;
 DeptSurveyLetter dsl = (DeptSurveyLetter)request.getAttribute("DeptSurveyLetter");
@@ -30,8 +31,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			var word = new word();
              //决定路径
 		     word.setUploadUrl("<%=serverPath%>" + "/web/dsoframer/upload_handle.jsp");
-		     //word.setUploadUrl("http://localhost:8080/KXJJBDXW/servlet/UploadWordServlet");
-
 		     var docurl = "";
 		     var flag = "<%=isEdit%>";
 		     function load()
@@ -72,7 +71,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		     }
 		     //保存文件到服务器上
 		     function uploadFile(){
-		     	word.saveDocAndParm("<%=reportID%>","<%=deptName%>"+"的调查函","<%=id%>", "<%=isEdit%>", "deptSurveyLetter");
+		     	word.saveDocAndParm("<%=reportID%>","<%=deptName%>"+"的调查函" + "<%=SystemShare.GetNowTime("yyyyMMddmmss")%>", "<%=id%>", "<%=isEdit%>", "deptSurveyLetter");
 		     	//暂停3秒，防止用户操作过快直接关闭，会使IE出现异常！
 		     	alert("保存成功");
 		     	//setTimeout("alert('保存成功!')",5000);

@@ -17,80 +17,80 @@
 			<input type="hidden" name="id" value="${ExpertInfo.id}">
 			<dl class="nowrap">
 				<dt>专家姓名：</dt>
-				<dd><input class="readonly" name="name" type="text" size="30" value="${ExpertInfo.name }"/></dd>
+				<dd><input readonly name="name" type="text" size="30" value="${ExpertInfo.name }"/></dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>性别：</dt>
 				<dd>
 					<logic:equal value="1" name="ExpertInfo" property="sex">
-						<input class="readonly" name="title" type="text" size="10" value="男"/>
+						<input readonly name="title" type="text" size="10" value="男"/>
 					</logic:equal>
 					<logic:equal value="0" name="ExpertInfo" property="sex">
-						<input class="readonly" name="title" type="text" size="10" value="女"/>
+						<input readonly name="title" type="text" size="10" value="女"/>
 					</logic:equal>
 				</dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>年龄：</dt>
-				<dd><input class="readonly" name="age" type="text" size="7" value="${ExpertInfo.age }"/></dd>
+				<dd><input readonly name="age" type="text" size="7" value="${ExpertInfo.age }"/></dd>
 			</dl>
 			<div class="divider"></div>
 			<dl class="nowrap">
 				<dt>职称：</dt>
 				<dd>
-					<input class="readonly" name="title" type="text" size="25" value="${ExpertInfo.title }"/>
+					<input readonly name="title" type="text" size="25" value="${ExpertInfo.title }"/>
 				</dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>是否博导：</dt>
 					<dd>
 						<logic:equal value="1" name="ExpertInfo" property="isPHD">
-							<input class="readonly" name="title" type="text" size="10" value="是"/>
+							<input readonly name="title" type="text" size="10" value="是"/>
 						</logic:equal>
 						<logic:equal value="0" name="ExpertInfo" property="isPHD">
-							<input class="readonly" name="title" type="text" size="10" value="否"/>
+							<input readonly name="title" type="text" size="10" value="否"/>
 						</logic:equal>
 					</dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>单位：</dt>
-				<dd><input class="readonly" name="dept" type="text" size="50" value="${ExpertInfo.dept }"/></dd>
+				<dd><input readonly name="dept" type="text" size="50" value="${ExpertInfo.dept }"/></dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>专业：</dt>
 				<dd>
-					<input class="readonly" name="specialty" type="text" size="40" value="${ExpertInfo.specialty }"/>
+					<input readonly name="specialty" type="text" size="40" value="${ExpertInfo.specialty }"/>
 				</dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>研究方向：</dt>
 					<dd>
-						<input class="readonly" name="research" type="text" size="40" value="${ExpertInfo.research }"/>
+						<input readonly name="research" type="text" size="40" value="${ExpertInfo.research }"/>
 					</dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>所属学部：</dt>
 				<dd>
-					<input class="readonly" name="faculty" type="text" size="25" value="${ExpertInfo.faculty }"/>
+					<input readonly name="faculty" type="text" size="25" value="${ExpertInfo.faculty }"/>
 				</dd>
 			</dl>
 			<div class="divider"></div>
 			<dl class="nowrap">
 				<dt>联系电话：</dt>
 				<dd>
-					<input class="readonly" name="phone" type="text" size="25" value="${ExpertInfo.phone }"/>
+					<input readonly name="phone" type="text" size="25" value="${ExpertInfo.phone }"/>
 				</dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>邮箱地址：</dt>
 					<dd>
-						<input class="readonly" name="email" size="40" type="text" value="${ExpertInfo.email }"/>
+						<input readonly name="email" size="40" type="text" value="${ExpertInfo.email }"/>
 					</dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>通讯地址：</dt>
 				<dd>
-					<input class="readonly" name="address" type="text" size="60" value="${ExpertInfo.address }"/>
+					<input readonly name="address" type="text" size="60" value="${ExpertInfo.address }"/>
 				</dd>
 			</dl>
 		</div>

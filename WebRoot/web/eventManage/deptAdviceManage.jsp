@@ -163,7 +163,7 @@ function showAdvicePanel()
 				<dl class="nowrap">
 					<dt>反馈时间：</dt>
 					<dd>
-						<input id="time" type="text" name="time" class="date" size="20" readonly="true"/><a class="inputDateButton" href="javascript:;">选择</a>
+						<input id="time" type="text" name="time" class="date" size="20" readonly/><a class="inputDateButton" href="javascript:;">选择</a>
 					</dd>
 				</dl>
 				<dl class="nowrap">

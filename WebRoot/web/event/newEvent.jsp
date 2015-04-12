@@ -172,7 +172,7 @@ function showreason()
 				<dl class="nowrap">
 					<dt>举报时间：</dt>
 					<dd>
-						<input id="reportTime" type="text" name="reportTime" class="required date" size="20" readonly="true"/><a class="inputDateButton" href="javascript:;">选择</a>
+						<input id="reportTime" type="text" name="reportTime" class="required date" size="20" readonly/><a class="inputDateButton" href="javascript:;">选择</a>
 					</dd>
 				</dl>
 				<!--

@@ -14,20 +14,20 @@
 		<div class="pageFormContent" layoutH="56">
 			<p>
 					<label>角色名称：</label>
-					<input class="readonly" name="roleName" type="text" size="30" value="${RoleBean.roleName}"/>
+					<input readonly name="roleName" type="text" size="30" value="${RoleBean.roleName}"/>
 				</p>
 				<p>
 					<label>是否启用：</label>
 					<logic:equal value="1" name="RoleBean" property="isUse">
-					 	<input name="userName" class="readonly" type="text" size="10" value="是"/>
+					 	<input name="userName" readonly type="text" size="10" value="是"/>
 					</logic:equal>
 					<logic:equal value="0" name="RoleBean" property="isUse">
-					 	<input name="userName" class="readonly" type="text" size="10" value="否"/>
+					 	<input name="userName" readonly type="text" size="10" value="否"/>
 					</logic:equal>
 				</p>
 				<p>
 					<label>角色简介：</label>
-					<textarea class="readonly" cols="30" rows="5">${RoleBean.roleDescribe}</textarea>
+					<textarea readonly cols="30" rows="5">${RoleBean.roleDescribe}</textarea>
 				</p>
 		</div>
 		</logic:iterate>

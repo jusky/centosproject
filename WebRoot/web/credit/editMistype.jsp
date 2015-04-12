@@ -97,7 +97,7 @@
 			<p>
 				<label>影响诚信值：</label>
 				<input type="hidden" id="prid" name="prid" value="${MistypeBean.prid }"/>
-				<input id="creditFactor" readonly="true" name="pzzName" value="${MistypeBean.pname }" type="text" size="40" />
+				<input id="creditFactor" readonly name="pzzName" value="${MistypeBean.pname }" type="text" size="40" />
 				<a id="menuBtn" class="btnLook" href="#" onclick="showMenu(); return false;">选择</a>
 			</p>
 		</div>

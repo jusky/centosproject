@@ -94,7 +94,7 @@
 			<p>
 				<label>影响诚信值：</label>
 				<input type="hidden" id="prid" name="prid" value=""/>
-				<input id="creditFactor" class="required" readonly="true" name="prname" type="text" size="30" />
+				<input id="creditFactor" class="required" readonly name="prname" type="text" size="30" />
 				<a id="menuBtn" class="btnLook" href="#" onclick="showMenu(); return false;">选择</a>				
 			</p>
 		</div>

@@ -363,10 +363,10 @@ public class SystemShare {
 		}
 		/**
 		 * 从远程下载文件
-		 * @param srcPath 源文件路径，格式为http://192.168.0.80:8080/NSFCOSC/upload/xxxx.doc
+		 * @param srcPath 源文件路径，格式为http://192.168.*.*:80/NSFCOSC/upload/xxxx.doc
 		 * @param dirPath 保存路径，本地路径，格式为C:/program files/...，注意，没有文件名，是目录
 		 * @param fileName 保存的文件名
-		 * @param serverPath 本地服务器保存的路径,格式为http://192.168.0.80:8080/KXJJBDXW/upload/xxxx.doc
+		 * @param serverPath 本地服务器保存的路径,格式为http://192.168.*.*:80/KXJJBDXW/upload/xxxx.doc
 		 * @return
 		 */
 		public static boolean DownloadFile(String srcPath, String dirPath, String fileName, String serverPath, String name)

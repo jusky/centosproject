@@ -12,7 +12,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
   <head>
   	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>提交结果</title>
-    <link href="/KXJJBDXW/styles/css.css" rel="stylesheet" type="text/css" />
+    <link href="../styles/css.css" rel="stylesheet" type="text/css" />
   </head>
   
 <body>

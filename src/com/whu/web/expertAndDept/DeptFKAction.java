@@ -133,21 +133,21 @@ public class DeptFKAction extends DispatchAction {
 		String attachName = "";
 		String time = SystemShare.GetNowTime("yyyy-MM-dd");
 		
-		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
+		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/dept/";
 		//String path1 = filePath + "temp";
 		String loginName = (String)request.getSession().getAttribute("LoginName");
 		String userName = (String)request.getSession().getAttribute("UserName");
 		String path1 = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";
 		String path2 = filePath + reportID;
 		//获得服务器的IP地址路径，存放在数据库中，便于下载
-		String relDirectory = "attachment" + "/" + reportID;
+		String relDirectory = "attachment" + "/dept/" + reportID;
 		//将临时文件夹中的附件转存到以警情编号为目录的文件夹下
 		SystemShare.IOCopy(path1, path2, relDirectory, userName);
 		
 		attachName =  (String)request.getSession().getAttribute("AdviceFKAttach");
 		if(attachName != null && !attachName.equals(""))
 		{
-			attachName = reportID + "/" + attachName;
+			attachName = "dept/" + reportID + "/" + attachName;
 			request.getSession().setAttribute("AdviceFKAttach","");
 		}
 		else
@@ -196,7 +196,7 @@ public class DeptFKAction extends DispatchAction {
 			sql = "update TB_ED_ADVICE set ISSUBMIT='1' where ID=?";
 			result = dbTools.insertItem(sql, new String[]{id});
         }
-        PrintWriter out = response.getWriter();
+      PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
 		{

@@ -72,7 +72,7 @@ public class DeptAdviceAction extends DispatchAction {
 		String attachName = (String)request.getSession().getAttribute("EventAttachName");
 		if(attachName != null && !attachName.equals(""))
 		{
-			attachName = reportID + "/" + attachName;
+			attachName = "dept" + reportID + "/" + attachName;
 			request.getSession().setAttribute("EventAttachName", "");
 		}
 		else
@@ -104,13 +104,13 @@ public class DeptAdviceAction extends DispatchAction {
 			sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,ADVICE,EXPERTADVICE,ISFK,ATTACHMENT,ISLETTER) values(?,?,?,?,?,'1',?,'0')";
 			params = new String[]{reportID, dept, time, advice, expertAdvice, attachName};
 		}
-		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
+		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/dept/";
 		//String path1 = filePath + "temp";
 		String path1 = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";
 		String path2 = filePath + reportID;
 		//将临时文件夹中的附件转存到以警情编号为目录的文件夹下
 		//获得服务器的IP地址路径，存放在数据库中，便于下载
-		String relDirectory = "attachment" + "/" + reportID;
+		String relDirectory = "attachment/dept/" + reportID;
 		String createName = (String)request.getSession().getAttribute("UserName");
 		result = SystemShare.IOCopy(path1, path2, relDirectory, createName);
 		result = dbTools.insertItem(sql, params);
@@ -373,13 +373,13 @@ public class DeptAdviceAction extends DispatchAction {
 		String sql = "select a.REPORTID, b.* from TB_DEPTADVICE a, TB_DEPTSURVEYLETTER b where a.ID=b.DEPTADVICEID and b.ID=?";
 		DeptSurveyLetter dsl = dbTools.queryDeptSurveyLetter(sql, new String[]{id});
 		String templatePath = "";
+		request.setAttribute("IsEdit", "0");
 		if(dsl != null)
 		{
 			String tempFile = dsl.getFilePath();
 			String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
 			if(tempFile.equals(""))//如果是新增，则调出模板发送到客户端
-			{			
-				request.setAttribute("IsEdit", "0");
+			{	
 				templatePath = SystemConstant.GetServerPath() + "/web/template/ytdwdch.doc";
 			}
 			else//如果是编辑，则查询数据库判断上次编辑过的文件是否存在，若存在，则发送到客户端继续编辑
@@ -392,7 +392,6 @@ public class DeptAdviceAction extends DispatchAction {
 				}
 				else//不存在，则继续使用模板，例如：人工删除或系统出错
 				{
-					request.setAttribute("IsEdit", "0");
 					templatePath = SystemConstant.GetServerPath() + "/web/template/ytdwdch.doc";
 				}
 			}

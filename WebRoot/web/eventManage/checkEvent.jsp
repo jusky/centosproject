@@ -109,7 +109,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<legend>举报内容</legend>
 					<dl class="nowrap">
 						<dt>事件简述：</dt>
-						<dd><textarea rows="7" cols="80" readonly="true"><%=request.getAttribute("ReportInfo") %></textarea></dd>
+						<dd><textarea rows="7" cols="80" readonly><%=request.getAttribute("ReportInfo") %></textarea></dd>
 					</dl>
 			</fieldset>
 			<fieldset>
@@ -117,7 +117,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<dl class="nowrap">
 						<dt>所属学部：</dt>
 						<dd>
-							<input id="facultyID" class="required" readonly="true" name="faculty" type="text" size="30" />
+							<input id="facultyID" class="required" readonly name="faculty" type="text" size="30" />
 							<a id="menuBtn" class="btnLook" href="#" onclick="showMenu(); return false;">选择</a>
 							<span class="info">选择</span>
 						</dd>

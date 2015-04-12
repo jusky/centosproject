@@ -49,9 +49,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
             	}
           }
     function login(){
-   		var userName = document.getElementById("usename").value;
-   		var pwd = document.getElementById("password").value;
-   		send('<%=path%>/servlet/LoginServlet?userName=' + userName + '&pwd=' + pwd);
+   		var username = document.getElementById("usename").value;
+   		var password = document.getElementById("password").value;
+   		send('<%=path%>/servlet/LoginServlet?username=' + username + '&password=' + password);
     }
 </script>
 	

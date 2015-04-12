@@ -334,7 +334,7 @@ public class EventManageAction extends DispatchAction {
 	 * @return
 	 * @throws Exception
 	 */
-	public ActionForward delete(ActionMapping mapping, ActionForm form,
+/*	public ActionForward delete(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
@@ -410,7 +410,7 @@ public class EventManageAction extends DispatchAction {
 		out.close();
 		
 		return null;
-	}
+	} */
 	/**
 	 * 开始上会讨论
 	 * @param mapping

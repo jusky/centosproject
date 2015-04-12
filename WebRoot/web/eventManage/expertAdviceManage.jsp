@@ -238,7 +238,7 @@ function generateMixed(n) {
 				<dl class="nowrap">
 					<dt>鉴定时间：</dt>
 					<dd>
-						<input id="time" type="text" name="time" class="date" size="20" readonly="true"/><a class="inputDateButton" href="javascript:;">选择</a>
+						<input id="time" type="text" name="time" class="date" size="20" readonly/><a class="inputDateButton" href="javascript:;">选择</a>
 					</dd>
 				</dl>
 				<dl class="nowrap">
@@ -321,7 +321,7 @@ function generateMixed(n) {
 								请您协助鉴定！专家鉴定函和鉴定意见书见附件！
 							</p>
 							<p>
-								鉴定结果请使用<span style="color:#ff0000;">IE浏览器</span>登陆   http://localhost/KXJJBDXW/index.jsp（如果不能直接点击，请复制到浏览器的地址栏中访问！）
+								鉴定结果请使用<span style="color:#ff0000;">IE浏览器</span>登陆   http://localhost/KXJJBDXW/login.jsp（如果不能直接点击，请复制到浏览器的地址栏中访问！）
 							</p>
 							<p>
 								登陆账号：

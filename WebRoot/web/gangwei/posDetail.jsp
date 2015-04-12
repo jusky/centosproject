@@ -13,11 +13,11 @@
      		<logic:iterate name="posManageForm" property="recordList" id="PosBean">
 				<p>
 					<label>岗位名称：</label>
-					<input class="readonly" name="posName" type="text" size="30" value="${PosBean.posName}"/>
+					<input readonly name="posName" type="text" size="30" value="${PosBean.posName}"/>
 				</p>
 				<p>
 					<label>岗位简介：</label>
-					<textarea class="readonly" name="posDescribe" cols="30" rows="5">${PosBean.posDescribe}</textarea>
+					<textarea readonly name="posDescribe" cols="30" rows="5">${PosBean.posDescribe}</textarea>
 				</p>
 			</logic:iterate>
 		</logic:notEmpty>

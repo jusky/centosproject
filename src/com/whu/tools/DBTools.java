@@ -1665,7 +1665,7 @@ public class DBTools {
 			for(String param: params) {
 				pst.setString(i++, param);
 			}
-			pst.executeUpdate(sql);
+			pst.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -4613,7 +4613,7 @@ public class DBTools {
 					ArrayList attachList = new ArrayList();
 					String[] attachArr = attachNames.split(":");
 					String attachPath = "";
-					String serverPath = SystemConstant.GetServerPath() + "/" + "attachment" + "/";
+					String serverPath = SystemConstant.GetServerPath() + "/" + "attachment/expert/";
 					for(i = 0; i < attachArr.length; i++)
 					{
 						attachPath = serverPath + "/" + reportID + "/" + attachArr[i];
@@ -4952,7 +4952,7 @@ public class DBTools {
 			DeptDCBean db = null;
 			String filePath = "";
 			String status = "";
-			String serverPath = SystemConstant.GetServerPath() + "/" + "attachment" + "/";
+			String serverPath = SystemConstant.GetServerPath() + "/attachment/";
 			while (rs != null && rs.next()) {
 				count ++;
 				db = new DeptDCBean();

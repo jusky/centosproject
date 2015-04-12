@@ -14,19 +14,19 @@
 		<div class="pageFormContent" layoutH="56">
 			<p>
 				<label>组织编号：</label>
-				<input class="readonly" name="zzID" type="text" size="30" value="${ZZBean.zzID }"/>
+				<input readonly name="zzID" type="text" size="30" value="${ZZBean.zzID }"/>
 			</p>
 			<p>
 				<label>组织名称：</label>
-				<input class="readonly" name="zzName" type="text" size="30" value="${ZZBean.zzName }"/>
+				<input readonly name="zzName" type="text" size="30" value="${ZZBean.zzName }"/>
 			</p>
 			<p>
 				<label>上级组织：</label>
-				<input class="readonly" readonly="true" name="pzzName" value="${ZZBean.pzzName }" type="text" size="30" />
+				<input readonly readonly name="pzzName" value="${ZZBean.pzzName }" type="text" size="30" />
 			</p>
 			<p>
 				<label>组织简介：</label>
-				<textarea name="zzDescribe" cols="30" class="readonly" rows="7">${ZZBean.zzDescribe }</textarea>
+				<textarea name="zzDescribe" cols="30" readonly rows="7">${ZZBean.zzDescribe }</textarea>
 			</p>
 		</div>
 		</logic:iterate>

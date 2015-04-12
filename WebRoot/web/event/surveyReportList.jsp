@@ -35,9 +35,9 @@ function editSurveyReport(id)
 				</td>
 				<td>
 					 生成时间：
-					 <input type="text" class="date" readonly="true" name="createBeginTime"/>
+					 <input type="text" class="date" readonly name="createBeginTime"/>
                                                    至：
-        			<input type="text" class="date" readonly="true" name="createEndTime"/>
+        			<input type="text" class="date" readonly name="createEndTime"/>
 				</td>
 			</tr>
 		</table>

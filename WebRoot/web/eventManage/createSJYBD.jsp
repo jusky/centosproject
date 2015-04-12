@@ -45,7 +45,7 @@ function makeSJYBD()
 			<dl class="nowrap">
 				<dt>收件日期：</dt>
 				<dd>
-					<input type="text" name="recvTime" class="required date" size="20" readonly="true" value="${SjybdBean.recvTime }"/><a class="inputDateButton" href="javascript:;">选择</a>
+					<input type="text" name="recvTime" class="required date" size="20" readonly value="${SjybdBean.recvTime }"/><a class="inputDateButton" href="javascript:;">选择</a>
 				</dd>
 			</dl>
 			<dl class="nowrap">

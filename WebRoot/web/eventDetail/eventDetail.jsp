@@ -101,26 +101,26 @@
 					<logic:equal value="1" name="EventBean" property="isNI">
 						<dl>
 							<dt>姓名：</dt>
-							<dd><input readonly="true" type="text" size="20" value='${EventBean.reportName}' style="color:#ff0000;"/></dd>
+							<dd><input readonly type="text" size="20" value='${EventBean.reportName}' style="color:#ff0000;"/></dd>
 						</dl>
 						<dl>
 							<dt>举报方式：</dt>
-							<dd><input readonly="true" type="text" size="30" value='${EventBean.reportType}'/></dd>
+							<dd><input readonly type="text" size="30" value='${EventBean.reportType}'/></dd>
 						</dl>
 						<dl>
 							<dt>收件编号：</dt>
-							<dd><input readonly="true" type="text" size="20" value='${EventBean.serialNum}'/></dd>
+							<dd><input readonly type="text" size="20" value='${EventBean.serialNum}'/></dd>
 						</dl>
 						<dl>
 							<dt>系统编号：</dt>
-							<dd><input readonly="true" type="text" size="30" value='${EventBean.reportID}'/></dd>
+							<dd><input readonly type="text" size="30" value='${EventBean.reportID}'/></dd>
 						</dl>
 					</logic:equal>
 					<logic:notEqual value="1" name="EventBean" property="isNI">
 						<dl class="nowrap">
 							<dt>姓名：</dt>
 							<dd>
-								<input readonly="true" type="text" size="20" value='${EventBean.reportName}' style="color:#ff0000;"/>
+								<input readonly type="text" size="20" value='${EventBean.reportName}' style="color:#ff0000;"/>
 								<logic:equal value="0" name="EventBean" property="isNI">
 									<div class="button"><div class="buttonContent"><button onclick="javascript:checkIdentity()">核实身份</button></div></div>
 								</logic:equal>
@@ -131,12 +131,12 @@
 						</dl>
 						<dl class="nowrap">
 							<dt>工作单位：</dt>
-							<dd><input readonly="true" type="text" size="60" value='${EventBean.dept}'/></dd>
+							<dd><input readonly type="text" size="60" value='${EventBean.dept}'/></dd>
 						</dl>
 						<dl class="nowrap">
 							<dt>邮箱地址：</dt>
 							<dd>
-								<input readonly="true" type="text" size="30" value='${EventBean.mailAddress}'/>
+								<input readonly type="text" size="30" value='${EventBean.mailAddress}'/>
 								<logic:notEqual value="" name="EventBean" property="mailAddress">
 									<a id="sendEmailID" href="<%=path%>/newMailAction.do?method=init&address=${EventBean.mailAddress}" target="navTab" rel="newEmail" style="display:none;">发送邮件</a>
 									<a href="#" onclick="javascript:sendMail()"><font color="blue">发送邮件</font></a>
@@ -145,27 +145,27 @@
 						</dl>
 						<dl>
 							<dt>固定电话：</dt>
-							<dd><input readonly="true" type="text" size="30" value='${EventBean.gdPhone}'/></dd>
+							<dd><input readonly type="text" size="30" value='${EventBean.gdPhone}'/></dd>
 						</dl>
 						<dl>
 							<dt>手机号码：</dt>
-							<dd><input readonly="true" type="text" size="30" value='${EventBean.telPhone}' style="color:#ff0000;"/></dd>
+							<dd><input readonly type="text" size="30" value='${EventBean.telPhone}' style="color:#ff0000;"/></dd>
 						</dl>
 						<dl>
 							<dt>举报时间：</dt>
-							<dd><input readonly="true" type="text" size="30" value='${EventBean.reportTime}'/></dd>
+							<dd><input readonly type="text" size="30" value='${EventBean.reportTime}'/></dd>
 						</dl>
 						<dl>
 							<dt>举报方式：</dt>
-							<dd><input readonly="true" type="text" size="30" value='${EventBean.reportType}'/></dd>
+							<dd><input readonly type="text" size="30" value='${EventBean.reportType}'/></dd>
 						</dl>
 						<dl>
 							<dt>收件编号：</dt>
-							<dd><input readonly="true" type="text" size="20" value='${EventBean.serialNum}' style="color:#ff0000;"/></dd>
+							<dd><input readonly type="text" size="20" value='${EventBean.serialNum}' style="color:#ff0000;"/></dd>
 						</dl>
 						<dl>
 							<dt>系统编号：</dt>
-							<dd><input readonly="true" type="text" size="30" value='${EventBean.reportID}'/></dd>
+							<dd><input readonly type="text" size="30" value='${EventBean.reportID}'/></dd>
 						</dl>
 					</logic:notEqual>
 				</fieldset>
@@ -175,19 +175,19 @@
 					<logic:iterate name="EventBean" property="beReportList" id="BeReportBean">
 						<dl class="nowrap">
 							<dt>被举报人姓名：</dt>
-							<dd><input readonly="true" type="text" size="30" value='${BeReportBean.beName}' style="color:#ff0000;"/></dd>
+							<dd><input readonly type="text" size="30" value='${BeReportBean.beName}' style="color:#ff0000;"/></dd>
 						</dl>
 						<dl class="nowrap">
 							<dt>所属单位：</dt>
-							<dd><input readonly="true" type="text" size="60" value='${BeReportBean.beDept}'/></dd>
+							<dd><input readonly type="text" size="60" value='${BeReportBean.beDept}'/></dd>
 						</dl>
 						<dl>
 							<dt>职称：</dt>
-							<dd><input readonly="true" type="text" size="30" value='${BeReportBean.bePosition}'/></dd>
+							<dd><input readonly type="text" size="30" value='${BeReportBean.bePosition}'/></dd>
 						</dl>
 						<dl>
 							<dt>联系方式：</dt>
-							<dd><input readonly="true" type="text" size="30" value='${BeReportBean.beTelPhone}'/></dd>
+							<dd><input readonly type="text" size="30" value='${BeReportBean.beTelPhone}'/></dd>
 						</dl>
 						<div class="divider"></div>
 					</logic:iterate>
@@ -197,22 +197,22 @@
 					<legend>举报内容</legend>
 					<dl class="nowrap">
 						<dt>所属学部：</dt>
-						<dd><input readonly="true" type="text" size="50" value='${EventBean.faculty}' style="color:#ff0000;"/></dd>
+						<dd><input readonly type="text" size="50" value='${EventBean.faculty}' style="color:#ff0000;"/></dd>
 					</dl>
 					<dl class="nowrap">
 						<dt>举报事由：</dt>
-						<dd><textarea rows="3" cols="80" readonly="true">${EventBean.reportReason}</textarea></dd>
+						<dd><textarea rows="3" cols="80" readonly>${EventBean.reportReason}</textarea></dd>
 					</dl>
 					<dl class="nowrap">
 						<dt>内容详情：</dt>
 						<dd>
-							<textarea rows="15" cols="80" readonly="true">${EventBean.reportContent}</textarea>
+							<textarea rows="15" cols="80" readonly>${EventBean.reportContent}</textarea>
 						</dd>
 					</dl>
 					<dl class="nowrap">
 						<dt>备注：</dt>
 						<dd>
-							<textarea rows="8" cols="80" readonly="true">${EventBean.bz}</textarea>
+							<textarea rows="8" cols="80" readonly>${EventBean.bz}</textarea>
 						</dd>
 					</dl>
 					<dl class="nowrap">

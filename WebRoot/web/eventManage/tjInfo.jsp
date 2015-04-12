@@ -71,9 +71,9 @@ function getStatusName(status)
 			<tr>
 				<td>
 					 统计时间 从：
-					 <input type="text" class="date" readonly="true" name="tjBeginTime"/>
+					 <input type="text" class="date" readonly name="tjBeginTime"/>
                                                    至：
-        			<input type="text" class="date" readonly="true" name="tjEndTime"/>
+        			<input type="text" class="date" readonly name="tjEndTime"/>
 				</td>
 				<td>
 					<label class="radioButton"><input name="type" type="radio" onclick="setNone();" value="1" checked/>状态统计</label>

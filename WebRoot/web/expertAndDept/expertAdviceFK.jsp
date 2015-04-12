@@ -143,7 +143,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		</logic:notEmpty>
 		<div class="formBar">
 			<ul>
-				<li><div id="submitHide" class="button"><div class="buttonContent"><button type="submit">提交</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="submit">提交</button></div></div></li>
 				<li><div class="button"><div class="buttonContent"><button type="button" class="close">返回</button></div></div></li>
 			</ul>
 		</div>

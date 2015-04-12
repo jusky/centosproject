@@ -94,7 +94,7 @@
 			<p>
 				<label>上级组织：</label>
 				<input type="hidden" id="pzzID" name="pzzID" value="${ZZBean.pzzID }"/>
-				<input id="citySel" class="required" readonly="true" name="pzzName" value="${ZZBean.pzzName }" type="text" size="30" />
+				<input id="citySel" class="required" readonly name="pzzName" value="${ZZBean.pzzName }" type="text" size="30" />
 				<a id="menuBtn" class="btnLook" href="#" onclick="showMenu(); return false;">选择</a>
 				<span class="info">选择</span>
 			</p>
