@@ -12,6 +12,8 @@ public class DeptAdviceBean {
 	private String litigantTime;
 	//专家意见
 	private String expertAdvice;
+	//附件
+	private String filePath;
 	public String getDeptAdvice() {
 		return deptAdvice;
 	}
@@ -41,5 +43,11 @@ public class DeptAdviceBean {
 	}
 	public void setExpertAdvice(String expertAdvice) {
 		this.expertAdvice = expertAdvice;
+	}
+	public String getFilePath() {
+		return filePath;
+	}
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
 	}
 }

@@ -445,10 +445,10 @@ $(function(){
 					<div class="accordionContent">
 						<ul class="tree treeFolder">
 							<logic:notEqual value="0" name="ModuleBean" property="zjxx">
-								<li><a href="<%=path%>/expertFKAction.do?method=expertInfo" target="navTab" rel="zjxx">专家信息</a></li>
+								<li><a href="<%=path%>/expertFKManageAction.do?method=expertInfo" target="navTab" rel="zjxx">专家信息</a></li>
 							</logic:notEqual>
 							<logic:notEqual value="0" name="ModuleBean" property="ajjd">
-								<li><a href="<%=path%>/expertFKAction.do?method=eventList" target="navTab" rel="ajjd">案件鉴定</a></li>
+								<li><a href="<%=path%>/expertFKManageAction.do?method=eventList" target="navTab" rel="ajjd">案件鉴定</a></li>
 							</logic:notEqual>
 						</ul>
 					</div>
@@ -460,7 +460,7 @@ $(function(){
 					<div class="accordionContent">
 						<ul class="tree treeFolder">
 							<logic:notEqual value="0" name="ModuleBean" property="ajdc">
-								<li><a href="<%=path%>/deptFKAction.do?method=eventList" target="navTab" rel="ajdc">案件调查</a></li>
+								<li><a href="<%=path%>/deptFKManageAction.do?method=eventList" target="navTab" rel="ajdc">案件调查</a></li>
 							</logic:notEqual>
 						</ul>
 					</div>

@@ -19,6 +19,8 @@ public class JDYJSBean {
 	private String conclusion;
 	//鉴定结论列表
 	private List jdConclusionList = null;
+	//附件
+	private String filePath;
 	public String getReportID() {
 		return reportID;
 	}
@@ -72,5 +74,11 @@ public class JDYJSBean {
 	}
 	public void setJdConclusion(String jdConclusion) {
 		this.jdConclusion = jdConclusion;
+	}
+	public String getFilePath() {
+		return filePath;
+	}
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
 	}
 }

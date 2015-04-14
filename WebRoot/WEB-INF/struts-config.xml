@@ -65,6 +65,8 @@
     <form-bean name="dispatchEventForm" type="com.whu.web.eventmanage.DispatchEventForm" />
     <form-bean name="facultyAdviceForm" type="com.whu.web.eventmanage.FacultyAdviceForm" />
     <form-bean name="facultyFKForm" type="com.whu.web.faculty.FacultyFKForm" />
+    <form-bean name="deptFKManageForm" type="com.whu.web.expertAndDept.DeptFKManageForm" />
+    <form-bean name="expertFKManageForm" type="com.whu.web.expertAndDept.ExpertFKManageForm" />
   </form-beans>
   
   <global-exceptions />
@@ -560,23 +562,22 @@
       name="expertFKForm"
       parameter="method"
       path="/expertFKAction"
+      input="/web/expertAndDept/expertAdviceFK.jsp"
       scope="request"
+      validate="true"
       type="com.whu.web.expertAndDept.ExpertFKAction">
       <set-property property="cancellable" value="true" />
-      <forward name="expertInfo" path="/web/expertAndDept/expertInfo.jsp" />
-      <forward name="expertJDList" path="/web/expertAndDept/expertFKManage.jsp" />
-      <forward name="onlineSubmit" path="/web/expertAndDept/expertAdviceFK.jsp" />
     </action>
     <action
       attribute="deptFKForm"
       name="deptFKForm"
       parameter="method"
       path="/deptFKAction"
+      input="/web/expertAndDept/deptAdviceFK.jsp"
       scope="request"
+      validate="true"
       type="com.whu.web.expertAndDept.DeptFKAction">
       <set-property property="cancellable" value="true" />
-      <forward name="deptDCList" path="/web/expertAndDept/deptFKManage.jsp" />
-      <forward name="onlineSubmit" path="/web/expertAndDept/deptAdviceFK.jsp" />
     </action>
     <action
       attribute="sjybdManageForm"
@@ -757,6 +758,29 @@
       <set-property property="cancellable" value="true" />
       <forward name="init" path="/web/faculty/facultyFKList.jsp" />
       <forward name="editFacultyAdvice" path="/web/faculty/editFacultyAdvice.jsp" />
+    </action>
+    <action
+      attribute="deptFKManageForm"
+      name="deptFKManageForm"
+      parameter="method"
+      path="/deptFKManageAction"
+      scope="request"
+      type="com.whu.web.expertAndDept.DeptFKManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="deptDCList" path="/web/expertAndDept/deptFKManage.jsp" />
+      <forward name="onlineSubmit" path="/web/expertAndDept/deptAdviceFK.jsp" />
+    </action>
+    <action
+      attribute="expertFKManageForm"
+      name="expertFKManageForm"
+      parameter="method"
+      path="/expertFKManageAction"
+      scope="request"
+      type="com.whu.web.expertAndDept.ExpertFKManageAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="expertInfo" path="/web/expertAndDept/expertInfo.jsp" />
+      <forward name="expertJDList" path="/web/expertAndDept/expertFKManage.jsp" />
+      <forward name="onlineSubmit" path="/web/expertAndDept/expertAdviceFK.jsp" />
     </action>
     </action-mappings>
   <message-resources parameter="ApplicationResources_cn" />

@@ -18,7 +18,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
             'multi' : true,
             'simUploadLimit' : 2,
             'fileDesc': "请选择office/pdf/压缩包文件",
-    		'fileExt': '*.doc;*.docx;*.xls;*.xlsx;*.pdf;*.rar;*.zip', 
+    		'fileExt': '*.doc;*.docx;*.xls;*.xlsx;*.pdf;*.jpg;*.jpeg;*.png;*.tiff;*.rar;*.zip', 
             'buttonText' : 'BROWSE'
         });
     });
@@ -61,13 +61,71 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<input type="hidden" name="reportID" value="<%=request.getAttribute("reportID") %>"/>
 	<input type="hidden" name="adviceID" value="<%=request.getAttribute("adviceID") %>"/>
 		<div class="pageFormContent" layoutH="56">
-		<logic:notEmpty name="deptFKForm" property="recordList">
-     		<logic:iterate name="deptFKForm" property="recordList" id="DeptAdviceBean">
+		<logic:notEmpty name="deptFKManageForm" property="recordList">
+     		<logic:iterate name="deptFKManageForm" property="recordList" id="DeptAdviceBean">
+     		<logic:equal name="isSubmit" scope="request" value="1">
+     					<div class="panel">
+				<h1>调查结果（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
+				<div style="background:#ffffff;">
+				<dl class="nowrap">
+					<dt>事实和贵单位意见：<font color="#ff0000">*</font></dt>
+					<dd>
+						<textarea readonly id="deptAdvice" cols="100" name="deptAdvice" rows="15" onKeyUp="countRemind('deptAdvice')" onblur="countRemind('deptAdvice')">${DeptAdviceBean.deptAdvice }</textarea>
+						<br/>
+					</dd>
+				</dl>
+				</div>
+			</div>
+			<div class="panel">
+				<h1>当事人情况（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
+				<div style="background:#ffffff;">
+				<dl class="nowrap">
+					<dt>当事人姓名：<font color="#ff0000">*</font></dt>
+					<dd>
+						<input readonly type="text" name="litigantName" size="50" value="${DeptAdviceBean.litigantName }"/>
+					</dd>
+				</dl>
+				<dl class="nowrap">
+					<dt>当事人陈述：<font color="#ff0000">*</font></dt>
+					<dd>
+						<textarea readonly id="attitude" cols="100" name="attitude" rows="10" onKeyUp="countRemind('attitude')" onblur="countRemind('attitude')">${DeptAdviceBean.attitude }</textarea>
+				    	<br/>
+					</dd>
+				</dl>
+				<dl class="nowrap">
+					<dt>面谈时间：<font color="#ff0000">*</font></dt>
+					<dd>
+						<input readonly id="litigantTime" type="text" name="litigantTime" class="date" size="20" readonly value="${DeptAdviceBean.litigantTime }"/><a class="inputDateButton" href="javascript:;">选择</a>
+					</dd>
+				</dl>
+				</div>
+			</div>
+			<div class="panel">
+				<h1>其他情况（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
+				<div style="background:#ffffff;">
+				<dl class="nowrap">
+					<dt>专家意见：</dt>
+					<dd>
+						<textarea readonly id="expertAdvice" cols="100" name="expertAdvice" rows="10" onKeyUp="countRemind('expertAdvice')" onblur="countRemind('expertAdvice')">${DeptAdviceBean.expertAdvice }</textarea>
+						<br/>
+					</dd>
+				</dl>
+				<dl class="nowrap">
+					<dt>上传附件：
+						<br/>
+			    	</dt>
+					<dd><a href="${DeptAdviceBean.filePath }"><font color="blue">下载</font></a>
+					</dd>
+				</dl>
+				</div>
+			</div>
+     		</logic:equal>
+			<logic:equal name="isSubmit" scope="request" value="0">
 			<div class="panel">
 				<h1>调查结果（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
 				<div style="background:#ffffff;">
 				<dl class="nowrap">
-					<dt>事实和贵单位意见：</dt>
+					<dt>事实和贵单位意见：<font color="#ff0000">*</font></dt>
 					<dd>
 						<textarea id="deptAdvice" cols="100" name="deptAdvice" rows="15" onKeyUp="countRemind('deptAdvice')" onblur="countRemind('deptAdvice')">${DeptAdviceBean.deptAdvice }</textarea>
 						<br/>
@@ -80,13 +138,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<h1>当事人情况（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
 				<div style="background:#ffffff;">
 				<dl class="nowrap">
-					<dt>当事人姓名：</dt>
+					<dt>当事人姓名：<font color="#ff0000">*</font></dt>
 					<dd>
 						<input type="text" name="litigantName" size="50" value="${DeptAdviceBean.litigantName }"/>
 					</dd>
 				</dl>
 				<dl class="nowrap">
-					<dt>当事人陈述：</dt>
+					<dt>当事人陈述：<font color="#ff0000">*</font></dt>
 					<dd>
 						<textarea id="attitude" cols="100" name="attitude" rows="10" onKeyUp="countRemind('attitude')" onblur="countRemind('attitude')">${DeptAdviceBean.attitude }</textarea>
 				    	<br/>
@@ -94,7 +152,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					</dd>
 				</dl>
 				<dl class="nowrap">
-					<dt>面谈时间：</dt>
+					<dt>面谈时间：<font color="#ff0000">*</font></dt>
 					<dd>
 						<input id="litigantTime" type="text" name="litigantTime" class="date" size="20" readonly value="${DeptAdviceBean.litigantTime }"/><a class="inputDateButton" href="javascript:;">选择</a>
 					</dd>
@@ -126,12 +184,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</dl>
 				</div>
 			</div>
+			</logic:equal>
 			</logic:iterate>
 			</logic:notEmpty>
 		</div>
 		<div class="formBar">
 			<ul>
-				<li><div class="button"><div class="buttonContent"><button type="submit">提交</button></div></div></li>
+				<logic:equal name="isSubmit" value="0" scope="request"><li><div class="button"><div class="buttonContent"><button type="submit">提交</button></div></div></li></logic:equal>
 				<li><div class="button"><div class="buttonContent"><button type="button" class="close">返回</button></div></div></li>
 			</ul>
 		</div>

@@ -5115,6 +5115,16 @@ public class DBTools {
 				jb.setJdConclusion(rs.getString("JDCONCLUSION"));
 				jb.setConclusion(rs.getString("CONCLUSION"));
 				jb.setJdAdvice(rs.getString("ADVICE"));
+				String attachName = rs.getString("ATTACHMENT");
+				if(attachName != null && !attachName.equals(""))
+				{
+					attachName = SystemConstant.GetServerPath() + "/" +  "attachment" + "/" + attachName;
+					jb.setFilePath(attachName);
+				}
+				else
+				{
+					jb.setFilePath("");
+				}
 				return jb;
 			}
 		} catch (Exception e) {
@@ -5182,7 +5192,17 @@ public class DBTools {
 				dab.setExpertAdvice(rs.getString("EXPERTADVICE"));
 				dab.setLitigantName(rs.getString("LITIGANTNAME"));
 				dab.setAttitude(rs.getString("LITIGANTCONTENT"));
-				dab.setLitigantTime(rs.getString("LITIGANTTIME"));				
+				dab.setLitigantTime(rs.getString("LITIGANTTIME"));	
+				String attachName = rs.getString("ATTACHNAME");
+				if(attachName != null && !attachName.equals(""))
+				{
+					attachName = SystemConstant.GetServerPath() + "/" +  "attachment" + "/" + attachName;
+					dab.setFilePath(attachName);
+				}
+				else
+				{
+					dab.setFilePath("");
+				}			
 				return dab;
 			}
 		} catch (Exception e) {

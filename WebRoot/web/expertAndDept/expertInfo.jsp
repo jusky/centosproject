@@ -11,8 +11,8 @@
 	
 	<form method="post" action="demo/common/ajaxDone.html" class="pageForm required-validate" onsubmit="return validateCallback(this)">
 		<div class="pageFormContent">
-		<logic:notEmpty name="expertFKForm" property="recordList">
-     	<logic:iterate name="expertFKForm" property="recordList" id="ExpertInfo">
+		<logic:notEmpty name="expertFKManageForm" property="recordList">
+     	<logic:iterate name="expertFKManageForm" property="recordList" id="ExpertInfo">
 		<div class="pageFormContent" layoutH="56">
 			<input type="hidden" name="id" value="${ExpertInfo.id}">
 			<dl class="nowrap">

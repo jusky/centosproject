@@ -34,78 +34,7 @@ import com.whu.web.eventbean.JDYJSBean;
  * @struts.action path="/deptFKAction" name="deptFKForm" parameter="method" scope="request" validate="true"
  */
 public class DeptFKAction extends DispatchAction {
-	/*
-	 * Generated Methods
-	 */
-	public ActionForward eventList(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response) {
-		DeptFKForm deptFKForm = (DeptFKForm)form;
-		String loginName = (String)request.getSession().getAttribute("LoginName");
-		String sql = "select a.ID,a.REPORTID,a.ISSUBMIT,a.ADVICEID,b.TITLE,b.DEPTNAME,b.SHORTINFO,b.FKTIME,b.SURVEYCONTENT,b.FILEPATH,c.STATUS from TB_ED_ADVICE a, TB_DEPTSURVEYLETTER b, TB_REPORTINFO c where a.ADVICEID=b.DEPTADVICEID and a.LOGINNAME=? and a.REPORTID=c.REPORTID";
-		DBTools db = new DBTools();
-		ArrayList result = db.queryDeptDCList(sql, new String[]{loginName});
-		if(result.size() > 0)
-		{
-			deptFKForm.setRecordNotFind("false");
-			deptFKForm.setRecordList(result);
-			request.setAttribute("totalRows",String.valueOf(result.size()));
-		}
-		else
-		{
-			deptFKForm.setRecordNotFind("true");
-			request.setAttribute("totalRows",String.valueOf(0));
-		}
-		return mapping.findForward("deptDCList");
-	}
-	/**
-	 * 跳转到在线提交调查结论页面
-	 * @param mapping
-	 * @param form
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws UnsupportedEncodingException
-	 */
-	public ActionForward onlineSubmit(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
-		response.setContentType("text/html;charset=utf-8");
-		request.setCharacterEncoding("utf-8");
-		DeptFKForm deptFKForm = (DeptFKForm)form;
-		String id = request.getParameter("id");
-		String reportID = request.getParameter("reportID");
-		String adviceID = request.getParameter("adviceID");
-		DBTools dbTools = new DBTools();
-		//String sql = "select a.*,b.TITLE from TB_ED_ADVICE a,TB_DEPTSURVEYLETTER where a.ID=" + id + " and a.ADVICEID=b.DEPTADVICEID";
-		
-		String title = dbTools.querySingleDate("TB_DEPTSURVEYLETTER", "TITLE", "DEPTADVICEID", adviceID);
-		request.setAttribute("title", title);
-		
-		String sql = "select a.ADVICE,a.EXPERTADVICE,b.LITIGANTNAME,b.LITIGANTTIME,b.LITIGANTCONTENT from TB_DEPTADVICE a, TB_LITIGANTSTATE b where a.ID=b.DEPTADVICEID and a.ID=?";
-		DeptAdviceBean dab = dbTools.queryDeptAdvice(sql, new String[]{adviceID});
-		ArrayList result = new ArrayList();
-		if(dab==null)
-		{
-			dab = new DeptAdviceBean();
-			dab.setDeptAdvice("");
-			dab.setLitigantName("");
-			dab.setAttitude("");
-			dab.setLitigantTime("");
-			dab.setExpertAdvice("");
-		}
-		result.add(dab);
-		deptFKForm.setRecordList(result);
-
-		request.setAttribute("dcID", id);
-		request.setAttribute("reportID", reportID);
-		request.setAttribute("adviceID", adviceID);
-		
-		// if submit, cannot edit separate in deptAdviceFk.jsp
-		String loginName = (String)request.getSession().getAttribute("LoginName");
-		String isSubmit = dbTools.querySingleDate("TB_ED_ADVICE", "ISSUBMIT", "LOGINNAME", loginName);
-		request.setAttribute("isSubmit", "1");
-		
-		return mapping.findForward("onlineSubmit");
-	}
+	
 	/**
 	 * 鉴定专家在线提交鉴定意见和鉴定结论
 	 * @param mapping

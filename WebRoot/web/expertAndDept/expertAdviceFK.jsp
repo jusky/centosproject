@@ -60,8 +60,82 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<input type="hidden" name="reportID" value="<%=request.getAttribute("reportID") %>"/>
 	<input type="hidden" name="adviceID" value="<%=request.getAttribute("adviceID") %>"/>
 	<input type="hidden" name="jdConCount" value="<%=request.getAttribute("jdConCount") %>"/>
-	<logic:notEmpty name="expertFKForm" property="recordList" >
-  	<logic:iterate  id="JDYJSBean" name="expertFKForm" property="recordList">
+	<logic:notEmpty name="expertFKManageForm" property="recordList" >
+  	<logic:iterate  id="JDYJSBean" name="expertFKManageForm" property="recordList">
+  		<logic:equal name="isSubmit" value="1" scope="request">
+ 		<div class="pageFormContent" layoutH="56">
+			<div class="panel">
+				<h1>鉴定结论（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
+				<div style="background:#ffffff;">
+				<dl class="nowrap">
+					<dt>鉴定结论：</dt>
+					<dd>
+						<table width="100%" height="100%" border="0">
+						<logic:notEmpty name="JDYJSBean"  property="jdConclusionList">
+		  				<logic:iterate name="JDYJSBean" property="jdConclusionList" id="UrlAndName">
+					      <tr>
+					        <td>
+							<table width="100%" height="100%" border="0" class="main_table">
+					          <tr height="30">
+					            <td class="myweb_td">${UrlAndName.name }</td>
+					          </tr>
+					          <tr height="40">
+					            <td>
+					            <logic:equal value="是" name="UrlAndName" property="isCheck">
+					            	<input readonly name="conclusion${UrlAndName.id }" type="radio" value="是" checked="checked"/>是
+					            	&nbsp;&nbsp;&nbsp;&nbsp;
+					            	<input readonly name="conclusion${UrlAndName.id }" type="radio" value="否"/>否
+					            	&nbsp;&nbsp;&nbsp;&nbsp;
+					            	<input readonly name="conclusion${UrlAndName.id }" type="radio" value="不确定"/>不确定
+					            </logic:equal>
+					            <logic:equal value="否" name="UrlAndName" property="isCheck">
+					            	<input readonly name="conclusion${UrlAndName.id }" type="radio" value="是"/>是
+					            	&nbsp;&nbsp;&nbsp;&nbsp;
+					            	<input readonly name="conclusion${UrlAndName.id }" type="radio" value="否" checked="checked"/>否
+					            	&nbsp;&nbsp;&nbsp;&nbsp;
+					            	<input readonly name="conclusion${UrlAndName.id }" type="radio" value="不确定"/>不确定
+					            </logic:equal>
+					            <logic:equal value="不确定" name="UrlAndName" property="isCheck">
+					            	<input readonly name="conclusion${UrlAndName.id }" type="radio" value="是"/>是
+					            	&nbsp;&nbsp;&nbsp;&nbsp;
+					            	<input readonly name="conclusion${UrlAndName.id }" type="radio" value="否"/>否
+					            	&nbsp;&nbsp;&nbsp;&nbsp;
+					            	<input readonly name="conclusion${UrlAndName.id }" type="radio" value="不确定" checked="checked"/>不确定
+					            </logic:equal>
+					            </td>
+					          </tr>
+					        </table>
+							</td>
+					      </tr>
+					      </logic:iterate>
+					      </logic:notEmpty>
+					    </table>
+					</dd>
+				</dl>
+				</div>
+			</div>
+			<div class="panel">
+				<h1>鉴定意见（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
+				<div style="background:#ffffff;">
+				<dl class="nowrap">
+					<dt>鉴定意见：<font color="#ff0000">*</font></dt>
+					<dd>
+						<textarea readonly id="expertAdvice" name="jdAdvice" cols="100" rows="15" class="required" onKeyUp="countRemind('expertAdvice')" onblur="countRemind('expertAdvice')">${JDYJSBean.jdAdvice }</textarea>
+						<br/>
+					</dd>
+				</dl>
+				<dl class="nowrap">
+					<dt>上传附件：
+						<br/>
+			    	</dt>
+					<dd><a href="${JDYJSBean.filePath }"><font color="blue">下载</font></a>
+					</dd>
+				</dl>
+				</div>
+			</div>
+		</div> 		
+  		</logic:equal>
+		<logic:equal name="isSubmit" value="0" scope="request">
 		<div class="pageFormContent" layoutH="56">
 			<div class="panel">
 				<h1>鉴定结论（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
@@ -117,7 +191,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<h1>鉴定意见（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
 				<div style="background:#ffffff;">
 				<dl class="nowrap">
-					<dt>鉴定意见：</dt>
+					<dt>鉴定意见：<font color="#ff0000">*</font></dt>
 					<dd>
 						<textarea id="expertAdvice" name="jdAdvice" cols="100" rows="15" class="required" onKeyUp="countRemind('expertAdvice')" onblur="countRemind('expertAdvice')">${JDYJSBean.jdAdvice }</textarea>
 						<br/>
@@ -139,11 +213,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</div>
 			</div>
 		</div>
+		</logic:equal>
 		</logic:iterate>
 		</logic:notEmpty>
 		<div class="formBar">
 			<ul>
-				<li><div class="button"><div class="buttonContent"><button type="submit">提交</button></div></div></li>
+				<logic:equal name="isSubmit" scope="request" value="0"><li><div class="button"><div class="buttonContent"><button type="submit">提交</button></div></div></li></logic:equal>
 				<li><div class="button"><div class="buttonContent"><button type="button" class="close">返回</button></div></div></li>
 			</ul>
 		</div>

@@ -21,9 +21,9 @@ function showattach(filename,reportID)
 <h2 class="contentTitle">专家鉴定，共有<font color="red"><%=request.getAttribute("totalRows") %></font>个案件</h2>
 <div class="pageContent">
 <div class="pageFormContent"  layoutH="56">
-<logic:notEqual value="true" name="expertFKForm" property="recordNotFind">
- <logic:notEmpty name="expertFKForm" property="recordList">
-  <logic:iterate name="expertFKForm" property="recordList" id="ExpertIdentityBean">
+<logic:notEqual value="true" name="expertFKManageForm" property="recordNotFind">
+ <logic:notEmpty name="expertFKManageForm" property="recordList">
+  <logic:iterate name="expertFKManageForm" property="recordList" id="ExpertIdentityBean">
 	<div class="panel">
 		<h1>案件<bean:write name="ExpertIdentityBean" property="serialNum"/>
 			<logic:equal value="1" name="ExpertIdentityBean" property="isSubmit"><font color="blue">已提交</font></logic:equal>
@@ -93,10 +93,10 @@ function showattach(filename,reportID)
 				<logic:equal value="" name="ExpertIdentityBean" property="status"><font color="blue">该案件的调查已经完成，不能在线提交！</font></logic:equal>
 				<logic:notEqual value="" name="ExpertIdentityBean" property="status">				
 					<logic:equal value="1" name="ExpertIdentityBean" property="isSubmit">
-					<a href="<%=path%>/expertFKAction.do?method=onlineSubmit&id=${ExpertIdentityBean.id }&reportID=${ExpertIdentityBean.reportID }&adviceID=${ExpertIdentityBean.adviceID }" target="navTab" rel="onlineSubmit"><font color="red">查看已提交鉴定结果</font></a>					
+					<a href="<%=path%>/expertFKManageAction.do?method=onlineSubmit&id=${ExpertIdentityBean.id }&reportID=${ExpertIdentityBean.reportID }&adviceID=${ExpertIdentityBean.adviceID }" target="navTab" rel="onlineSubmit"><font color="red">查看已提交鉴定结果</font></a>					
 					</logic:equal>
 					<logic:equal value="0" name="ExpertIdentityBean" property="isSubmit">
-						<a href="<%=path%>/expertFKAction.do?method=onlineSubmit&id=${ExpertIdentityBean.id }&reportID=${ExpertIdentityBean.reportID }&adviceID=${ExpertIdentityBean.adviceID }" target="navTab" rel="onlineSubmit"><font color="red">在线提交鉴定结果</font></a>
+						<a href="<%=path%>/expertFKManageAction.do?method=onlineSubmit&id=${ExpertIdentityBean.id }&reportID=${ExpertIdentityBean.reportID }&adviceID=${ExpertIdentityBean.adviceID }" target="navTab" rel="onlineSubmit"><font color="red">在线提交鉴定结果</font></a>
 					</logic:equal>
 				</logic:notEqual>
 				</dd>
@@ -107,7 +107,7 @@ function showattach(filename,reportID)
 	</logic:iterate>
 	</logic:notEmpty>
 	</logic:notEqual>
-	<logic:equal value="true" name="expertFKForm" property="recordNotFind">
+	<logic:equal value="true" name="expertFKManageForm" property="recordNotFind">
 	
 	</logic:equal>
 </div>

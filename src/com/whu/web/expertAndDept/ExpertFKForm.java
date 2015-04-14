@@ -114,7 +114,17 @@ public class ExpertFKForm extends ValidatorForm {
 		this.recordList = recordList;
 	}
 
-
+	/** 
+	 * Method validate
+	 * @param mapping
+	 * @param request
+	 * @return ActionErrors
+	 */
+	public ActionErrors validate(ActionMapping mapping,
+			HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	/** 
 	 * Method reset
 	 * @param mapping
