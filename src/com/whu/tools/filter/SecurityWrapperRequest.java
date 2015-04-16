@@ -596,7 +596,7 @@ public class SecurityWrapperRequest extends HttpServletRequestWrapper implements
         String uri = getHttpServletRequest().getRequestURI();
         String clean = "";
         try {
-            clean = ESAPI.validator().getValidInput("HTTP URI: " + uri, uri, "HTTPURI", 2000, false);
+            clean = ESAPI.validator().getValidInput("HTTP URI: " + uri, uri, "HTTPURI", 2000, false, false);
         } catch (ValidationException e) {
             // already logged
         }

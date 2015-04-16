@@ -128,17 +128,6 @@
   </servlet-mapping>
 
 
-	
-	<!-- [CVE-2014-0114] Struts1 ClassLoader filter -->
-  	<filter>
-  		<filter-name>ParamFilterPreventClassLoader</filter-name>
-  		<filter-class>com.whu.tools.filter.ParamWrapperFilter</filter-class>
-  		<init-param>
-  			<param-name>excludeParams</param-name>
-  			<param-value>(.*\.|^|.*|\[('|"))(c|C)lass(\.|('|")]|\[).*</param-value>
-  		</init-param>
- 	</filter>
-   
    <!-- Container Provided Filters -->
 	<filter>
    	<filter-name>SetCharacterEncoding</filter-name>
@@ -240,7 +229,7 @@
    <filter-mapping>
    	<filter-name>Expires</filter-name>
    	<url-pattern>/*</url-pattern>
-   </filter-mapping> <!-- 
+   </filter-mapping>
    <filter-mapping>
   		<filter-name>SecurityWrapper</filter-name>
   		<url-pattern>/*</url-pattern>
@@ -252,11 +241,7 @@
    <filter-mapping>
    	<filter-name>ClickjackFilterSameOrigin</filter-name>
    	<url-pattern>/*</url-pattern>
-   </filter-mapping> -->
-   <filter-mapping>
-  		<filter-name>ParamFilterPreventClassLoader</filter-name>
-  		<url-pattern>/*</url-pattern>
-   </filter-mapping>
+   </filter-mapping> 
    <filter-mapping>
    	<filter-name>Dept And Expert</filter-name>
    	<url-pattern>/*</url-pattern>   	
