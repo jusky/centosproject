@@ -16,6 +16,7 @@
 package com.whu.tools.filter;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -78,6 +79,12 @@ public class SecurityWrapper implements Filter {
      */
     private String allowableResourcesRoot = "WEB-INF";
 
+    /*
+     *   request from pages contain xheditor has html contents insided parameterValue, so not validate it
+     *    A better solution may encode these values before submit
+     */
+    private Pattern xheditorUri = null;
+    
     /**
      *
      * @param request
@@ -99,6 +106,15 @@ public class SecurityWrapper implements Filter {
             SecurityWrapperRequest secureRequest = new SecurityWrapperRequest(hrequest);
             SecurityWrapperResponse secureResponse = new SecurityWrapperResponse(hresponse);
 
+            //pass uri from pages containes xheditor without validation ParameterValue
+ 	         if (xheditor(hrequest.getRequestURI().substring(hrequest.getContextPath().length()))) {
+ 	            	secureRequest = new SecurityWrapperRequest(hrequest) {
+ 	            		 public String[] getParameterValues(String name) {
+ 	            			 return ((HttpServletRequest)super.getRequest()).getParameterValues(name);
+ 	            		 	}
+ 	            		};
+ 	            }          
+            
             // Set the configuration on the wrapped request
             secureRequest.setAllowableContentRoot(allowableResourcesRoot);
 
@@ -131,6 +147,21 @@ public class SecurityWrapper implements Filter {
      */
     public void init(FilterConfig filterConfig) throws ServletException {
 		this.allowableResourcesRoot = StringUtilities.replaceNull( filterConfig.getInitParameter( "allowableResourcesRoot" ), allowableResourcesRoot );
-	}
+		setXheditorUri(filterConfig.getInitParameter("xheditor"));
+    }
 	
+    private boolean xheditor(String uri) {
+    	if (xheditorUri != null && xheditorUri.matcher(uri).matches()) {
+    		return true;
+    	}
+    	return false;
+    }
+    
+    private void setXheditorUri(String uri) {
+    	if (uri == null || uri.length() == 0) {
+    		xheditorUri = null;
+    	} else {
+    		xheditorUri = Pattern.compile(uri);
+    	}
+    }
 }

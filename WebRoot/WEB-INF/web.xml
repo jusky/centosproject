@@ -193,6 +193,15 @@
    
    <!--  ESAPI filters -->
    <filter>
+   	<filter-name>SecurityWrapper</filter-name>
+   	<filter-class>com.whu.tools.filter.SecurityWrapper</filter-class>
+  		<init-param> <!-- post from pages contain xheditor has html contents insided parameterValue
+  						so not validate it, a better solution may encode these values before submit -->
+  		<param-name>xheditor</param-name>
+  		<param-value>/(newMail|bmjjManage|expertAdvice|mailConfig)Action\.do</param-value>
+  	</init-param>
+   </filter>
+   <filter>
    	<filter-name>RequestRateThrottleFilter</filter-name>
    	<filter-class>com.whu.tools.filter.RequestRateThrottleFilter</filter-class>
    	<init-param>
@@ -211,10 +220,6 @@
    		<param-name>mode</param-name>
    		<param-value>SAMEORIGIN</param-value>
    	</init-param>
-   </filter>
-   <filter>
-   	<filter-name>SecurityWrapper</filter-name>
-   	<filter-class>com.whu.tools.filter.SecurityWrapper</filter-class>
    </filter>
     
     
