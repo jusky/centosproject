@@ -295,7 +295,7 @@ public class EventManageAction extends DispatchAction {
 		
 		if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("query" + jdName + "Sql");
-			params = (String[])request.getSession().getAttribute("query" + jdName + "params");
+			params = (String[])request.getSession().getAttribute("query" + jdName + "Params");
 			if(orderField != null && !orderField.equals(""))
 			{
 				sql = sql.substring(0, sql.indexOf("order"));

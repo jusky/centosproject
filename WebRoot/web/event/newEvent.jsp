@@ -42,6 +42,32 @@ function setName(cb)
 		deleteDefault();
 	}
 }
+function setFaculty(cb)
+{
+	if(cb.checked==true)
+	{
+		document.getElementById("nimingID").readOnly = true;
+		document.getElementById("niDiv").style.display="none";
+		document.getElementById("jbName").value="科学部转";
+		document.getElementById("jbName").readOnly=true;
+		document.getElementById("reportReason").value = "";
+		document.getElementById("reportContent").value = "";
+		//将必填的数据填充为默认值，提交表单后可以不验证这些信息
+		setDefault();
+		
+	}
+	else
+	{
+		document.getElementById("niDiv").style.display="block";
+		document.getElementById("jbName").value="";
+		document.getElementById("jbName").readOnly=false;
+		
+		document.getElementById("reportReason").value = "";
+		document.getElementById("reportContent").value = "";
+		
+		deleteDefault();
+	}
+}
 function setSimilar(cb)
 {
 	if(cb.checked==true)
@@ -132,9 +158,10 @@ function showreason()
 					<dt>举报人姓名：</dt>
 					<dd>
 						<input id="jbName" name="reportName" minlength="2" maxlength="15" class="required" type="text" size="20" value=""/>
-						<input type="radio" name="choose" valude="1" checked onclick="setRealName(this)"/>实名举报
+						<input type="radio" name="choose" value="1" checked onclick="setRealName(this)"/>实名举报
 						<input type="radio" id="nimingID" name="choose" value="1" onclick="setName(this);"/>匿名举报
 						<input type="radio" name="choose" value="1" onclick="setSimilar(this);"/>高相似度
+						<input type="radio" name="choose" value="1" onclick="setFaculty(this);"/>科学部转
 					</dd>
 				</dl>
 				<dl class="nowrap">
@@ -147,7 +174,7 @@ function showreason()
 				<dl class="nowrap">
 					<dt>所属单位：</dt>
 					<dd>
-						<input id="dept" name="dept" minlength="3" maxlength="30" class="required" type="text" size="70" value=""/>
+						<input id="dept" name="dept" minlength="3" maxlength="30" type="text" size="70" value=""/>
 					</dd>
 				</dl>
 				<dl class="nowrap">
@@ -159,13 +186,13 @@ function showreason()
 				<dl class="nowrap">
 					<dt>手机号码：</dt>
 					<dd>
-						<input id="telPhone" name="telPhone" minlength="5" maxlength="15" class="required phone" class="phone" type="text" size="30" value=""/>
+						<input id="telPhone" name="telPhone" minlength="5" maxlength="15" class="phone" type="text" size="30" value=""/>
 					</dd>
 				</dl>
 				<dl class="nowrap">
 					<dt>邮箱地址：</dt>
 					<dd>
-						<input id="mailAddress" name="mailAddress" class="required email" type="text" size="50" value=""/>
+						<input id="mailAddress" name="mailAddress" class="email" type="text" size="50" value=""/>
 					</dd>
 				</dl>
 				</div>
@@ -217,7 +244,7 @@ function showreason()
 				<dl class="nowrap">
 					<dt>举报事由：</dt>
 					<dd>
-						<textarea class="required" readonly id="reportReason" rows="4" cols="60" name="org4.jbReason" ></textarea>
+						<textarea class="required" id="reportReason" rows="4" cols="60" name="org4.jbReason" ></textarea>
 						<a class="btnLook" href="javascript:showreason()">选择举报事由</a>
 						<span class="info"></span>
 					</dd>

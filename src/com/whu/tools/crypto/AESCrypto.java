@@ -58,7 +58,7 @@ public class AESCrypto {
 		}
 		temp = kf.getKeyTable();
 		deskey = (SecretKey)temp.get(key);
-		if(deskey != null && str.trim() != "")
+		if(deskey != null && str != null && str.trim() != "")
 		{
 			try {
 				//�����Կ����Cipher������г�ʼ����ENCRYPT_MODE��ʾ����ģʽ

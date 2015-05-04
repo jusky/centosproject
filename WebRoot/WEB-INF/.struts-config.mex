@@ -172,6 +172,8 @@
   <StrutsActivity path="/web/event/combineReportList.jsp" location="3950,1750" dimension="232,48" />
   <StrutsActivity path="/web/event/surveyReportList.jsp" location="3950,1650" dimension="226,48" />
   <StrutsActivity path="/web/dsoframer/combineReport.jsp" location="3950,1050" dimension="232,48" />
+  <StrutsActivity path="/web/expertAndDept/expertAdviceFK.jsp" location="3950,2850" dimension="268,53" />
+  <StrutsActivity path="/web/expertAndDept/deptAdviceFK.jsp" location="2450,3050" dimension="258,53" />
   <StrutsActivity path="/web/eventManage/createSJYBD.jsp" location="3950,2150" dimension="232,48" />
   <StrutsActivity path="/web/eventManage/eventFKManage.jsp" location="4550,3450" dimension="298,50" />
   <StrutsActivity path="/web/user/wyDetail.jsp" location="4250,2050" dimension="164,53" />
@@ -198,10 +200,8 @@
   <StrutsActivity path="/web/faculty/editFacultyAdvice.jsp" location="3950,3450" dimension="265,50" />
   <StrutsActivity path="/web/faculty/facultyFKList.jsp" location="4550,3350" dimension="235,50" />
   <StrutsActivity path="/web/expertAndDept/deptFKManage.jsp" location="1850,3050" dimension="268,53" />
-  <StrutsActivity path="/web/expertAndDept/deptAdviceFK.jsp" location="2450,3050" dimension="258,53" />
   <StrutsActivity path="/web/expertAndDept/expertFKManage.jsp" location="3950,2650" dimension="278,53" />
   <StrutsActivity path="/web/expertAndDept/expertInfo.jsp" location="50,1250" dimension="239,53" />
-  <StrutsActivity path="/web/expertAndDept/expertAdviceFK.jsp" location="3950,2850" dimension="268,53" />
   <StrutsActivity path="/web/expertAndDept/eventFKManage.jsp" location="3950,3050" dimension="272,53" />
   <StrutsActivity path="/web/expertAndDept/editFacultyAdvice.jsp" location="4550,3150" dimension="323,53" />
   <StrutsActivity path="/web/expertAndDept/facultyFKList.jsp" location="3050,3850" dimension="293,53" />

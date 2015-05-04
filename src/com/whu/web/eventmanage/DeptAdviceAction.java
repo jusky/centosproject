@@ -101,7 +101,7 @@ public class DeptAdviceAction extends DispatchAction {
 		else//如果为空，则说明是新增
 		{
 		//	sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,ADVICE,EXPERTADVICE,ISFK,ATTACHNAME,ISLETTER) values('" + reportID + "','" + dept + "','" + time + "','" + advice + "','" + expertAdvice + "','1','" + attachName + "', '0')";
-			sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,ADVICE,EXPERTADVICE,ISFK,ATTACHMENT,ISLETTER) values(?,?,?,?,?,'1',?,'0')";
+			sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,ADVICE,EXPERTADVICE,ISFK,ATTACHNAME,ISLETTER) values(?,?,?,?,?,'1',?,'0')";
 			params = new String[]{reportID, dept, time, advice, expertAdvice, attachName};
 		}
 		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/dept/";

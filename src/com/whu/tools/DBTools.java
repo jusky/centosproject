@@ -171,7 +171,7 @@ public class DBTools {
 			sql = pageBean.getQuerySql(); 
 		if (pageBean.getParams() != null)
 			params = pageBean.getParams();
-	
+		
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
 			pst = conn.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -2393,7 +2393,6 @@ public class DBTools {
 			byte[]  reasonB= aes.createEncryptor(eb.getReportReason(), key);
 			byte[]  contentB= aes.createEncryptor(eb.getReportContent(), key);
 			byte[] beReB = aes.createEncryptor(eb.getBeReportName(), key);
-			
 			pst.setString(1, eb.getReportID());
 			pst.setBytes(2, nameB);
 			pst.setBytes(3, deptB);
@@ -2416,8 +2415,9 @@ public class DBTools {
 			pst.setString(19, eb.getSerialNum());
 			pst.setString(20, time);
 			pst.setString(21, eb.getSearchID());
-			pst.execute();
-		} catch (Exception e) {
+			pst.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
 			return false;
 		}
 		finally
@@ -3186,6 +3186,10 @@ public class DBTools {
 			conn.rollback();
 			return false;
 		} 
+		finally
+		{
+			closeConnection();
+		}
 		return true;
 	}
 	/**

@@ -333,7 +333,7 @@ public class SecurityWrapperRequest extends HttpServletRequestWrapper implements
      * @return The "scrubbed" parameter value.
      */
     public String getParameter(String name, boolean allowNull) {
-        return getParameter(name, allowNull, 3000, "HTTPParameterValue");
+        return getParameter(name, allowNull, 10000, "HTTPParameterValue");
     }
 
     /**
@@ -386,7 +386,7 @@ public class SecurityWrapperRequest extends HttpServletRequestWrapper implements
                 String[] value = (String[]) e.getValue();
                 String[] cleanValues = new String[value.length];
                 for (int j = 0; j < value.length; j++) {
-                    String cleanValue = ESAPI.validator().getValidInput("HTTP parameter value: " + value[j], value[j], "HTTPParameterValue", 3000, true);
+                    String cleanValue = ESAPI.validator().getValidInput("HTTP parameter value: " + value[j], value[j], "HTTPParameterValue", 10000, true);
                     cleanValues[j] = cleanValue;
                 }
                 cleanMap.put(cleanName, cleanValues);
@@ -434,7 +434,7 @@ public class SecurityWrapperRequest extends HttpServletRequestWrapper implements
         newValues = new ArrayList<String>();
         for (String value : values) {
             try {
-                String cleanValue = ESAPI.validator().getValidInput("HTTP parameter value: " + value, value, "HTTPParameterValue", 3000, true);
+                String cleanValue = ESAPI.validator().getValidInput("HTTP parameter value: " + value, value, "HTTPParameterValue", 10000, true);
                 newValues.add(cleanValue);
             } catch (ValidationException e) {
                 logger.warning(Logger.SECURITY_FAILURE, "Skipping bad parameter");

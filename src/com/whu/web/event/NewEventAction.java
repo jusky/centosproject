@@ -83,6 +83,11 @@ public class NewEventAction extends DispatchAction {
 				isNi = "1";
 				reportType = "相似度检测";
 			}
+			else if(reportName.equals("科学部转"))
+			{
+				isNi = "1";
+				reportType = "科学部转";
+			}
 			String serialNum = newEventForm.getSerialNum();
 			String gdPhone = newEventForm.getGdPhone();
 			String mailAddress = newEventForm.getMailAddress();
@@ -190,17 +195,17 @@ public class NewEventAction extends DispatchAction {
 			}
 			//插入举报信息
 			result = db.InsertReportInfo(eb);
-			
-			String describe = createTime + "," + createName + "在管理系统后台人工录入事件,举报人为：" +reportName + ",被举报人为：" + temp + ",举报事由为：" + jbReason;
-			result = db.InsertHandleProcess(reportID, createName, SystemConstant.HP_INPUT, SystemConstant.SS_RECVEVENT, SystemConstant.LCT_JB, describe);
-			
-			describe = createTime + "," + createName + "受理举报";
-			//插入处理过程到数据库中
-			db.InsertHandleProcess(reportID, createName, SystemConstant.HP_RECVEVENT, SystemConstant.SS_RECVEVENT, SystemConstant.LCT_SLJB, describe);
-			
-			//写入日志文件
-			db.insertLogInfo(createName, SystemConstant.LOG_NEW, "新录入事件，事件编号为：" + reportID, request.getRemoteAddr());
-			
+			if (result) {
+				String describe = createTime + "," + createName + "在管理系统后台人工录入事件,举报人为：" +reportName + ",被举报人为：" + temp + ",举报事由为：" + jbReason;
+				result = db.InsertHandleProcess(reportID, createName, SystemConstant.HP_INPUT, SystemConstant.SS_RECVEVENT, SystemConstant.LCT_JB, describe);
+				
+				describe = createTime + "," + createName + "受理举报";
+				//插入处理过程到数据库中
+				db.InsertHandleProcess(reportID, createName, SystemConstant.HP_RECVEVENT, SystemConstant.SS_RECVEVENT, SystemConstant.LCT_SLJB, describe);
+				
+				//写入日志文件
+				db.insertLogInfo(createName, SystemConstant.LOG_NEW, "新录入事件，事件编号为：" + reportID, request.getRemoteAddr());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = false;

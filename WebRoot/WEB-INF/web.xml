@@ -235,10 +235,11 @@
    	<filter-name>Expires</filter-name>
    	<url-pattern>/*</url-pattern>
    </filter-mapping>
+   <!--  
    <filter-mapping>
   		<filter-name>SecurityWrapper</filter-name>
   		<url-pattern>/*</url-pattern>
-  	</filter-mapping>
+  	</filter-mapping> 
    <filter-mapping>
    	<filter-name>RequestRateThrottleFilter</filter-name>
    	<url-pattern>/*</url-pattern>
@@ -246,7 +247,7 @@
    <filter-mapping>
    	<filter-name>ClickjackFilterSameOrigin</filter-name>
    	<url-pattern>/*</url-pattern>
-   </filter-mapping> 
+   </filter-mapping>  -->
    <filter-mapping>
    	<filter-name>Dept And Expert</filter-name>
    	<url-pattern>/*</url-pattern>   	

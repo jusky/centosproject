@@ -182,7 +182,7 @@ public class WsjbDBTools {
 	{
 		try {
 			conn.setAutoCommit(false);
-			String sql = "update " + tableName + " set ISRECV='2' where ID=(?)";
+			String sql = "update " + tableName + " set ISRECV='2' where ID=?";
 			
 			pst = conn.prepareStatement(sql);
 			for (int i = 0; i < ids.length; i++) {
@@ -306,7 +306,7 @@ public class WsjbDBTools {
 	 */
 	public boolean InsertFKInfo(String time, String info, String searchID)
 	{
-		String sql = "insert into TB_FKINFO(SEARCHID, FKCONTENT,FKTIME) values('" + searchID + "', '" + info + "','" + time + "')" ;
+		String sql = "insert into TB_FKINFO(SEARCHID, FKCONTENT,FKTIME) values(?, ?, ?)" ;
 		
 		try {
 			pst = conn.prepareStatement(sql);

@@ -144,7 +144,7 @@ function addAdvice()
 				<dl class="nowrap">
 					<dt>陈述时间：</dt>
 					<dd>
-						<input id="litigantTime" type="text" name="litigantTime" class="required date" size="20" readonly/><a class="inputDateButton" href="javascript:;">选择</a>
+						<input id="litigantTime" type="text" name="litigantTime" class="date" size="20" readonly/><a class="inputDateButton" href="javascript:;">选择</a>
 					</dd>
 				</dl>
 				<dl class="nowrap">

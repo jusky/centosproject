@@ -41,7 +41,7 @@ function editAdvice(id, handleName, deptName, shortInfo, handleTime, conference)
 	document.getElementById("handleTime").value=handleTime;
 	document.getElementById("conference").value=conference;
 	document.getElementById("decideContent").value=decideContent;
-	document.getElementById("adviceid").value=id;
+	document.getElementById("HandleDecideAdviceId").value=id;
 	
 	document.getElementById("newButton").style.display="none";
 	document.getElementById("editButton").style.display="block";
@@ -54,15 +54,15 @@ function addAdvice()
 	document.getElementById("handleTime").value="";
 	document.getElementById("conference").value="";
 	document.getElementById("decideContent").value="";
-	document.getElementById("adviceid").value="";
-	
-	document.getElementById("newButton").style.display="block";
+	document.getElementById("HandleDecideAdviceId").value="";
+
 	document.getElementById("editButton").style.display="none";
+	document.getElementById("newButton").style.display="block";
 }
 function newHandleDecide()
 {
 	var reportID = document.getElementById("reportID").value;
-	var id = document.getElementById("adviceid").value;
+	var id = document.getElementById("HandleDecideAdviceId").value;
 	var handleName = document.getElementById("handleName").value;
 	var handleTime = document.getElementById("handleTime").value;
 	var conference = document.getElementById("conference").value;
@@ -82,7 +82,7 @@ function NewHandleDecideDoc(id)
 <div class="pageContent">
 	<form method="post" id="form1" action="<%=path%>/handleDecideAction.do?method=save" class="pageForm required-validate" onsubmit="return validateCallback(this, navTabAjaxDone);">
 	<input type="hidden" id="" name="reportID" value="<%=request.getAttribute("reportID") %>"/>
-	<input type="hidden" id="adviceid" name="id" value=""/>
+	<input type="hidden" id="HandleDecideAdviceId" name="id" value=""/>
 	<div class="pageFormContent" layoutH="56">
 	<div class="pageContent" style="border-left:1px #B8D0D6 solid;border-right:1px #B8D0D6 solid">
 		<div class="panelBar">
