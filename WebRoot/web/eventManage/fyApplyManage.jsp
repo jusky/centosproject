@@ -31,7 +31,7 @@
 	}
 </script>
 <script type="text/javascript">
-function editFYApply(id, name, time)
+function editFYApply(id, name, time, advice)
 {
 	var advice = document.getElementById(id).value;
 	document.getElementById("fyApplyName").value=name;
@@ -101,7 +101,7 @@ function addFYApply()
 					</td>
 					<td align="center">
 						<a href="#">&nbsp;</a>
-						<a href="javascript:editFYApply('${FYApply.id }', '${FYApply.fyApplyName }','${FYApply.fyTime }');" title="编辑复议申请信息">编辑</a>
+						<a href="javascript:editFYApply('${FYApply.id }', '${FYApply.fyApplyName }','${FYApply.fyTime }','${FYApply.shortInfo }');" title="编辑复议申请信息">编辑</a>
 						<a href="<%=path%>/fYApplyManageAction.do?method=delete&id={fyid}" target="ajaxTodo" title="确定要删除吗?">删除</a>
 					</td>
 				</tr>
