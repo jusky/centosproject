@@ -273,6 +273,11 @@ body {
 	PADDING-TOP: 2px;
 	BORDER-BOTTOM: #7b9ebd 1px solid
 }
+
+#n_p_desc {
+	overflow: auto;
+}
+
 </style>
 		<script language="javascript">
 	function Group() {

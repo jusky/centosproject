@@ -197,5 +197,5 @@ public class SystemConstant {
 	public static String LCT_FYSQ = "复议申请";
 	public static String LCT_FACULTY = "学部意见";
 	
-	public static String[] LCT_ARR = new String[]{"监委会受理举报","领导审批","不予调查","委托依托单位调查","委托专家鉴定","个人/单位举报","初步调查核实","当事人陈述","调查报告","全委会讨论","处理决定","委内相关部门","依托单位/个人","开展调查", "复议申请"};
+	public static String[] LCT_ARR = new String[]{"监委会受理举报","领导审批","不予调查","委托依托单位调查","委托专家鉴定","个人/单位举报","初步调查核实","当事人陈述","调查报告","全委会讨论","处理决定","委内相关部门","依托单位/个人","开展调查", "复议申请","学部意见"};
 }

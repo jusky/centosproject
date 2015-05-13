@@ -1298,7 +1298,7 @@ public class EventManageAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		DBTools dbTools = new DBTools();
 		String reportID = request.getParameter("id");
-		String sql = "update TB_REPORTINFO set STATU=? where REPORTID=?";
+		String sql = "update TB_REPORTINFO set STATUS=? where REPORTID=?";
 		boolean result = dbTools.insertItem(sql, new String[]{SystemConstant.SS_END, reportID});
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
