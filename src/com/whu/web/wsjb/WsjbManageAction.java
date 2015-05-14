@@ -130,24 +130,24 @@ public class WsjbManageAction extends DispatchAction {
 				//temp += " and 1=dbo.compare_image1(a.REPORTNAME,0x" + SystemShare.getHexString(aes.createEncryptor("匿名举报", key)) + ") ";
 				temp += " and hex(a.REPORTNAME) = '"+ SystemShare.getHexString(aes.createEncryptor("匿名举报", key))+"'";
 			}
-			else if(!reportName.equals(""))
+			else if(reportName != null && !reportName.equals(""))
 			{
 				//调用sqlserver自定义函数比较加密后的数据是否相等。
 				//compare_image1为比较函数，共两个参数，第一个为字段名称，第二个字段为加密后的数据（注意加密后为字节数据，需要转换为十六进制字符串，另在前面加上0x）
 				//temp += " and 1=dbo.compare_image1(a.REPORTNAME,0x" + SystemShare.getHexString(aes.createEncryptor(reportName, key)) + ") ";
 				temp += " and hex(a.REPORTNAME) = '" + SystemShare.getHexString(aes.createEncryptor(reportName, key))+"'";
 			}
-			if(!beReportName.equals(""))
+			if(beReportName != null && !beReportName.equals(""))
 			{
 				//temp += " and 1=dbo.compare_image1(a.BEREPORTNAME,0x" + SystemShare.getHexString(aes.createEncryptor(beReportName, key)) + ") ";
 				temp += " and hex(a.BEREPORTNAME) = '" + SystemShare.getHexString(aes.createEncryptor(beReportName, key))+"'";
 			}
-			if(!jbBeginTime.equals(""))
+			if(jbBeginTime != null && !jbBeginTime.equals(""))
 			{
 				temp += " and a.TIME >= ?";
 				paramList.add(jbBeginTime);
 			}
-			if(!jbEndTime.equals(""))
+			if(jbEndTime != null && !jbEndTime.equals(""))
 			{
 				temp += " and a.TIME <= ?";
 				paramList.add(jbEndTime);

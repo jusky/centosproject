@@ -113,12 +113,12 @@ public class MiscountManageAction extends DispatchAction {
 				String mis_sql = "";
 				String punish_sql ="";
 				
-				indi_sql = "select PID,NAME from SYS_INDIVIDUAL_INFO where NAME like '%" + individual + "%'";
-				inst_sql = "select CODE,NAME from SYS_INST_INFO where NAME like '%" + institute + "%'";
-				mis_sql = "select RID,RNAME from SYS_JBREASON where RNAME like '%"  + mistype + "%'";
-				punish_sql = "select CODE,CAPTION from SYS_DATA_DIC where CODENAME='ZDBZ_CLJD' and CAPTION like '%" + punish + "%'";
+				indi_sql = "select PID,NAME from SYS_INDIVIDUAL_INFO where NAME like ?";
+				inst_sql = "select CODE,NAME from SYS_INST_INFO where NAME like ?";
+				mis_sql = "select RID,RNAME from SYS_JBREASON where RNAME like ?";
+				punish_sql = "select CODE,CAPTION from SYS_DATA_DIC where CODENAME='ZDBZ_CLJD' and CAPTION like ?";
 				
-				params = new String[]{"%" + individual + "%", "%" + institute + "%", "%" + mistype + "%", "%" + punish + "%"};
+				params = new String[]{"%" + (individual==null?"":individual)  + "%", "%" + (institute==null?"":institute) + "%", "%" + (mistype==null?"":mistype) + "%", "%" + (punish==null?"":punish) + "%"};
 				
 				sql = "select a.ID,a.MISCOUNTID,a.TIME,a.TITLE,a.REPORTID,a.DETAIL,b.NAME as INDI,c.NAME as INST, GROUP_CONCAT(d.RID SEPARATOR ',') as MISLIST,GROUP_CONCAT(d.RNAME SEPARATOR ',') as MISNAME, e.CAPTION as PUNISHMENT from VIEW_FULL_MISCOUNT a, (" + indi_sql + ") b, (" + inst_sql + ") c, (" + mis_sql + ") d, (" + punish_sql + ") e where a.INDIID=b.PID and a.INSTID=c.CODE and a.MISTYPE=d.RID and a.PUNISH=e.CODE group by a.MISCOUNTID";
 				request.getSession().setAttribute("queryMiscountSql", sql);

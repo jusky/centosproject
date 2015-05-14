@@ -96,19 +96,19 @@ public class AttachManageAction extends DispatchAction {
 			String createBeginTime = attachManageForm.getCreateBeginTime();
 			String createEndTime = attachManageForm.getCreateEndTime();
 			String temp = "";
-			if(!fileName.equals(""))
+			if(fileName != null && !fileName.equals(""))
 			{
 				temp += " and FILENAME like '%" + fileName + "%'";
 			}
-			if(!uploadName.equals(""))
+			if(uploadName != null && !uploadName.equals(""))
 			{
 				temp += " and UPLOADNAME like '%" + uploadName + "%'";
 			}
-			if(!createBeginTime.equals(""))
+			if(createBeginTime != null && !createBeginTime.equals(""))
 			{
 				temp += " and CREATETIME >= '" + createBeginTime + "'";
 			}
-			if(!createEndTime.equals(""))
+			if(createEndTime != null && !createEndTime.equals(""))
 			{
 				temp += " and CREATETIME <= '" + createEndTime + "'";
 			}

@@ -88,7 +88,7 @@ public class PunishManageAction extends DispatchAction {
 		if (operation.equalsIgnoreCase("search")) {
 			String name = punishManageForm.getCaption();
 			String temp = "";
-			if(!name.equals(""))
+			if(name != null && !name.equals(""))
 			{
 				temp += " and CAPTION like ?";
 				params = new String[]{"%" + name + "%"};

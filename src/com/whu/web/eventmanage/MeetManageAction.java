@@ -102,17 +102,17 @@ public class MeetManageAction extends DispatchAction {
 			String jbEndTime = meetManageForm.getJbEndTime();
 			String temp = "";
 			ArrayList<String> paramList = new ArrayList<String>();
-			if(!meetName.equals(""))
+			if(meetName != null && !meetName.equals(""))
 			{
 				temp += " and MEETNAME like ?";
 				paramList.add("%" + meetName + '%');
 			}
-			if(!jbBeginTime.equals(""))
+			if(jbBeginTime != null && !jbBeginTime.equals(""))
 			{
 				temp += " and TIME >= ?";
 				paramList.add(jbBeginTime);
 			}
-			if(!jbEndTime.equals(""))
+			if(jbEndTime != null && !jbEndTime.equals(""))
 			{
 				temp += " and TIME <= ?";
 				paramList.add(jbEndTime);

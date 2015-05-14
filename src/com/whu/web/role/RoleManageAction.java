@@ -91,7 +91,7 @@ public class RoleManageAction extends DispatchAction {
 		if (operation.equalsIgnoreCase("search")) {
 			String roleName = roleManageForm.getRoleName();
 			String temp = "";
-			if(!roleName.equals(""))
+			if(roleName != null && !roleName.equals(""))
 			{
 				temp += " and ROLENAME like ?";
 				params = new String[]{"%" + roleName + "%"};

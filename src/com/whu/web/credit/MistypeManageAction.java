@@ -185,7 +185,7 @@ public class MistypeManageAction extends DispatchAction {
 			else
 			{
 				String name = mistypeManageForm.getName();
-				if(!name.equals(""))
+				if(name != null && !name.equals(""))
 				{
 					temp += " and a.RNAME like ?";
 					params = new String[]{"%" + name + "%"};

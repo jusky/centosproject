@@ -94,17 +94,17 @@ public class DicManageAction extends DispatchAction {
 		pageBean.setRowsPerPage(rowsPerPage);
 		
 		//�������ѯ��,����ѡ�����β˵�
-		if (operation.equalsIgnoreCase("search") || operation.equalsIgnoreCase("select")) {
+		if (operation != null  && (operation.equalsIgnoreCase("search") || operation.equalsIgnoreCase("select"))) {
 			String codeName = "";
 			if(operation.equalsIgnoreCase("search"))
 			{
 				codeName = dicManageForm.getCodeName();
 			}
-			else
+			else if (operation.equalsIgnoreCase("select"))
 			{
 				codeName = request.getParameter("id");
 			}
-			if(codeName.equals("")){
+			if(codeName == null || codeName.equals("")){
 				sql = "select ID,CODENAME,CODE,CAPTION,REMARK from SYS_DATA_DIC";
 			}
 			else

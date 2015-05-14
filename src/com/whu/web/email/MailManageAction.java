@@ -99,12 +99,12 @@ public class MailManageAction extends DispatchAction {
 			String mailAddress = mailManageForm.getMailAddress();
 			//System.out.println(mailAddress);
 			String temp = "";
-			if(!accountName.equals(""))
+			if(accountName != null && !accountName.equals(""))
 			{
 				temp += " and ACCOUNTNAME like ?";
 				paramsList.add("%" + accountName + "%");
 			}
-			if(!mailAddress.equals(""))
+			if(mailAddress != null && !mailAddress.equals(""))
 			{
 				temp +=" and MAILADDRESS like ?";
 				paramsList.add("%" + mailAddress + "%");
@@ -117,7 +117,7 @@ public class MailManageAction extends DispatchAction {
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryMailSql");
-			params = (String[])request.getSession().getAttribute("queryMailparams");
+			params = (String[])request.getSession().getAttribute("queryMailParams");
 			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}

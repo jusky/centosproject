@@ -85,11 +85,11 @@ public class TjManageAction extends DispatchAction {
 		XmlTools xmlTool = new XmlTools();
 		if(type.equals("1"))//状态统计
 		{
-			if(!tjBeginTime.equals(""))
+			if(tjBeginTime != null && !tjBeginTime.equals(""))
 			{
 				temp += " and a.LASTTIME >= '" + tjBeginTime + "'";
 			}
-			if(!tjEndTime.equals(""))
+			if(tjEndTime != null && !tjEndTime.equals(""))
 			{
 				temp += " and a.LASTTIME <= '" + tjEndTime + "'";
 			}

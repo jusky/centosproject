@@ -156,7 +156,7 @@ public class ZzManageAction extends DispatchAction {
 			else
 			{
 				String zzName = zzManageForm.getZzName();
-				if(!zzName.equals(""))
+				if(zzName != null && !zzName.equals(""))
 				{
 					temp += " and a.ZZNAME like ?";
 					params  = new String[]{"%" + zzName + "%"};

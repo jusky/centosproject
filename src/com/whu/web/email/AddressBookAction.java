@@ -99,18 +99,18 @@ public class AddressBookAction extends DispatchAction {
 		pageBean.setRowsPerPage(rowsPerPage);
 		if (operation.equalsIgnoreCase("search")) {
 			String addrName = addressBookForm.getAddrName();
-			
+			params = new String[]{loginName};
 			String temp = "";
-			if(!addrName.equals(""))
+			if(addrName != null && !addrName.equals(""))
 			{
 			//	temp += " and CONNAME like '%" + addrName + "%'";
 				temp += " and CONNAME like ?";
 				addrName = "%" + addrName + "%";
+				params = new String[]{loginName , addrName};
 			}
 			sql = "select ID,CONNAME,CONADDR from TB_CONTACT where (LOGINNAME=? or LOGINNAME='committee' or LOGINNAME='expert') " + temp;
 			// sql = "select ID,CONNAME,CONADDR from TB_CONTACT where (LOGINNAME='" + loginName + "' or LOGINNAME='committee' or LOGINNAME='expert') " + temp;
 			request.getSession().setAttribute("queryAddrSql", sql);
-			params = new String[]{loginName, addrName};
 			request.getSession().setAttribute("queryAddrParams", params);
 		}
 		else if(operation.equalsIgnoreCase("changePage")){

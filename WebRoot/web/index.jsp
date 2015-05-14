@@ -358,8 +358,7 @@ $(function(){
 						</ul>
 					</div>
 					</logic:notEqual>
-										
-				<!-- credit Manage Module
+				
 					<logic:notEqual value="0" name="ModuleBean" property="credit">
 					<div class="accordionHeader">
 						<h2><span>Folder</span>科研诚信管理</h2>
@@ -384,7 +383,6 @@ $(function(){
 						</ul>
 					</div>
 					</logic:notEqual>
-			-->
 					
 					
 					<logic:notEqual value="0" name="ModuleBean" property="yhzzgl">

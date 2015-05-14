@@ -91,22 +91,22 @@ public class InstituteManageAction extends DispatchAction {
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
-		if (operation.equalsIgnoreCase("search")) {
+		if (operation != null && operation.equalsIgnoreCase("search")) {
 			String name = instituteManageForm.getName();
 			String code = instituteManageForm.getCode();
 			String category = instituteManageForm.getCategory();
 			String temp = "";
 			ArrayList<String> paramList = new ArrayList<String>();
-			if(!category.equals("")) {
+			if(category != null && !category.equals("")) {
 				temp += " and CATEGORY = ?";
 				paramList.add(category);
 			}
-			if(!name.equals(""))
+			if(name != null && !name.equals(""))
 			{
 				temp += " and NAME like ?";
 				paramList.add("%" + name + "%");
 			}
-			if(!code.equals(""))
+			if(code != null && !code.equals(""))
 			{
 				temp += " and CODE like ?";
 				paramList.add("%" + code + "%");

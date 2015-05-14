@@ -101,7 +101,7 @@ public class UserManageAction extends DispatchAction {
 				String createBeginTime = userManageForm.getCreateBeginTime();
 				String createEndTime = userManageForm.getCreateEndTime();
 				String temp = "";
-				if(!userName.equals(""))
+				if(userName != null && !userName.equals(""))
 				{
 					temp += " and USERNAME like ?";
 					params = new String[]{"%" + userName + "%"};

@@ -101,22 +101,22 @@ public class LogManageAction extends DispatchAction {
 			String logEndTime = logManageForm.getLogEndTime();
 			String temp = "";
 			ArrayList<String> paramList= new ArrayList<String>();
-			if(!operator.equals(""))
+			if(operator != null && !operator.equals(""))
 			{
 				temp += " and OPERATOR like ?";
 				paramList.add("%" + operator + "%");
 			}
-			if(!logType.equals(""))
+			if(logType != null && !logType.equals(""))
 			{
 				temp += " and LOGTYPE=?";
 				paramList.add(logType);
 			}
-			if(!logBeginTime.equals(""))
+			if(logBeginTime != null  && !logBeginTime.equals(""))
 			{
 				temp += " and TIME >= ?";
 				paramList.add(logBeginTime);
 			}
-			if(!logEndTime.equals(""))
+			if(logEndTime != null && !logEndTime.equals(""))
 			{
 				temp += " and TIME <= ?";
 				paramList.add(logEndTime);

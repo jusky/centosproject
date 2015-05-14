@@ -92,23 +92,23 @@ public class IndividualManageAction extends DispatchAction {
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
-		if (operation.equalsIgnoreCase("search")) {
+		if (operation != null && operation.equalsIgnoreCase("search")) {
 			String name = individualManageForm.getName();
 			String institute = individualManageForm.getInstitute();
 			String pid = individualManageForm.getPId();
 			String temp = "";
 			ArrayList<String> paramList = new ArrayList<String>();
-			if(!name.equals(""))
+			if(name != null && !name.equals(""))
 			{
 				temp += " and NAME like ?";
 				paramList.add("%" + name + "%");
 			}
-			if(!institute.equals(""))
+			if(institute != null && !institute.equals(""))
 			{
 				temp += " and INSTITUTE in (select CODE from SYS_INST_INFO where NAME like ?)";
 				paramList.add("%" + institute + "%");
 			}
-			if(!pid.equals(""))
+			if(pid != null && !pid.equals(""))
 			{
 				temp += " and PID like ?";
 				paramList.add("%" + pid + "%");

@@ -193,7 +193,8 @@ public class EventManageAction extends DispatchAction {
 		}else
 		{
 			String jdID = request.getParameter("jdid");
-			jdName = SystemShare.GetJDName(jdID);
+			if (jdID != null)
+				jdName = SystemShare.GetJDName(jdID);
 
 			if (operation.equalsIgnoreCase("search") || operation.equalsIgnoreCase("select")) {
 				String IsNi = request.getParameter("isNi");
@@ -205,7 +206,7 @@ public class EventManageAction extends DispatchAction {
 				String jbEndTime = eventManageForm.getJbEndTime();
 				String temp = "";
 				ArrayList<String> paramList = new ArrayList<String>();
-				if(!serialNum.equals(""))
+				if(serialNum != null && !serialNum.equals(""))
 				{
 					temp += " and a.SERIALNUM=?";
 					paramList.add(serialNum);
@@ -216,7 +217,7 @@ public class EventManageAction extends DispatchAction {
 					String key = "TB_REPORTINFO";
 					temp += " and hex(a.REPORTNAME) = '" + SystemShare.getHexString(aes.createEncryptor("匿名举报", key)) + "'";
 				}
-				else if(!reportName.equals(""))//不是匿名举报，则判断是否输入了举报人姓名
+				else if(reportName != null && !reportName.equals(""))//不是匿名举报，则判断是否输入了举报人姓名
 				{
 					AESCrypto aes = new AESCrypto();
 					String key = "TB_REPORTINFO";
@@ -224,7 +225,7 @@ public class EventManageAction extends DispatchAction {
 					//compare_image1为比较函数，共两个参数，第一个为字段名称，第二个字段为加密后的数据（注意加密后为字节数据，需要转换为十六进制字符串，另在前面加上0x）
 					temp += " and hex(a.REPORTNAME) = '" + SystemShare.getHexString(aes.createEncryptor(reportName, key)) + "'";
 				}
-				if(!beReportName.equals(""))
+				if(beReportName != null && !beReportName.equals(""))
 				{
 					temp += " and a.REPORTID in (select distinct REPORTID from TB_BEREPORTPE where 1=1 ";
 					if(!beReportName.equals(""))
@@ -235,18 +236,18 @@ public class EventManageAction extends DispatchAction {
 					}
 					temp += ")";
 				}
-				if(!jbBeginTime.equals(""))
+				if(jbBeginTime != null && !jbBeginTime.equals(""))
 				{
 					temp += " and a.REPORTTIME >= ?";
 					paramList.add(jbBeginTime);
 				}
-				if(!jbEndTime.equals(""))
+				if(jbEndTime != null && !jbEndTime.equals(""))
 				{
 					temp += " and a.REPORTTIME <= ?";
 					paramList.add(jbEndTime);
 				}
 				
-				if(jdID.equals("4"))
+				if(jdID != null && jdID.equals("4"))
 				{
 					String loginName = (String)request.getSession().getAttribute("UserName");
 					String tempSql = "select REPORTID from TB_MSGNOTIFY where TYPE='" + SystemConstant.MSG_GZTX + "' and ISHANDLE='0' and RECVNAME=?'";
@@ -1023,7 +1024,7 @@ public class EventManageAction extends DispatchAction {
 		
 		boolean beReportPeFlag = false;
 		
-		if(!serialNum.equals(""))//如果输入了编号，则其他的条件都可以忽略了
+		if(serialNum != null && !serialNum.equals(""))//如果输入了编号，则其他的条件都可以忽略了
 		{
 			temp += " and a.SERIALNUM=?";
 			paramList.add(serialNum);
@@ -1049,40 +1050,40 @@ public class EventManageAction extends DispatchAction {
 				temp += " and hex(a.REPORTNAME) = ?";
 				paramList.add(SystemShare.getHexString(aes.createEncryptor("信息中心", key)));
 			}
-			else if(!reportName.equals(""))
+			else if(reportName != null && !reportName.equals(""))
 			{
 				temp += " and hex(a.REPORTNAME) = ?";
 				paramList.add(SystemShare.getHexString(aes.createEncryptor(reportName, key)));
 			}
-			if(!beReportName.equals(""))
+			if(beReportName != null && !beReportName.equals(""))
 			{
 				beReportPeFlag = true;
 			}
-			if(!dept.equals(""))
+			if(dept != null && !dept.equals(""))
 			{
 				beReportPeFlag = true;
 			}
-			if(!faculty.equals(""))
+			if(faculty != null && !faculty.equals(""))
 			{
 				temp += " and a.FACULTY like ?";
 				paramList.add("%" + faculty + "%");
 			}
-			if(!jbBeginTime.equals(""))
+			if(jbBeginTime != null && !jbBeginTime.equals(""))
 			{
 				temp += " and a.REPORTTIME >= ?";
 				paramList.add(jbBeginTime);
 			}
-			if(!jbEndTime.equals(""))
+			if(jbEndTime != null && !jbEndTime.equals(""))
 			{
 				temp += " and a.REPORTTIME <= ?";
 				paramList.add(jbEndTime);
 			}
-			if(!createBeginTime.equals(""))
+			if(createBeginTime != null && !createBeginTime.equals(""))
 			{
 				temp += " and a.CREATETIME >= ?";
 				paramList.add(createBeginTime);
 			}
-			if(!createEndTime.equals(""))
+			if(createEndTime != null && !createEndTime.equals(""))
 			{
 				temp += " and a.CREATETIME <= '" + createEndTime + "'";
 				paramList.add(createEndTime);
@@ -1095,17 +1096,17 @@ public class EventManageAction extends DispatchAction {
 				temp += " and 1=dbo.compare_image1(a.REPORTREASON,0x" + SystemShare.getHexString(aes.createEncryptor(reportReason, key)) + ") ";
 			}
 			*/
-			if(!conference.equals(""))
+			if(conference != null && !conference.equals(""))
 			{
 				temp += " and a.REPORTID in (select distinct REPORTID from TB_HANDLEDECIDE where CONFERENCE like ?";
 				paramList.add("%" + conference + "%");
 			}
-			if(!status.equals(""))
+			if(status != null && !status.equals(""))
 			{
 				temp += " and a.STATUS=?";
 				paramList.add(status);
 			}
-			if(!orderWay.equals("") && !orderWay.matches(".*[=<>].*"))
+			if(orderWay != null && !orderWay.equals("") && !orderWay.matches(".*[=<>].*"))
 			{
 				temp += " order by " + orderWay + " desc";
 			}
@@ -1114,14 +1115,14 @@ public class EventManageAction extends DispatchAction {
 		if(beReportPeFlag)
 		{
 			temp += " and a.REPORTID in (select distinct REPORTID from TB_BEREPORTPE where 1=1 ";
-			if(!beReportName.equals(""))
+			if(beReportName != null && !beReportName.equals(""))
 			{
 				AESCrypto aes = new AESCrypto();
 				String key = "TB_BEREPORTPE";
 				temp += " and hex(BEREPORTNAME) = ?";
 				paramList.add(SystemShare.getHexString(aes.createEncryptor(beReportName, key)));
 			}
-			if(!dept.equals(""))
+			if(dept != null && !dept.equals(""))
 			{
 				AESCrypto aes = new AESCrypto();
 				String key = "TB_BEREPORTPE";

@@ -91,12 +91,12 @@ public class WyManageAction extends DispatchAction {
 			String dept = wyManageForm.getDept();
 			String temp = "";
 			ArrayList<String> paramList = new ArrayList<String>();
-			if(!wyName.equals(""))
+			if(wyName != null && !wyName.equals(""))
 			{
 				temp += " and NAME like ?";
 				paramList.add("%" + wyName + "%");
 			}
-			if(!dept.equals(""))
+			if(dept != null && !dept.equals(""))
 			{
 				temp += " and DEPT like ?";
 				paramList.add("%" + dept + "%");

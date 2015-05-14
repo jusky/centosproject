@@ -95,22 +95,22 @@ public class ExpertManageAction extends DispatchAction {
 			String research = expertManageForm.getResearch();
 			String temp = "";
 			ArrayList<String> paramList = new ArrayList<String>();
-			if(!expertName.equals(""))
+			if(expertName != null && !expertName.equals(""))
 			{
 				temp += " and NAME like ?";
 				paramList.add("%" + expertName + "%");
 			}
-			if(!dept.equals(""))
+			if(dept != null && !dept.equals(""))
 			{
 				temp += " and DEPT like ?";
 				paramList.add("%" + dept + "%");
 			}
-			if(!research.equals(""))
+			if(research != null && !research.equals(""))
 			{
 				temp += " and RESEARCH like ?";
 				paramList.add('%' + research + "%");
 			}
-			if(!faculty.equals(""))
+			if(faculty != null && !faculty.equals(""))
 			{
 				temp += " and FACULTY like ?";
 				paramList.add("%" + faculty + "%");
