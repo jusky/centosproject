@@ -114,6 +114,3 @@ var selectInst = function() {
 		</logic:notEmpty>
 	</form>
 </div>
-<div id="menuContent" class="menuContent" style="display:none; border:solid 1px #CCC; background:#fff; position: absolute;">
-	<ul id="facultyTree1" class="ztree" style="margin-top:0; width:240px;"></ul>
-</div>

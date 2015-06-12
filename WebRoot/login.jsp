@@ -53,6 +53,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
    		var password = document.getElementById("password").value;
    		send('<%=path%>/servlet/LoginServlet?username=' + username + '&password=' + password);
     }
+    document.onkeydown = function() {
+    	if(window.event.keyCode=='13') login();
+    }
 </script>
 	
 </head>
@@ -73,7 +76,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
         </ul>
       </div>
     </form>
-    <div class="button">
+    <div class="buttonActive">
       <input type="image" name="submit" src="<%=path %>/images/loginbuttonbg.png" onclick="login();" />
     </div>
     <span class="error" id="msg"></span>

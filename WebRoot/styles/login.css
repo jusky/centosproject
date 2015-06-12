@@ -120,7 +120,7 @@ textarea, input {
 	*margin-top:-2px;
 	float: left;
 }
-.content .button {
+.content .buttonActive {
 	float:left;
 	padding-left: 107px;
 	padding-top: 40px;
@@ -136,7 +136,7 @@ textarea, input {
     top:370px;
     left:750px	
 }
-.login .button p {
+.login .buttonActive p {
 	color: #f00;
 	top:110px;
 	left:120px;

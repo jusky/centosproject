@@ -105,6 +105,21 @@ var alertMsg = {
 			{name:op.cancelName, call: op.cancelCall, keyCode:DWZ.keyCode.ESC}
 		];
 		this._open(this._types.confirm, msg, buttons);
+	},
+	/**
+	*
+	* @param {Object} msg
+	* @param {Object} options {okName1, okCal, cancelName, cancelCall}
+	*/
+	biconfirm: function(msg, options) {
+		var op = {okName1:$.regional.alertMsg.butMsg.ok, okCall1:null, okName2:"", okCall2:null, cancelName:$.regional.alertMsg.butMsg.cancel, cancelCall:null};
+		$.extend(op, options);
+		var buttons = [
+		{name:op.okName1, call: op.okCall1},
+		{name:op.okName2, call: op.okCall2},
+		{name:op.cancelName, call: op.cancelCall, keyCode:DWZ.keyCode.ESC}
+		];
+		this._open(this._types.confirm, msg, buttons);
 	}
 };
 

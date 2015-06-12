@@ -43,19 +43,30 @@
 	       		}
 	     	}
 	   }
-	function checkIdentity()
-	{
-		if(window.confirm('该实名举报者的身份是否真实？')){
-	        send('<%=path%>/servlet/CheckIdentityServlet?type=real');
-	     }else{
-	        send('<%=path%>/servlet/CheckIdentityServlet?type=noreal');
-	    }
+	function checkIdentity() {
+		var url = "<%=path%>/eventManageAction.do?method=detail&id=" + "<%=(String)request.getSession().getAttribute("reportID")%>";
+		alertMsg.biconfirm("该实名举报者的身份是否真实？", {
+			okName1: "属实",
+			okCall1: function(){
+				$.post("<%=path%>/servlet/CheckIdentityServlet?type=real", null, ajaxDoneReloadCurrent, "json");
+			},
+			okName2: "不属实",
+			okCall2: function() {
+				$.post("<%=path%>/servlet/CheckIdentityServlet?type=noreal" + id, null, ajaxDoneReloadCurrent, "json");
+			}
+		});
+		
+		var ajaxDoneReloadCurrent = function(data) {
+			if (data.statusCode == DWZ.statusCode.error) {
+				if(data.message) alertMsg.error(data.message);
+			} else if (data.statusCode == DWZ.statusCode.timeout) {
+				alertMsg.error(data.message || DWZ.msg("Session Timeout"));
+			} else {
+				alertMsg.correct(data.message || DWZ.msg("Done"));
+				$.pdialog.reload(url);
+			}
+		}
 	}
-	function confirm(str)   
-	 {   
-	     execScript("n = (msgbox('"+str+"',vbYesNo,'核实身份')=vbYes)","vbscript");   
-	     return(n);   
-	 } 
 	 //向举报者发送邮件
 	 function sendMail()
 	 {
@@ -122,7 +133,7 @@
 							<dd>
 								<input readonly type="text" size="20" value='${EventBean.reportName}' style="color:#ff0000;"/>
 								<logic:equal value="0" name="EventBean" property="isNI">
-									<div class="button"><div class="buttonContent"><button onclick="javascript:checkIdentity()">核实身份</button></div></div>
+									<div class="button"><div class="buttonContent"><button onclick="javascript:checkIdentity();">核实身份</button></div></div>
 								</logic:equal>
 								<logic:equal value="2" name="EventBean" property="isNI">
 									<font color="#ff0000">身份已核实</font>
@@ -138,8 +149,10 @@
 							<dd>
 								<input readonly type="text" size="30" value='${EventBean.mailAddress}'/>
 								<logic:notEqual value="" name="EventBean" property="mailAddress">
+								<logic:notEqual value="无" name="EventBean" property="mailAddress">
 									<a id="sendEmailID" href="<%=path%>/newMailAction.do?method=init&address=${EventBean.mailAddress}" target="navTab" rel="newEmail" style="display:none;">发送邮件</a>
 									<a href="#" onclick="javascript:sendMail()"><font color="blue">发送邮件</font></a>
+								</logic:notEqual>
 								</logic:notEqual>
 							</dd>
 						</dl>
@@ -238,29 +251,17 @@
 				<li><div class="button"><div class="buttonContent"><button type="button" class="close">关闭</button></div></div></li>
 			</ul>
 		</div>
+	
+	</div>
+	<div></div>
+	<div></div>
+	<div></div>
+	<div></div>
+	<div></div>
+	<div></div>
+	<div></div>
+	<div></div>	
 			
-			</div>
-			<div>
-			
-			</div>
-			<div>
-			
-			</div>
-			<div>
-			
-			</div>
-			<div>
-			
-			</div>
-			<div>
-			
-			</div>
-			<div>
-			
-			</div>
-			<div>
-			
-			</div>
 		</div>
 
 		<div class="tabsFooter">

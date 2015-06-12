@@ -470,8 +470,8 @@ public class WsjbManageAction extends DispatchAction {
 			titleList.add("编号");
 			titleList.add("举报人姓名");
 			titleList.add("被举报人姓名");
-			titleList.add("举报事由");
 			titleList.add("举报时间");
+			titleList.add("举报事由");
 			titleList.add("状态");
 			et.createEventSheet(result, os, sheetName, 1, titleList);
 			rs.close();

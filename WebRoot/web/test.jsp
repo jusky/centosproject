@@ -49,8 +49,8 @@
 	            treeNodes = data;   //把后台封装好的简单Json格式赋给treeNodes
 	        }
 	    });
-	    $.fn.zTree.init($("#treeDemo"), setting, treeNodes);
-	    zTree = $.fn.zTree.getZTreeObj("treeDemo");
+	    $.fn.zTree.init($("#testTree"), setting, treeNodes);
+	    zTree = $.fn.zTree.getZTreeObj("testTree");
 	    count();
 	    document.getElementById("moduleIds").value = selectIds;
 	});
@@ -67,7 +67,7 @@
 		<input type="hidden" id="moduleIds" name="moduleIds" value=""/>
 		<div class="pageFormContent" layoutH="57">
 			<div layoutH="70" style="display:block; overflow:auto; width:98%; border:solid 1px #CCC; line-height:21px; background:#fff">
-				    <ul id="treeDemo" class="ztree"></ul>
+				    <ul id="testTree" class="ztree"></ul>
 			</div>
 		</div>
 		<div class="formBar">

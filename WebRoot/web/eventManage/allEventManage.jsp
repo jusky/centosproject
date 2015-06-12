@@ -159,7 +159,7 @@ function showAllDiv(aID)
 			<td>
 				<bean:write name="EventBean" property="officer"/>
 				&nbsp;&nbsp;
-				<a class="btnEdit" href='<%=path%>/dispatchEventAction.do?method=init&serialNum=${EventBean.serialNum}' clss="link edit" mask="true" target="dialog" rel="dispatchEvent" width="550" height="450" title="指派查办人员"></a>
+				<a class="btnEdit" href='<%=path%>/dispatchEventAction.do?method=init&reportID=${EventBean.reportID}' class="link edit" mask="true" target="dialog" rel="dispatchEvent" width="550" height="450" title="指派查办人员"></a>
 			</td>
 		</logic:equal>
 		<td align="center" >

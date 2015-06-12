@@ -66,7 +66,7 @@ public class NewEventAction extends DispatchAction {
 		boolean result = false;
 		
 		try {
-			String isNi = request.getParameter("niming");
+			String isNi = request.getParameter("choose");
 			if(isNi == null)//如果为null，说明没有勾选，不是匿名
 			{
 				isNi = "0";

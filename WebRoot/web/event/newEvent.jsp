@@ -158,10 +158,9 @@ function showreason()
 					<dt>举报人姓名：</dt>
 					<dd>
 						<input id="jbName" name="reportName" minlength="2" maxlength="15" class="required" type="text" size="20" value=""/>
-						<input type="radio" name="choose" value="1" checked onclick="setRealName(this)"/>实名举报
+						<input type="radio" name="choose" value="0" checked onclick="setRealName(this)"/>实名举报
 						<input type="radio" id="nimingID" name="choose" value="1" onclick="setName(this);"/>匿名举报
 						<input type="radio" name="choose" value="1" onclick="setSimilar(this);"/>高相似度
-						<input type="radio" name="choose" value="1" onclick="setFaculty(this);"/>科学部转
 					</dd>
 				</dl>
 				<dl class="nowrap">
@@ -220,7 +219,7 @@ function showreason()
 			</div>
 
 			<div class="panel">
-				<h1>被举报人信息（注意：标有<font color="#ff0000">*</font>的必须填写，最多输入5个被举报人）</h1>
+				<h1>被举报人信息（注意：标有<font color="#ff0000">*</font>的必须填写，只接受前五个被举报人）</h1>
 				<div style="background:#ffffff;">
 					<table class="list nowrap itemDetail" addButton="新建被举报人" width="100%">
 						<thead>
@@ -229,10 +228,17 @@ function showreason()
 								<th align="center" type="text" name="items.position[#index#]" size="25">职称</th>
 								<th align="center" type="text" name="items.phone[#index#]" size="20" fieldClass="digits">联系方式</th>
 								<th align="center" type="text" name="items.dept[#index#]" fieldClass="required"  size="60">所属单位</th>
-								<th align="center" type="del" width="30">操作</th>
+								<th align="center" type="del" width="30">删除</th>
 							</tr>
 						</thead>
 						<tbody>
+							<tr class="unitBox">
+    							<td><input type="text" name="items.name[0]" value size="15" class="required textInput"></td>
+    							<td><input type="text" name="items.position[0]" value size="25" class="textInput"></td>
+    							<td><input type="text" name="items.phone[0]" value size="20" class="digits textInput"></td>
+    							<td><input type="text" name="items.dept[0]" value size="60" class="required textInput"></td>
+    							<td></td>
+							</tr>
 						</tbody>
 					</table>
 				</div>

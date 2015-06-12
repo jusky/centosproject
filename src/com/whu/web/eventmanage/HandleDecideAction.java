@@ -213,7 +213,7 @@ public class HandleDecideAction extends DispatchAction {
 		String conference = hd.getConference();
 		if(conference != null && !conference.equals(""))
 		{
-			String conferenceTime = dbTools.querySingleDate("TB_CONFERENCE", "TIME", "MEETNAME", conference);
+			String conferenceTime = dbTools.querySingleData("TB_CONFERENCE", "TIME", "MEETNAME", conference);
 			request.setAttribute("conferenceTime", conferenceTime);
 		}
 		String tempFile = hd.getFilePath();

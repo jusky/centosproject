@@ -19,6 +19,10 @@
 		$.validator.addMethod("postcode", function(value, element) {
 			return this.optional(element) || /^[0-9 A-Za-z]{5,20}$/.test(value);
 		}, "Please specify a valid postcode");
+
+        $.validator.addMethod("password", function(value, element) {
+            return this.optional(element) || /^[a-zA-Z0-9!@#$%^&*-=_+\(\)]{6,20}$/.test(value);
+        }, "Letters, numbers or !@#$%^&*()-=_+ only please")
 		
 		$.validator.addMethod("date", function(value, element) {
 			value = value.replace(/\s+/g, "");
@@ -48,7 +52,8 @@
 			alphanumeric: { alphanumeric: true },
 			lettersonly: { lettersonly: true },
 			phone: { phone: true },
-			postcode: {postcode: true}
+			postcode: {postcode: true},
+            password: {password: true}
 		});
 		$.validator.setDefaults({errorElement:"span"});
 		$.validator.autoCreateRanges = true;

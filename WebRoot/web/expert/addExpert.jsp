@@ -28,7 +28,7 @@
 		}
 	};
 	function onClick(e, treeId, treeNode) {
-		var zTree = $.fn.zTree.getZTreeObj("facultyTree"),
+		var zTree = $.fn.zTree.getZTreeObj("addExpertTree"),
 		nodes = zTree.getSelectedNodes(),
 		v = "";
 		id = "";
@@ -39,7 +39,7 @@
 		}
 		if (v.length > 0 ) v = v.substring(0, v.length-1);
 		if (id.length > 0 ) id = id.substring(0, id.length-1);
-		var cityObj = $("#citySel");
+		var cityObj = $("#addExpertSel");
 		cityObj.attr("value", v);
 		hideMenu();
 	}
@@ -47,8 +47,8 @@
 	function showMenu() {
 		var tempLeft = 405;
 		var tempTop = 357;
-		var cityObj = $("#citySel");
-		var cityOffset = $("#citySel").offset();
+		var cityObj = $("#addExpertSel");
+		var cityOffset = $("#addExpertSel").offset();
 		var leftPX = tempLeft - 263;
 		var topPX = tempTop + cityObj.outerHeight() - 50;
 		$("#menuContent").css({left:leftPX + "px", top:topPX + "px"}).slideDown("fast");
@@ -79,7 +79,7 @@
 	        }
 	    });
 	  
-	    $.fn.zTree.init($("#facultyTree"), setting, treeNodes);
+	    $.fn.zTree.init($("#addExpertTree"), setting, treeNodes);
 	});
 </script> 
 <div class="pageContent">
@@ -137,7 +137,7 @@
 			<dl class="nowrap">
 				<dt>所属学部：</dt>
 				<dd>
-					<input id="citySel" class="required" readonly name="faculty" type="text" size="30" />
+					<input id="addExpertSel" class="required" readonly name="faculty" type="text" size="30" />
 					<a id="menuBtn" class="btnLook" href="#" onclick="showMenu(); return false;">选择</a>
 					<span class="info">选择</span>
 				</dd>
@@ -171,5 +171,5 @@
 	</form>
 </div>
 <div id="menuContent" class="menuContent" style="display:none; border:solid 1px #CCC; background:#fff; position: absolute;">
-	<ul id="facultyTree" class="ztree" style="margin-top:0; width:240px;"></ul>
+	<ul id="addExpertTree" class="ztree" style="margin-top:0; width:240px;"></ul>
 </div>

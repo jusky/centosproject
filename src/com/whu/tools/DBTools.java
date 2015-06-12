@@ -427,7 +427,7 @@ public class DBTools {
 				eb.setSerialNum(rs.getString("SERIALNUM"));
 				
 				// query UserName use LoginName
-				eb.setOfficer(new DBTools().querySingleDate("SYS_USER", "USERNAME", "LOGINNAME", rs.getString("OFFICER")));
+				eb.setOfficer(new DBTools().querySingleData("SYS_USER", "USERNAME", "LOGINNAME", rs.getString("OFFICER")));
 				list.add(eb);
 				count--;
 			}
@@ -1759,7 +1759,7 @@ public class DBTools {
 				punishBean.setRemark(rs.getString("REMARK"));
 			}
 			sql = "select * from SYS_CLJD_RATE where CODE='" + punishBean.getCode() + "'";
-			rs = stmt.executeQuery(sql);
+			rs = pst.executeQuery(sql);
 			while (rs !=null && rs.next()) {
 				punishBean.setYear(rs.getString("YEAR"));
 				punishBean.setRate(rs.getString("RATE"));
@@ -4008,7 +4008,7 @@ public class DBTools {
 	 * @param value 值
 	 * @return
 	 */
-	public String querySingleDate(String tableName, String resultCol, String colName, String value)
+	public String querySingleData(String tableName, String resultCol, String colName, String value)
 	{
 		String result = "";
 		try {

@@ -199,7 +199,7 @@ public class DcbgManageAction extends DispatchAction {
 		DBTools dbTools = new DBTools();
 		String templatePath = "";
 		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
-		String docPath = dbTools.querySingleDate("TB_SURVEYREPORT", "FILENAME", "REPORTID", id);
+		String docPath = dbTools.querySingleData("TB_SURVEYREPORT", "FILENAME", "REPORTID", id);
 		if(docPath != null && !docPath.equals(""))
 		{
 			String tempFilePath = filePath + docPath;

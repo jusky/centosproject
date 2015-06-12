@@ -77,7 +77,7 @@ public class FacultyAdviceAction extends DispatchAction {
 			
 			if(isEdit != null && isEdit.equals("0")) {
 				// insert into surveyReport
-				String dcbgPath = request.getSession().getServletContext().getRealPath("/") + "/attachment/" + dbTools.querySingleDate("TB_SURVEYREPORT", "FILENAME", "REPORTID", reportId);
+				String dcbgPath = request.getSession().getServletContext().getRealPath("/") + "/attachment/" + dbTools.querySingleData("TB_SURVEYREPORT", "FILENAME", "REPORTID", reportId);
 
 				advice = facultyName + "：\r\n\t" +  advice + "\r\n";
 				new POIHWPFHelper().fillBookmark("facultyAdvice", advice, dcbgPath);
@@ -123,12 +123,12 @@ public class FacultyAdviceAction extends DispatchAction {
 		String reportId = request.getParameter("reportId");
 		
 		DBTools dbTools = new DBTools();
-		String facultys = dbTools.querySingleDate("TB_REPORTINFO", "FACULTY", "REPORTID", reportId);
+		String facultys = dbTools.querySingleData("TB_REPORTINFO", "FACULTY", "REPORTID", reportId);
 		String[] facultyArray = facultys.split(",");
 		boolean result = false;
 		
-		String surveyReport = dbTools.querySingleDate("TB_SURVEYREPORT", "FILENAME", "REPORTID", reportId);
-		String isHandled = dbTools.querySingleDate("TB_FACULTYADVICE", "ID", "REPORTID", reportId);
+		String surveyReport = dbTools.querySingleData("TB_SURVEYREPORT", "FILENAME", "REPORTID", reportId);
+		String isHandled = dbTools.querySingleData("TB_FACULTYADVICE", "ID", "REPORTID", reportId);
 		
 		//工作提醒类型
 		String msgType = SystemConstant.MSG_XBYJ;

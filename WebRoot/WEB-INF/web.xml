@@ -150,15 +150,15 @@
 		<filter-class>org.apache.catalina.filters.ExpiresFilter</filter-class>
 		<init-param>
 			<param-name>ExpiresByType image</param-name>
-			<param-value>access plus 1 day</param-value>
+			<param-value>access plus 1 month</param-value>
 		</init-param>
 		<init-param>
 			<param-name>ExpiresByType text/css</param-name>
-			<param-value>access plus 1 day</param-value>
+			<param-value>access plus 10 days</param-value>
 		</init-param>
 		<init-param>
 			<param-name>ExpiresByType application/javascript</param-name>
-			<param-value>access plus 1 day</param-value>
+			<param-value>access plus 10 days</param-value>
 		</init-param>
 	</filter>
 		
@@ -197,9 +197,13 @@
    	<filter-class>com.whu.tools.filter.SecurityWrapper</filter-class>
   		<init-param> <!-- post from pages contain xheditor has html contents insided parameterValue
   						so not validate it, a better solution may encode these values before submit -->
-  		<param-name>xheditor</param-name>
-  		<param-value>/(newMail|bmjjManage|expertAdvice|mailConfig)Action\.do</param-value>
-  	</init-param>
+  			<param-name>xheditor</param-name>
+  			<param-value>/(newMail|bmjjManage|expertAdvice|mailConfig)Action\.do</param-value>
+  		</init-param>
+  		<init-param>
+  			<param-name>gzipUri</param-name>
+  			<param-value>.*\.(html|css|js)$</param-value>
+  		</init-param>
    </filter>
    <filter>
    	<filter-name>RequestRateThrottleFilter</filter-name>

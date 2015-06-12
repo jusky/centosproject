@@ -6,9 +6,6 @@
                 + request.getServerName() + ":" + request.getServerPort()  
                 + path + "/";  
 %> 
-<link href="<%=path%>/ztree/css/zTreeStyle/zTreeStyle.css" rel="stylesheet" type="text/css">
-<script src="<%=path%>/ztree/js/jquery.ztree.core-3.5.js" type="text/javascript"></script>
-<script type="text/javascript" src="<%=path %>/ztree/js/jquery.ztree.excheck-3.5.js"></script>
 <script type="text/javascript">
 	var zTree;
 	var treeNodes;
@@ -51,8 +48,8 @@
 	            treeNodes = data;   //把后台封装好的简单Json格式赋给treeNodes
 	        }
 	    });
-	    $.fn.zTree.init($("#treeDemo"), setting, treeNodes);
-	    zTree = $.fn.zTree.getZTreeObj("treeDemo");
+	    $.fn.zTree.init($("#resAllocationTree"), setting, treeNodes);
+	    zTree = $.fn.zTree.getZTreeObj("resAllocationTree");
 	    count();
 	    document.getElementById("moduleIds").value = selectIds;
 	});
@@ -70,7 +67,7 @@
 		<input type="hidden" id="moduleIds" name="moduleIds" value=""/>
 		<div class="pageFormContent" layoutH="57">
 			<div layoutH="60" style="display:block; overflow:auto; width:98%; border:solid 1px #CCC; line-height:21px; background:#fff">
-				    <ul id="treeDemo" class="ztree"></ul>
+				    <ul id="resAllocationTree" class="ztree"></ul>
 			</div>
 		</div>
 		<div class="formBar">

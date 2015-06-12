@@ -160,7 +160,7 @@ public class AttachManageAction extends DispatchAction {
 		if(ids == null || ids == "")
 		{
 			String id = request.getParameter("id");
-			String path = dbTool.querySingleDate("SYS_ATTACHMENT", "FILEPATH", "ID", id);
+			String path = dbTool.querySingleData("SYS_ATTACHMENT", "FILEPATH", "ID", id);
 			
 			result = dbTool.deleteItemReal(id, "SYS_ATTACHMENT", "ID");
 			

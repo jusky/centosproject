@@ -89,7 +89,7 @@ public class ExpertFKAction extends DispatchAction {
 		
 		DBTools dbTools = new DBTools();
 		boolean result = false;
-		String expertName = dbTools.querySingleDate("TB_EXPERTADVICE", "EXPERTNAME", "ID", adviceID);
+		String expertName = dbTools.querySingleData("TB_EXPERTADVICE", "EXPERTNAME", "ID", adviceID);
 		//上传附件
 		String fileName = "";
 		String attachName = "";

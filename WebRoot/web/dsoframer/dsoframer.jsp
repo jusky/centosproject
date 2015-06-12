@@ -58,8 +58,7 @@ String id = "1";
       -->
       <object classid="clsid:00460182-9E5E-11d5-B7C8-B8269041DD57" codebase="dsoframer.CAB#Version=2.3.0.0" id="oframe" width="100%" height="100%">
 	         <param name="BorderStyle" value="1">
-	         <param name="TitlebarColor" value="52479">
-	         <param name="TitlebarTextColor" value="0">
+	         <param name="TitleBar" value="0">
        </object> 
 	</body>
 </html>

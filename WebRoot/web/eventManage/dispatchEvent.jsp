@@ -56,7 +56,7 @@
 							</td>
 							<td align="center">
 								<a href="#">&nbsp;</a>
-								<a class="btnSelect" href="<%=path%>/dispatchEventAction.do?method=dispatch&officer=${UserBean.id}&serialNum=<%=request.getParameter("serialNum") %>" target="ajaxTodo" title="确定分派给 ${UserBean.userName } 吗">选择</a>
+								<a class="btnSelect" href="<%=path%>/dispatchEventAction.do?method=dispatch&officer=${UserBean.id}&reportID=<%=request.getParameter("reportID") %>" target="ajaxTodo" callback="dialogAjaxDone" title="确定分派给 ${UserBean.userName } 吗">选择</a>
 							</td>
 						</tr>
 					</logic:iterate>

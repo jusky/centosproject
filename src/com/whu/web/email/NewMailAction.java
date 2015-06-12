@@ -124,7 +124,7 @@ public class NewMailAction extends DispatchAction {
 		{
 			json.put("statusCode", 200);
 			json.put("message", "邮件发送成功！");
-			json.put("callbackType", "closeCurrent");
+			//json.put("callbackType", "closeCurrent");
 		}
 		else
 		{

@@ -140,7 +140,7 @@ public class SurveyReportAction extends DispatchAction {
 		String templatePath = "";
 		SurveyReportBean srb = new SurveyReportBean();
 		DBTools dbTools = new DBTools();
-		String filePath = dbTools.querySingleDate("TB_SURVEYREPORT", "FILENAME", "REPORTID", reportID);
+		String filePath = dbTools.querySingleData("TB_SURVEYREPORT", "FILENAME", "REPORTID", reportID);
 		String userName = (String)request.getSession().getAttribute("UserName");
 		if(!filePath.equals(""))
 		{

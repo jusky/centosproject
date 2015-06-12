@@ -88,6 +88,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script src="<%=path%>/dwz/js/dwz.print.js" type="text/javascript"></script>
 
 <script src="<%=path%>/ztree/js/jquery.ztree.core-3.5.js" type="text/javascript"></script>
+<script src="<%=path%>/ztree/js/jquery.ztree.excheck-3.5.min.js" type="text/javascript"></script>
 
 <!--
 <script src="<%=path%>/dwz/bin/dwz.min.js" type="text/javascript"></script>

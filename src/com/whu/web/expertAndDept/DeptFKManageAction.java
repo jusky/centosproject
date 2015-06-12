@@ -68,7 +68,7 @@ public class DeptFKManageAction extends DispatchAction {
 		DBTools dbTools = new DBTools();
 		//String sql = "select a.*,b.TITLE from TB_ED_ADVICE a,TB_DEPTSURVEYLETTER where a.ID=" + id + " and a.ADVICEID=b.DEPTADVICEID";
 		
-		String title = dbTools.querySingleDate("TB_DEPTSURVEYLETTER", "TITLE", "DEPTADVICEID", adviceID);
+		String title = dbTools.querySingleData("TB_DEPTSURVEYLETTER", "TITLE", "DEPTADVICEID", adviceID);
 		request.setAttribute("title", title);
 		
 		String sql = "select a.ADVICE,a.EXPERTADVICE,a.ATTACHNAME,b.LITIGANTNAME,b.LITIGANTTIME,b.LITIGANTCONTENT from TB_DEPTADVICE a, TB_LITIGANTSTATE b where a.ID=b.DEPTADVICEID and a.ID=?";
@@ -92,7 +92,7 @@ public class DeptFKManageAction extends DispatchAction {
 		
 		// if submit, cannot edit separate in deptAdviceFk.jsp
 		String loginName = (String)request.getSession().getAttribute("LoginName");
-		String isSubmit = dbTools.querySingleDate("TB_ED_ADVICE", "ISSUBMIT", "LOGINNAME", loginName);
+		String isSubmit = dbTools.querySingleData("TB_ED_ADVICE", "ISSUBMIT", "LOGINNAME", loginName);
 		request.setAttribute("isSubmit", isSubmit);
 		
 		return mapping.findForward("onlineSubmit");

@@ -477,7 +477,7 @@ public class EventDetailAction extends DispatchAction {
 		String id = (String)request.getSession().getAttribute("reportID");
 		String templatePath = "";
 		
-		String sql = "select * from TB_REPORTINFO where REPORTID=?'";
+		String sql = "select * from TB_REPORTINFO where REPORTID=?";
 		DBTools db = new DBTools();
 		EventBean eb = db.queryEvent(sql, new String[]{id});
 		

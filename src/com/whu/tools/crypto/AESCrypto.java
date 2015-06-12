@@ -127,7 +127,7 @@ public class AESCrypto {
 	public String GetKeyPath()
 	{
 		DBTools dbTools = new DBTools();
-		return dbTools.querySingleDate("SYS_KEYINFO", "LOCALPATH", "ISUSE", "1");
+		return dbTools.querySingleData("SYS_KEYINFO", "LOCALPATH", "ISUSE", "1");
 	}
 	public static void main(String[] args) throws Exception{
 		

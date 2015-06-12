@@ -444,7 +444,7 @@ public class ExpertAdviceAction extends DispatchAction {
 			return null;
 		}
 		DBTools dbTools = new DBTools();
-		String jdhPath = dbTools.querySingleDate("TB_EXPERTFILE", "JDHPATH", "REPORTID", id);
+		String jdhPath = dbTools.querySingleData("TB_EXPERTFILE", "JDHPATH", "REPORTID", id);
 		String templatePath = "";
 		boolean isEdit = true;
 		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
@@ -521,7 +521,7 @@ public class ExpertAdviceAction extends DispatchAction {
 			return null;
 		}
 		DBTools dbTools = new DBTools();
-		String jdyjsPath = dbTools.querySingleDate("TB_EXPERTFILE", "YJSPATH", "REPORTID", id);
+		String jdyjsPath = dbTools.querySingleData("TB_EXPERTFILE", "YJSPATH", "REPORTID", id);
 		String templatePath = "";
 		boolean isEdit = true;
 		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";

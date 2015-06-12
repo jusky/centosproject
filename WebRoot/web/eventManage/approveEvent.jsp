@@ -8,6 +8,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<input type="hidden" name="reportID" value="<%=request.getAttribute("ReportID") %>"/>
 		<div class="pageFormContent" layoutH="56">
 			<fieldset>
+					<legend>举报内容</legend>
+					<dl class="nowrap">
+						<dt>事件简述：</dt>
+						<dd><textarea rows="7" cols="80" readonly><%=request.getAttribute("ReportInfo") %></textarea></dd>
+					</dl>
+			</fieldset>
+			<fieldset>
 					<legend>初步核实意见</legend>
 					<dl class="nowrap">
 						<dt>核实意见：</dt>
@@ -40,7 +47,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<dl class="nowrap">
 						<dt>审核人：</dt>
 						<dd>
-							<input name="approveName" class="required" type="text" size="20" value="<%=(String)request.getSession().getAttribute("UserName") %>"/>
+							<input name="approveName" class="readonly" type="text" size="20" value="<%=(String)request.getSession().getAttribute("UserName") %>"/>
 						</dd>
 					</dl>
 			</fieldset>

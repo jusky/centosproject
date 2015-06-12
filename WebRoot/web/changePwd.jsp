@@ -12,7 +12,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</p>
 			<p>
 				<label>新密码：</label>
-				<input id="pwd" name="newPwd" type="password" size="20" class="required alphanumeric" minlength="6" maxlength="20" alt="字母、数字、下划线 6-20位"/>
+				<input id="pwd" name="newPwd" type="password" size="20" class="required password" alt="字母、数字、!@#$%^&*()_+-= 6-20位"/>
 			</p>
 			<p>
 				<label>确认新密码：</label>

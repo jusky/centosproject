@@ -28,7 +28,7 @@
 		}
 	};
 	function onClick(e, treeId, treeNode) {
-		var zTree = $.fn.zTree.getZTreeObj("facultyTree"),
+		var zTree = $.fn.zTree.getZTreeObj("gjSearchTree"),
 		nodes = zTree.getSelectedNodes(),
 		v = "";
 		id = "";
@@ -78,7 +78,7 @@
 	        }
 	    });
 	  
-	    $.fn.zTree.init($("#facultyTree"), setting, treeNodes);
+	    $.fn.zTree.init($("#gjSearchTree"), setting, treeNodes);
 	});
 </script> 
 <div class="pageContent">
@@ -192,5 +192,5 @@
 	</form>
 </div>
 <div id="menuContent" class="menuContent" style="display:none; border:solid 1px #CCC; background:#fff; position: absolute;">
-	<ul id="facultyTree" class="ztree" style="margin-top:0; width:240px;"></ul>
+	<ul id="gjSearchTree" class="ztree" style="margin-top:0; width:240px;"></ul>
 </div>

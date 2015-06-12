@@ -59,7 +59,7 @@ public class ZzConfigAction extends DispatchAction {
 		DBTools dbTool = new DBTools();	
 		boolean result = false;
 		
-		sql = "select ZZID from SYS_ZZINFO where PZZID=? ' order by ZZID desc limit 1";
+		sql = "select ZZID from SYS_ZZINFO where PZZID=? order by ZZID desc limit 1";
 		String maxZzID = dbTool.queryZZID(sql, new String[]{pzzID});
 
 		if(!maxZzID.equals(""))

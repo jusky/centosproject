@@ -55,8 +55,8 @@
 	            treeNodes = data;   //把后台封装好的简单Json格式赋给treeNodes
 	        }
 	    });
-	    $.fn.zTree.init($("#treeDemo"), setting, treeNodes);
-	    zTree = $.fn.zTree.getZTreeObj("treeDemo");
+	    $.fn.zTree.init($("#dispatchEventTree"), setting, treeNodes);
+	    zTree = $.fn.zTree.getZTreeObj("dispatchEventTree");
 	});
 	function selectOK()
 	{
@@ -91,7 +91,7 @@
 	<form id="form1" method="post" action="">
 		<div>
 			<div style="display:block; overflow:auto; width:98%; border:solid 1px #CCC; line-height:21px; background:#fff">
-				<ul id="treeDemo" class="ztree"></ul>
+				<ul id="dispatchEventTree" class="ztree"></ul>
 				<br/>
 				<input type="button" onclick="selectOK();" value="确定"/>
 				<input type="button" onclick="cancelOK();" value="取消"/>

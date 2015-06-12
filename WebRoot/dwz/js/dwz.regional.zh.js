@@ -24,7 +24,9 @@
 		
 		alphanumeric: "字母、数字、下划线",
 		lettersonly: "必须是字母",
-		phone: "数字、空格、括号"
+		phone: "数字、空格、括号",
+        password: "6-20位字母、数字以及!@#$%^&*()_+-="
+        
 	});
 	
 	// DWZ regional

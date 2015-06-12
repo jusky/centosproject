@@ -114,7 +114,7 @@ function setAnonymity(cb)
 			<td align="center">
 				<bean:write name="EventBean" property="officer"/>
 				&nbsp;&nbsp;
-				<a class="btnEdit" href='<%=path%>/dispatchEventAction.do?method=init&serialNum=${EventBean.serialNum}' clss="link edit" mask="true" target="dialog" rel="dispatchEvent" width="550" height="450" title="指派查办人员">重新指派</a>
+				<a class="btnEdit" href='<%=path%>/dispatchEventAction.do?method=init&reportID=${EventBean.reportID}' clss="link edit" mask="true" target="dialog" rel="dispatchEvent" width="550" height="450" title="指派查办人员">重新指派</a>
 			</td>
 		</logic:equal>
 		<td align="center" >

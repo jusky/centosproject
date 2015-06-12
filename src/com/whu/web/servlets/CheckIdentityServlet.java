@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONObject;
+
 import com.whu.tools.DBTools;
 
 public class CheckIdentityServlet extends HttpServlet {
@@ -50,22 +52,28 @@ public class CheckIdentityServlet extends HttpServlet {
 		if(type.equals("real"))
 		{
 			//如果身份真实，则将ISNI修改为2，表示已经核实过，且身份真实
-			sql = "update TB_REPORTINFO set ISNI = '2' where REPORTID = ?'";
+			sql = "update TB_REPORTINFO set ISNI = '2' where REPORTID = ?";
 			result = dbTools.insertItem(sql, new String[]{reportID});
 		}
 		else if(type.equals("noreal"))//身份虚假，修改为匿名举报
 		{
 			result = dbTools.setNiMing(reportID);
 		}
-		
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
 		if(result)
 		{
-			response.getWriter().write("核实身份成功");
+			json.put("statusCode", 200);
+			json.put("message", "身份核实成功！");
 		}
 		else
 		{
-			response.getWriter().write("核实身份失败");
+			json.put("statusCode", 300);
+			json.put("message", "身份核实失败！");
 		}
+		out.write(json.toString());
+		out.flush();
+		out.close();
 	}
 
 	/**

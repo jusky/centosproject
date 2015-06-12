@@ -129,7 +129,7 @@ public class ConfigInstituteAction extends DispatchAction {
 		String code = request.getParameter("code");
 		DBTools dbTools = new DBTools();
 		String sql = "select substr(TIME, 1, 4) as YEAR, count(*) as COUNT from TB_MISCOUNT where INSTID= '" + code + "' group by INSTID, YEAR order by YEAR desc limit 6";
-		String name = dbTools.querySingleDate("SYS_INST_INFO", "NAME", "CODE", code);
+		String name = dbTools.querySingleData("SYS_INST_INFO", "NAME", "CODE", code);
 		String creditTrend = dbTools.queryInstTrend(sql, new String[]{code}, name);
 		request.setAttribute("creditTrend", creditTrend);
 		

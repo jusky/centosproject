@@ -4,7 +4,6 @@
 String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
-<script type="text/javascript" src="<%=path %>/ztree/js/jquery.ztree.excheck-3.5.js"></script>
 <script type="text/javascript" src="<%=path %>/ztree/js/jquery.ztree.exedit-3.5.js"></script>
 <script type="text/javascript">
 	var zTree, rMenu;
@@ -28,11 +27,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	};
 	
 	function beforeClick(treeId, treeNode, clickFlag) {
-		//alert("beforeClick");
 		return (treeNode.click != false);
 	}
 	function onClick(event, treeId, treeNode, clickFlag) {
-		var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+		var treeObj = $.fn.zTree.getZTreeObj("zzManageTree");
 		var nodes = treeObj.getSelectedNodes();
 		var id = nodes[0].id;
 		if(id != "" && id != null)
@@ -56,8 +54,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	        }
 	    });
 	  
-	    $.fn.zTree.init($("#treeDemo"), setting, treeNodes);
-	    zTree = $.fn.zTree.getZTreeObj("treeDemo");
+	    $.fn.zTree.init($("#zzManageTree"), setting, treeNodes);
+	    zTree = $.fn.zTree.getZTreeObj("zzManageTree");
 	});
 </script>
 <div class="pageContent" style="padding:5px">
@@ -72,7 +70,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<div class="tabsContent">
 			<div>
 				<div layoutH="50" style="float:left; display:block; overflow:auto; width:240px; border:solid 1px #CCC; line-height:21px; background:#fff">
-				    <ul id="treeDemo" class="ztree"></ul>
+				    <ul id="zzManageTree" class="ztree"></ul>
 				</div>
 				
 				<div id="zzBox" class="unitBox" style="margin-left:246px;">

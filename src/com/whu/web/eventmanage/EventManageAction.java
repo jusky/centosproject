@@ -580,7 +580,20 @@ public class EventManageAction extends DispatchAction {
 		String type = request.getParameter("type");
 		DBTools db = new DBTools();
 		String sql = "";
-		if(type.equals("approve"))//如果是审核时间，则查询出初步核实信息
+
+		sql = "select * from TB_REPORTINFO where REPORTID=?";			
+		EventBean eb = db.queryEvent(sql, new String[]{id});
+		String reportInfo = "";
+		String bz = "";
+		if(eb!=null)
+		{
+			bz = eb.getBz();
+			reportInfo = "举报人：" + eb.getReportName() + "\n被举报人：" + eb.getBeReportName() + "\n举报时间：" + eb.getReportTime() + "\n举报事由：" + eb.getReportReason();
+		}
+		request.setAttribute("ReportInfo", reportInfo);
+		request.setAttribute("BZ", bz);
+		
+		if(type.equals("approve"))//如果是审核，则查询出初步核实信息
 		{
 			sql = "select * from TB_CHECKINFO where REPORTID=?";
 			CheckBean cb = db.queryCheckInfo(sql, new String[]{id});
@@ -588,20 +601,8 @@ public class EventManageAction extends DispatchAction {
 			request.setAttribute("CheckName", cb.getCheckName());
 			request.setAttribute("CheckTime", cb.getCheckTime());
 		}
-		else
-		{
-			sql = "select * from TB_REPORTINFO where REPORTID=?";
+		else if(type.equals("check")){
 			
-			EventBean eb = db.queryEvent(sql, new String[]{id});
-			String reportInfo = "";
-			String bz = "";
-			if(eb!=null)
-			{
-				bz = eb.getBz();
-				reportInfo = "举报人：" + eb.getReportName() + "\n被举报人：" + eb.getBeReportName() + "\n举报时间：" + eb.getReportTime() + "\n举报事由：" + eb.getReportReason();
-			}
-			request.setAttribute("ReportInfo", reportInfo);
-			request.setAttribute("BZ", bz);
 		}
 		
 		request.setAttribute("ReportID", id);
@@ -1174,7 +1175,7 @@ public class EventManageAction extends DispatchAction {
 		String reportContent = "";
 		String facultyAdvice = "";
 		
-		String filePath = dbTools.querySingleDate("TB_SURVEYREPORT", "FILENAME", "REPORTID", id);
+		String filePath = dbTools.querySingleData("TB_SURVEYREPORT", "FILENAME", "REPORTID", id);
 		boolean isEdit = false;
 		if(!filePath.equals(""))
 		{
@@ -1207,7 +1208,7 @@ public class EventManageAction extends DispatchAction {
 			beReportName = eb.getBeReportName();
 			reportContent = eb.getReportReason();
 
-			checkInfo = dbTools.querySingleDate("TB_CHECKINFO", "PREADVICE", "REPORTID", id);
+			checkInfo = dbTools.querySingleData("TB_CHECKINFO", "PREADVICE", "REPORTID", id);
 			ArrayList result = new ArrayList();
 			sql = "select * from TB_DEPTADVICE where REPORTID = ? and ISFK=?";
 			result = dbTools.queryDeptAdvice(sql, "1", new String[]{id, "1"});
@@ -1270,7 +1271,7 @@ public class EventManageAction extends DispatchAction {
 		
 		String userName = (String)request.getSession().getAttribute("UserName");
 		
-		String serialNum = dbTools.querySingleDate("TB_REPORTINFO","SERIALNUM", "REPORTID", id);
+		String serialNum = dbTools.querySingleData("TB_REPORTINFO","SERIALNUM", "REPORTID", id);
 		String time = SystemShare.GetNowTime("yyyy-MM-dd");
 		String describe = time + "," + userName + "编辑调查报告";
 		//插入处理过程到数据库中
@@ -1459,7 +1460,7 @@ public class EventManageAction extends DispatchAction {
 		DBTools dbTools = new DBTools();
 		String templatePath = "";
 
-		String filePath = dbTools.querySingleDate("TB_SJYBDINFO", "FILEPATH", "REPORTID", id);
+		String filePath = dbTools.querySingleData("TB_SJYBDINFO", "FILEPATH", "REPORTID", id);
 		boolean isEdit = false;
 		if(filePath != null && !filePath.equals(""))
 		{

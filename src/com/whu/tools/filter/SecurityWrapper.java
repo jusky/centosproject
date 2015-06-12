@@ -31,17 +31,17 @@ import org.owasp.esapi.ESAPI;
 import org.owasp.esapi.Logger;
 import org.owasp.esapi.StringUtilities;
 
-
 /**
  * This filter wraps the incoming request and outgoing response and overrides
  * many methods with safer versions. Many of the safer versions simply validate
  * parts of the request or response for unwanted characters before allowing the
- * call to complete. Some examples of attacks that use these
- * vectors include request splitting, response splitting, and file download
- * injection. Attackers use techniques like CRLF injection and null byte injection
- * to confuse the parsing of requests and responses.
+ * call to complete. Some examples of attacks that use these vectors include
+ * request splitting, response splitting, and file download injection. Attackers
+ * use techniques like CRLF injection and null byte injection to confuse the
+ * parsing of requests and responses.
  * <p/>
  * <b>Example Configuration #1 (Default Configuration allows /WEB-INF):</b>
+ * 
  * <pre>
  * &lt;filter&gt;
  *    &lt;filter-name&gt;SecurityWrapperDefault&lt;/filter-name&gt;
@@ -50,6 +50,7 @@ import org.owasp.esapi.StringUtilities;
  * </pre>
  * <p/>
  * <b>Example Configuration #2 (Allows /servlet)</b>
+ * 
  * <pre>
  * &lt;filter&gt;
  *    &lt;filter-name&gt;SecurityWrapperForServlet&lt;/filter-name&gt;
@@ -60,108 +61,159 @@ import org.owasp.esapi.StringUtilities;
  *    &lt;/init-param&gt;
  * &lt;/filter&gt;
  * </pre>
- *
- * @author  Chris Schmidt (chrisisbeef@gmail.com)
+ * 
+ * @author Chris Schmidt (chrisisbeef@gmail.com)
  */
 public class SecurityWrapper implements Filter {
 
-    private final Logger logger = ESAPI.getLogger("SecurityWrapper");
+	private final Logger logger = ESAPI.getLogger("SecurityWrapper");
 
-    /**
-     * This is the root path of what resources this filter will allow a RequestDispatcher to be dispatched to. This
-     * defaults to WEB-INF as best practice dictates that dispatched requests should be done to resources that are
-     * not browsable and everything behind WEB-INF is protected by the container. However, it is possible and sometimes
-     * required to dispatch requests to places outside of the WEB-INF path (such as to another servlet).
+	/**
+	 * This is the root path of what resources this filter will allow a
+	 * RequestDispatcher to be dispatched to. This defaults to WEB-INF as best
+	 * practice dictates that dispatched requests should be done to resources
+	 * that are not browsable and everything behind WEB-INF is protected by the
+	 * container. However, it is possible and sometimes required to dispatch
+	 * requests to places outside of the WEB-INF path (such as to another
+	 * servlet).
+	 * 
+	 * See <a
+	 * href="http://code.google.com/p/owasp-esapi-java/issues/detail?id=70"
+	 * >http://code.google.com/p/owasp-esapi-java/issues/detail?id=70</a> and <a
+	 * href=
+	 * "https://lists.owasp.org/pipermail/owasp-esapi/2009-December/001672.html"
+	 * >https://lists.owasp.org/pipermail/owasp-esapi/2009-December/001672.html<
+	 * /a> for details.
+	 */
+	private String allowableResourcesRoot = "WEB-INF";
+
+	/*
+	 * request from pages contain xheditor has html contents insided
+	 * parameterValue, so not validate it A better solution may encode these
+	 * values before submit
+	 */
+	private Pattern xheditorUri = null;
+	private Pattern gzipUri = null;
+
+	/**
+	 * 
+	 * @param request
+	 * @param response
+	 * @param chain
+	 * @throws java.io.IOException
+	 * @throws javax.servlet.ServletException
+	 */
+	public void doFilter(ServletRequest request, ServletResponse response,
+			FilterChain chain) throws IOException, ServletException {
+		if (!(request instanceof HttpServletRequest)) {
+			chain.doFilter(request, response);
+			return;
+		}
+
+		try {
+			HttpServletRequest hrequest = (HttpServletRequest) request;
+			HttpServletResponse hresponse = (HttpServletResponse) response;
+
+			SecurityWrapperRequest secureRequest = new SecurityWrapperRequest(
+					hrequest);
+			SecurityWrapperResponse secureResponse = new SecurityWrapperResponse(
+					hresponse);
+			// Set the configuration on the wrapped request
+			secureRequest.setAllowableContentRoot(allowableResourcesRoot);
+
+			// pass uri from pages containes xheditor without validation
+			// ParameterValue
+			if (xheditor(hrequest.getRequestURI().substring(
+					hrequest.getContextPath().length()))) {
+				secureRequest = new SecurityWrapperRequest(hrequest) {
+					public String[] getParameterValues(String name) {
+						return ((HttpServletRequest) super.getRequest())
+								.getParameterValues(name);
+					}
+				};
+			}
+
+			if (gzipOn(hrequest.getRequestURI())
+					&& acceptsGZipEncoding(hrequest)) {
+				GZipServletResponseWrapper gzipResponse = new GZipServletResponseWrapper(
+						hresponse);
+				ESAPI.httpUtilities().setCurrentHTTP(secureRequest,
+						gzipResponse);
+				chain.doFilter(ESAPI.currentRequest(), ESAPI.currentResponse());
+				gzipResponse.finish();
+			} else {
+				ESAPI.httpUtilities().setCurrentHTTP(secureRequest,
+						secureResponse);
+				chain.doFilter(ESAPI.currentRequest(), ESAPI.currentResponse());
+			}
+
+		} catch (Exception e) {
+			logger.error(Logger.SECURITY_FAILURE, "Error in SecurityWrapper: "
+					+ e.getMessage(), e);
+			request.setAttribute("message", e.getMessage());
+		} finally {
+			// VERY IMPORTANT
+			// clear out the ThreadLocal variables in the authenticator
+			// some containers could possibly reuse this thread without clearing
+			// the User
+			// Issue 70 -
+			// http://code.google.com/p/owasp-esapi-java/issues/detail?id=70
+			ESAPI.httpUtilities().clearCurrent();
+		}
+	}
+
+	/**
      *
-     * See <a href="http://code.google.com/p/owasp-esapi-java/issues/detail?id=70">http://code.google.com/p/owasp-esapi-java/issues/detail?id=70</a>
-     * and <a href="https://lists.owasp.org/pipermail/owasp-esapi/2009-December/001672.html">https://lists.owasp.org/pipermail/owasp-esapi/2009-December/001672.html</a>
-     * for details.
      */
-    private String allowableResourcesRoot = "WEB-INF";
-
-    /*
-     *   request from pages contain xheditor has html contents insided parameterValue, so not validate it
-     *    A better solution may encode these values before submit
-     */
-    private Pattern xheditorUri = null;
-    
-    /**
-     *
-     * @param request
-     * @param response
-     * @param chain
-     * @throws java.io.IOException
-     * @throws javax.servlet.ServletException
-     */
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if (!(request instanceof HttpServletRequest)) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        try {
-            HttpServletRequest hrequest = (HttpServletRequest)request;
-            HttpServletResponse hresponse = (HttpServletResponse)response;
-
-            SecurityWrapperRequest secureRequest = new SecurityWrapperRequest(hrequest);
-            SecurityWrapperResponse secureResponse = new SecurityWrapperResponse(hresponse);
-
-            //pass uri from pages containes xheditor without validation ParameterValue
- 	         if (xheditor(hrequest.getRequestURI().substring(hrequest.getContextPath().length()))) {
- 	            	secureRequest = new SecurityWrapperRequest(hrequest) {
- 	            		 public String[] getParameterValues(String name) {
- 	            			 return ((HttpServletRequest)super.getRequest()).getParameterValues(name);
- 	            		 	}
- 	            		};
- 	            }          
-            
-            // Set the configuration on the wrapped request
-            secureRequest.setAllowableContentRoot(allowableResourcesRoot);
-
-            ESAPI.httpUtilities().setCurrentHTTP(secureRequest, secureResponse);
-
-            chain.doFilter(ESAPI.currentRequest(), ESAPI.currentResponse());
-        } catch (Exception e) {
-            logger.error( Logger.SECURITY_FAILURE, "Error in SecurityWrapper: " + e.getMessage(), e );
-            request.setAttribute("message", e.getMessage() );
-        } finally {
-            // VERY IMPORTANT
-            // clear out the ThreadLocal variables in the authenticator
-            // some containers could possibly reuse this thread without clearing the User
-            // Issue 70 - http://code.google.com/p/owasp-esapi-java/issues/detail?id=70
-            ESAPI.httpUtilities().clearCurrent();
-        }
-    }
-
-    /**
-     *
-     */
-    public void destroy() {
+	public void destroy() {
 		// no special action
 	}
 
-    /**
-     *
-     * @param filterConfig
-     * @throws javax.servlet.ServletException
-     */
-    public void init(FilterConfig filterConfig) throws ServletException {
-		this.allowableResourcesRoot = StringUtilities.replaceNull( filterConfig.getInitParameter( "allowableResourcesRoot" ), allowableResourcesRoot );
+	/**
+	 * 
+	 * @param filterConfig
+	 * @throws javax.servlet.ServletException
+	 */
+	public void init(FilterConfig filterConfig) throws ServletException {
+		this.allowableResourcesRoot = StringUtilities.replaceNull(
+				filterConfig.getInitParameter("allowableResourcesRoot"),
+				allowableResourcesRoot);
 		setXheditorUri(filterConfig.getInitParameter("xheditor"));
-    }
-	
-    private boolean xheditor(String uri) {
-    	if (xheditorUri != null && xheditorUri.matcher(uri).matches()) {
-    		return true;
-    	}
-    	return false;
-    }
-    
-    private void setXheditorUri(String uri) {
-    	if (uri == null || uri.length() == 0) {
-    		xheditorUri = null;
-    	} else {
-    		xheditorUri = Pattern.compile(uri);
-    	}
-    }
+		setGzipUri(filterConfig.getInitParameter("gzipUri"));
+	}
+
+	private boolean xheditor(String uri) {
+		if (xheditorUri != null && xheditorUri.matcher(uri).matches()) {
+			return true;
+		}
+		return false;
+	}
+
+	private void setXheditorUri(String uri) {
+		if (uri == null || uri.length() == 0) {
+			xheditorUri = null;
+		} else {
+			xheditorUri = Pattern.compile(uri);
+		}
+	}
+
+	private boolean gzipOn(String uri) {
+		if (gzipUri != null && gzipUri.matcher(uri).matches()) {
+			return true;
+		}
+		return false;
+	}
+
+	private void setGzipUri(String uri) {
+		if (uri == null || uri.length() == 0) {
+			gzipUri = null;
+		} else {
+			gzipUri = Pattern.compile(uri);
+		}
+	}
+
+	private boolean acceptsGZipEncoding(HttpServletRequest httpRequest) {
+		String acceptEncoding = httpRequest.getHeader("Accept-Encoding");
+		return acceptEncoding != null && acceptEncoding.indexOf("gzip") != -1;
+	}
 }

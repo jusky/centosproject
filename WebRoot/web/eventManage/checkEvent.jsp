@@ -3,8 +3,6 @@
 String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
-<script type="text/javascript" src="<%=path %>/ztree/js/jquery.ztree.core-3.5.min.js"></script>
-<script type="text/javascript" src="<%=path %>/ztree/js/jquery.ztree.excheck-3.5.js"></script>
 <script type="text/javascript">
 	var zTree, rMenu;
 	var treeNodes;
@@ -29,7 +27,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	};
 	function onCheck()
 	{
-		zTree = $.fn.zTree.getZTreeObj("facultyTree");
+		zTree = $.fn.zTree.getZTreeObj("checkEventTree");
 		var selectIds = "";
 		var nodes = zTree.getCheckedNodes(true);
 		for (var i = 0; i < nodes.length; i++) {
@@ -42,7 +40,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		document.getElementById("facultyID").value = selectIds;
 	}
 	function onClick(e, treeId, treeNode) {
-		var zTree = $.fn.zTree.getZTreeObj("facultyTree"),
+		var zTree = $.fn.zTree.getZTreeObj("checkEventTree"),
 		nodes = zTree.getSelectedNodes(),
 		v = "";
 		id = "";
@@ -98,7 +96,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	        }
 	    });
 	  
-	    $.fn.zTree.init($("#facultyTree"), setting, treeNodes);
+	    $.fn.zTree.init($("#checkEventTree"), setting, treeNodes);
 	});
 </script> 
 <div class="pageContent">
@@ -154,5 +152,5 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	</form>
 </div>
 <div id="menuContent" class="menuContent" style="display:none; border:solid 1px #CCC; background:#fff; position: absolute;">
-	<ul id="facultyTree" class="ztree" style="margin-top:0; width:240px;"></ul>
+	<ul id="checkEventTree" class="ztree" style="margin-top:0; width:240px;"></ul>
 </div>

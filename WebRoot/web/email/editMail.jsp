@@ -28,7 +28,7 @@
 			</p>
 			<p>
 				<label>邮箱密码：</label>
-				<input id="w_validation_pwd" type="password" name="mailBoxPwd" value='${EmailBean.mailBoxPwd}' class="required alphanumeric" minlength="6" maxlength="20" alt="字母、数字、下划线 6-20位"/>
+				<input id="w_validation_pwd" type="password" name="mailBoxPwd" value='${EmailBean.mailBoxPwd}' class="required password" alt="字母、数字、!@#$%^&*()_+-= 6-20位"/>
 			</p>
 			<p>
 				<label>smtp主机：</label>

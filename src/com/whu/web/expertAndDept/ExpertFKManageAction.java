@@ -176,7 +176,7 @@ public class ExpertFKManageAction extends DispatchAction {
 		
 		// if submit, cannot edit separate in expertAdviceFk.jsp
 		String loginName = (String)request.getSession().getAttribute("LoginName");
-		String isSubmit = dbTools.querySingleDate("TB_ED_ADVICE", "ISSUBMIT", "LOGINNAME", loginName);
+		String isSubmit = dbTools.querySingleData("TB_ED_ADVICE", "ISSUBMIT", "LOGINNAME", loginName);
 		request.setAttribute("isSubmit", isSubmit);
 		
 		return mapping.findForward("onlineSubmit");

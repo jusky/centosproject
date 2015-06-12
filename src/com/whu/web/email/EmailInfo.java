@@ -50,30 +50,30 @@ public class EmailInfo {
 		return recvName;
 	}
 	public void setRecvName(String recvName) {
-		this.recvName = recvName;
+		this.recvName = recvName == null ? "" : recvName;
 	}
 	public String getCsName() {
 		return csName;
 	}
 	public void setCsName(String csName) {
-		this.csName = csName;
+		this.csName = csName == null ? "" : csName;
 	}
 	public String getAccessory() {
 		return accessory;
 	}
 	public void setAccessory(String accessory) {
-		this.accessory = accessory;
+		this.accessory = accessory == null ? "" : accessory;
 	}
 	public String getTitle() {
 		return title;
 	}
 	public void setTitle(String title) {
-		this.title = title;
+		this.title = title == null ? "" : title;
 	}
 	public String getContent() {
 		return content;
 	}
 	public void setContent(String content) {
-		this.content = content;
+		this.content = content == null ? "" : content;
 	}
 }

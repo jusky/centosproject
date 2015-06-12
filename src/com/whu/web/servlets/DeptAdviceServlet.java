@@ -64,7 +64,7 @@ public class DeptAdviceServlet extends HttpServlet {
 			if(!serialNum.equals(""))
 			{
 				DBTools dbTools = new DBTools();
-				String result = dbTools.querySingleDate("TB_DEPTADVICE", "ISFK", "SERIALNUM", serialNum);
+				String result = dbTools.querySingleData("TB_DEPTADVICE", "ISFK", "SERIALNUM", serialNum);
 				if(result.equals("1"))//已经反馈过，不能再次反馈
 				{
 					response.getWriter().write("已反馈");

@@ -54,7 +54,7 @@ public class FacultyFKAction extends DispatchAction {
 		DBTools db = new DBTools();
 		
 		String loginName = (String)request.getSession().getAttribute("LoginName");
-		String facultyId = db.querySingleDate("SYS_USER", "ZZID", "LOGINNAME", loginName);
+		String facultyId = db.querySingleData("SYS_USER", "ZZID", "LOGINNAME", loginName);
 		String sql = "select a.*, b.SERIALNUM,b.REPORTNAME,b.BEREPORTNAME,b.REPORTREASON, c.FILENAME from TB_FACULTYADVICE a, TB_REPORTINFO b, TB_SURVEYREPORT c where a.FACULTYID=? and a.REPORTID=b.REPORTID and a.REPORTID=c.REPORTID order by ISFK asc, FKTIME asc";
 		String[] params = new String[]{facultyId};
 		
@@ -107,7 +107,7 @@ public class FacultyFKAction extends DispatchAction {
 		
 		DBTools db = new DBTools();
 		String loginName = (String)request.getSession().getAttribute("LoginName");
-		String facultyId = db.querySingleDate("SYS_USER", "ZZID", "LOGINNAME", loginName);
+		String facultyId = db.querySingleData("SYS_USER", "ZZID", "LOGINNAME", loginName);
 		
 		CheckPage pageBean = new CheckPage();
 		int queryPageNo = 1;// 
@@ -292,12 +292,12 @@ public class FacultyFKAction extends DispatchAction {
 		
 		if (result) {
 
-			String reportId = db.querySingleDate("TB_FACULTYADVICE", "REPORTID", "ID", id);
+			String reportId = db.querySingleData("TB_FACULTYADVICE", "REPORTID", "ID", id);
 			String LoginName = (String)request.getSession().getAttribute("LoginName");
 			sql = "select ZZNAME from SYS_USER a, SYS_ZZINFO b where a.LOGINNAME=? and a.ZZID=b.ZZID";
 			String ZZNAME = db.queryZZName(sql, new String[]{LoginName});
 			// insert facultyAdvice to survey Report doc
-			String dcbgPath = dirPath + "/attachment/" + db.querySingleDate("TB_SURVEYREPORT", "FILENAME", "REPORTID", reportId);
+			String dcbgPath = dirPath + "/attachment/" + db.querySingleData("TB_SURVEYREPORT", "FILENAME", "REPORTID", reportId);
 
 			advice = ZZNAME + "：\r\n\t" +  advice + "\r\n";
 			new POIHWPFHelper().fillBookmark("facultyAdvice", advice, dcbgPath);

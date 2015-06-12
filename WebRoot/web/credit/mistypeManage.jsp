@@ -4,7 +4,6 @@
 String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
-<script type="text/javascript" src="<%=path %>/ztree/js/jquery.ztree.excheck-3.5.js"></script>
 <script type="text/javascript" src="<%=path %>/ztree/js/jquery.ztree.exedit-3.5.js"></script>
 <script type="text/javascript">
 	var zTree, rMenu;

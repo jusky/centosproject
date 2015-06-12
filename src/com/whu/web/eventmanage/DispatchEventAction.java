@@ -133,26 +133,27 @@ public class DispatchEventAction extends DispatchAction {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 
-		String serialNum = request.getParameter("serialNum");
+		String reportID = request.getParameter("reportID");
 		String userId = request.getParameter("officer");
 		
 		DBTools dbTool = new DBTools();
 		// get officer before and now associated to this serialNum;
-		String oldOfficerName = dbTool.querySingleDate("SYS_USER", "USERNAME", "LOGINNAME", dbTool.querySingleDate("TB_REPORTINFO", "OFFICER", "SERIALNUM", serialNum));
-		String newOfficerName = dbTool.querySingleDate("SYS_USER", "USERNAME", "ID", userId);
-		String newOfficer = dbTool.querySingleDate("SYS_USER", "LOGINNAME", "ID", userId);
+		String oldOfficerName = dbTool.querySingleData("SYS_USER", "USERNAME", "LOGINNAME", dbTool.querySingleData("TB_REPORTINFO", "OFFICER", "REPORTID", reportID));
+		String newOfficerName = dbTool.querySingleData("SYS_USER", "USERNAME", "ID", userId);
+		String newOfficer = dbTool.querySingleData("SYS_USER", "LOGINNAME", "ID", userId);
 		// get status, if like 4% prevent dispatch
-		String status = dbTool.querySingleDate("TB_REPORTINFO", "STATUS", "SERIALNUM", serialNum);
+		String status = dbTool.querySingleData("TB_REPORTINFO", "STATUS", "REPORTID", reportID);
+		String serialNum = dbTool.querySingleData("TB_REPORTINFO", "SERIALNUM", "REPORTID", reportID);
 				
 		boolean result = true;
 		if (status.charAt(0) == '4') {
 			result = false;
 		}
 		
-		String sql = "update TB_REPORTINFO set OFFICER=? where SERIALNUM=?";
+		String sql = "update TB_REPORTINFO set OFFICER=? where REPORTID=?";
 		
 		if (result) {
-			result = dbTool.insertItem(sql, new String[]{newOfficer, serialNum});
+			result = dbTool.insertItem(sql, new String[]{newOfficer, reportID});
 		}
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();

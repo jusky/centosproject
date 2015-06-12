@@ -120,7 +120,7 @@ public class TjManageAction extends DispatchAction {
 		else if(type.equals("2"))//受理与立案数统计
 		{
 			String year = tjManageForm.getTjYear();
-			if(year.equals(""))
+			if(year != null && year.equals(""))
 			{
 				Calendar cal = Calendar.getInstance();
 				year = String.valueOf(cal.get(Calendar.YEAR));

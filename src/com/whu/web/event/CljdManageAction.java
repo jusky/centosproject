@@ -233,13 +233,13 @@ public class CljdManageAction extends DispatchAction {
 		String conference = hd.getConference();
 		if(conference != null && !conference.equals(""))
 		{
-			String conferenceTime = dbTools.querySingleDate("TB_CONFERENCE", "TIME", "MEETNAME", conference);
+			String conferenceTime = dbTools.querySingleData("TB_CONFERENCE", "TIME", "MEETNAME", conference);
 			request.setAttribute("conferenceTime", conferenceTime);
 		}
 		
 		String templatePath = "";
 		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
-		String docPath = dbTools.querySingleDate("TB_HANDLEDECIDE", "FILEPATH", "ID", id);
+		String docPath = dbTools.querySingleData("TB_HANDLEDECIDE", "FILEPATH", "ID", id);
 		if(docPath != null && !docPath.equals(""))
 		{
 			String tempFilePath = filePath + docPath;
