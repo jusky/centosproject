@@ -32,7 +32,7 @@ public class Test {
 			String temp = sql.substring(0, sql.indexOf("order"));
 			System.out.println(temp);
 			*/
-			System.out.println(Pattern.compile("^[a-zA-Z0-9.,\\u2000-\\u206f\\u3000-\\u303f\\ufe50-\\ufe6f\\uff00-\\uffef\\u4e00-\\u9fa5\\[\\]\\-\\/+=@_ ]*$").matcher("）").matches());
+			System.out.println(Pattern.compile("^[a-zA-Z0-9\\[\\]\\u4e00-\\u9fa5.\\-\\/_]*$").matcher("").matches());
 			String num = "002 where 003 where 004";
 			String temp = num.substring(num.indexOf("where"), num.length());
 			System.out.println(temp);

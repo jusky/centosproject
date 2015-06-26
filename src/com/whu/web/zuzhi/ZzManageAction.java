@@ -128,6 +128,7 @@ public class ZzManageAction extends DispatchAction {
 
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
+		DBTools db = new DBTools();
 		String[] params = new String[0];
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
@@ -139,12 +140,8 @@ public class ZzManageAction extends DispatchAction {
 			//点击树形菜单，根据选中的编号查询
 			if(id!=null && !id.equals(""))
 			{
-				char lastChar = id.charAt(id.length()-1);
-				if(lastChar == '0')//顶级单位，可能有下级单位
+				if(db.querySingleData("SYS_ZZINFO", "ISJC", "ZZID", id).equals("1"))//顶级单位，可能有下级单位
 				{
-					//int firstChar = Integer.valueOf( String.valueOf(id.charAt(0)));
-					//String nextStr = String.valueOf(++firstChar) + id.substring(1, id.length() - 1) ;
-					//temp += " and a.ZZID>='" + id + "' and a.ZZID<='" + nextStr + "'";
 					temp += " and a.PZZID=?";
 				}
 				else
@@ -168,15 +165,14 @@ public class ZzManageAction extends DispatchAction {
 		}
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryZZSql");
-			params = (String[])request.getSession().getAttribute("qeuryZZParams");
-			if (request.getParameter("page.currentPage") != null && request.getParameter("page.currentPage") != "") {
-				queryPageNo = Integer.parseInt(request.getParameter("page.currentPage"));
+			params = (String[])request.getSession().getAttribute("queryZZParams");
+			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
+				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
 			}
 		}
 		pageBean.setQuerySql(sql);
 		pageBean.setParams(params);
 		pageBean.setQueryPageNo(queryPageNo);
-		DBTools db = new DBTools();
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
 		ArrayList result = db.queryZZList(rs, rowsPerPage);
 		if(result.size() > 0)

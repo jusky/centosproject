@@ -44,7 +44,6 @@
 	     	}
 	   }
 	function checkIdentity() {
-		var url = "<%=path%>/eventManageAction.do?method=detail&id=" + "<%=(String)request.getSession().getAttribute("reportID")%>";
 		alertMsg.biconfirm("该实名举报者的身份是否真实？", {
 			okName1: "属实",
 			okCall1: function(){
@@ -63,7 +62,7 @@
 				alertMsg.error(data.message || DWZ.msg("Session Timeout"));
 			} else {
 				alertMsg.correct(data.message || DWZ.msg("Done"));
-				$.pdialog.reload(url);
+				$.pdialog.reload($.pdialog.getCurrent().data("url"));
 			}
 		}
 	}

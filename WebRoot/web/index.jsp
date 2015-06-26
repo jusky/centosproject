@@ -620,6 +620,6 @@ $(function(){
 	</div>
 	</div>
 
-	<div id="footer">Copyright &copy; 2013 <a href="">国家自然科学基金委员会监督委员会</a></div>
+	<div id="footer">Copyright &copy; 2013 <a href="/NSFCOSC/index.html" target="_blank">国家自然科学基金委员会监督委员会</a></div>
 </body>
 </html>

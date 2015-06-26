@@ -37,7 +37,7 @@ function addAdvice()
 	<div class="pageContent" style="border-left:1px #B8D0D6 solid;border-right:1px #B8D0D6 solid">
 		<div class="panelBar">
 			<ul class="toolBar">
-				<li><a class="add" mask="true" href="<%=path %>/facultyAdviceAction.do?method=handleUpFaculty&reportId=<%=request.getAttribute("reportId")%>" target="ajaxTodo" title="提交给学部?"><span>提交学部</span></a></li>
+				<li><a class="add" mask="true" href="<%=path %>/facultyAdviceAction.do?method=handleUpFaculty&reportId=<%=request.getAttribute("reportId")%>" target="ajaxTodo" title='提交给 <%=request.getAttribute("facultys") %>?'><span>提交学部</span></a></li>
 				<li><a class="add" href="javascript:addAdvice();" title="录入学部意见"><span>录入学部意见</span></a></li>
 			</ul>
 		</div>

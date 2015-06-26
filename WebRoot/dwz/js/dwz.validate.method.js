@@ -20,10 +20,14 @@
 			return this.optional(element) || /^[0-9 A-Za-z]{5,20}$/.test(value);
 		}, "Please specify a valid postcode");
 
-        $.validator.addMethod("password", function(value, element) {
-            return this.optional(element) || /^[a-zA-Z0-9!@#$%^&*-=_+\(\)]{6,20}$/.test(value);
-        }, "Letters, numbers or !@#$%^&*()-=_+ only please")
-		
+      $.validator.addMethod("password", function(value, element) {
+         return this.optional(element) || /^[a-zA-Z0-9!@#$%^&*-=_+\(\)]{6,20}$/.test(value);
+      }, "Letters, numbers or !@#$%^&*()-=_+ only please");
+        
+    	$.validator.addMethod("ratePercent", function(val, ele) {
+    		return this.optional(ele) || /^((0\.[0-9]{1,2})|(1\.00)|1|0)$/.test(val);
+    	}, "Please input 0~1");
+    	
 		$.validator.addMethod("date", function(value, element) {
 			value = value.replace(/\s+/g, "");
 			if (String.prototype.parseDate){
@@ -53,7 +57,8 @@
 			lettersonly: { lettersonly: true },
 			phone: { phone: true },
 			postcode: {postcode: true},
-            password: {password: true}
+         password: {password: true},
+         ratePercent: {ratePercent: true}
 		});
 		$.validator.setDefaults({errorElement:"span"});
 		$.validator.autoCreateRanges = true;

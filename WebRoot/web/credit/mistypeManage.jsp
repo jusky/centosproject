@@ -101,8 +101,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="pageContent" style="border-left:1px #B8D0D6 solid;border-right:1px #B8D0D6 solid">
 						<div class="panelBar">
 							<ul class="toolBar">
-								<logic:notEmpty name="RID"><li><a class="edit" href="<%=path%>/configMistypeAction.do?method=weight&type=<%=request.getAttribute("RID")%>"  mask="true" target="dialog" rel="weightManage" width="600" height="360" title="权值分配"><span>权值分配</span></a></li></logic:notEmpty>
-								<li><a class="add" href="<%=path%>/web/credit/addMistype.jsp" target="dialog" mask="true" rel="addMistype" width="600" height="200" title="添加不端类型"><span>添加</span></a></li>
+								<logic:notEmpty name="RID"><li><a class="edit" href="<%=path%>/configMistypeAction.do?method=weight&type=<%=request.getAttribute("RID")%>"  mask="true" target="dialog" rel="weightManage" width="640" height="360" title="权值分配"><span>权值分配</span></a></li></logic:notEmpty>
+								<li><a class="add" href="<%=path%>/web/credit/addMistype.jsp?isjc=1" target="dialog" mask="true" rel="addMistype" width="600" height="160" title="添加不端类型"><span>添加</span></a></li>
 								<li><a class="delete" rel="ids" href="<%=path %>/mistypeManageAction.do?method=delete" postType="string" target="selectedTodo" title="确定要删除吗?"><span>批量删除</span></a></li>
 							</ul>
 						</div>
@@ -139,7 +139,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							</td>
 							<td align="center" >
 								<a href="#">&nbsp;</a>
-								<a href="<%=path%>/configMistypeAction.do?method=edit&id=${MistypeBean.id}" class="btnInfo" target="dialog" mask="true" rel="editZZ" width="600" height="200" title="编辑不端类型信息">编辑</a>
+								<a href="<%=path%>/configMistypeAction.do?method=edit&id=${MistypeBean.id}" class="btnInfo" target="dialog" mask="true" rel="editMistype" width="640" height="160" title="编辑不端类型信息">编辑</a>
 								<a href="<%=path%>/mistypeManageAction.do?method=delete&id=${MistypeBean.id}" class="btnDel" target="ajaxTodo" title="确定要删除吗?">删除</a>
 							</td>
 						</tr>

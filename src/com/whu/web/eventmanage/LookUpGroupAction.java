@@ -186,7 +186,7 @@ public class LookUpGroupAction extends DispatchAction {
 			else if(type.equals("bsld"))//报送领导
 			{
 				String userName = lookUpGroupForm.getUserName();
-				if(!userName.equals(""))
+				if(userName != null && !userName.equals(""))
 				{
 					temp += " and a.USERNAME like ?";
 					params = new String[]{"%" + userName + "%"};

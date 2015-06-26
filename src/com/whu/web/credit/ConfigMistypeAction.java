@@ -52,34 +52,49 @@ public class ConfigMistypeAction extends DispatchAction {
 		String sql = "";
 		String[] params = new String[0];
 		String rid = "";
-		String rsort = "1"; // personal credit factor 
 		DBTools dbTool = new DBTools();	
 		boolean result = false;
 		
-		sql = "select RID from SYS_JBREASON where PRID=? order by RID desc limit 1";
-		String maxRid = dbTool.queryMistypeRid(sql, new String[]{prid});
+		if (prid != null && !dbTool.queryISEXIST("select * from SYS_JBREASON where RID=?", new String[]{prid})) {
 
-		if(!maxRid.equals(""))
-		{
-			rid = String.valueOf(Integer.parseInt(maxRid) + 1);
-			if(operation.equals("new"))
-			{
+			sql = "select RID from SYS_JBREASON where PRID=? order by RID desc limit 1";
+			String maxRid = dbTool.queryMistypeRid(sql, new String[] { prid });
+
+			if (!maxRid.equals("")) 
+				rid = String.valueOf(Integer.parseInt(maxRid) + 1);
+			else rid = String.valueOf(Integer.parseInt(prid) + 1);
+			if (operation.equals("new")) {
 				sql = "insert into SYS_JBREASON(RID,RNAME,PRID,RSORT,ISJC) values(?, ?, ?, ?, ?)";
-				params = new String[]{rid, rname, prid, rsort, "0"};
-			}
-			else if(operation.equals("edit"))
-			{
+				params = new String[] { rid, rname, prid, "1", "0" };
+			} else if (operation.equals("edit")) {
 				rid = configMistypeForm.getRid();
-				sql = "update SYS_JBREASON set RID=?,RNAME=?, PRID=? where rid=?";
-				params = new String[]{rid, rname, prid, rid};
+				sql = "update SYS_JBREASON set RNAME=?, PRID=? where rid=?";
+				params = new String[] { rname, prid, rid };
 			}
 			result = dbTool.insertItem(sql, params);
+		} else  if (prid == null){
+
+			sql = "select RID from SYS_JBREASON where ISJC=1 order by RID desc limit 1";
+			String maxRid = dbTool.queryMistypeRid(sql, new String[0]);
+
+			if (!maxRid.equals("")) {
+				rid = String.valueOf(Integer.parseInt(maxRid) + 1000);
+				if (operation.equals("new")) {
+					sql = "insert into SYS_JBREASON(RID,RNAME,PRID,RSORT,ISJC) values(?, ?, ?, ?, ?)";
+					params = new String[] { rid, rname, "0", "1", "1"};
+				} else if (operation.equals("edit")) {
+					rid = configMistypeForm.getRid();
+					sql = "update SYS_JBREASON set RNAME=? where rid=?";
+					params = new String[] { rname, rid };
+				}
+				result = dbTool.insertItem(sql, params);
+			}
 		}
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
 		{
-			request.getSession().setAttribute("configFlag", "true");
+			request.getSession().setAttribute("configMistypeFlag", "true");
 			json.put("statusCode", 200);
 			json.put("message", "保存成功！");
 			json.put("callbackType", "closeCurrent");
@@ -189,9 +204,11 @@ public class ConfigMistypeAction extends DispatchAction {
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
-		{
+		{			
+			request.getSession().setAttribute("configMistypeFlag", "true");
 			json.put("statusCode", 200);
 			json.put("message", "更新成功！");
+			json.put("callbackType", "closeCurrent");
 		}
 		else
 		{

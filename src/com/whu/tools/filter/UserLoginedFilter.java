@@ -1,6 +1,7 @@
 package com.whu.tools.filter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
@@ -11,6 +12,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
 
 public class UserLoginedFilter implements Filter {
 	
@@ -31,7 +34,16 @@ public class UserLoginedFilter implements Filter {
 		if (isAllowed(req.getRequestURI().substring(req.getContextPath().length()), (String)req.getSession().getAttribute("LoginName"))) {
 			chain.doFilter(request, response);
 		} else {
-			((HttpServletResponse)response).sendRedirect(req.getContextPath() + "/login.jsp");
+	//		((HttpServletResponse)response).sendRedirect(req.getContextPath() + "/login.jsp");
+			response.setContentType("text/html;charset=utf-8");
+			request.setCharacterEncoding("utf-8");
+			PrintWriter out = response.getWriter();
+			JSONObject ret = new JSONObject();
+			ret.put("statusCode", "301");
+			ret.put("message", "会话超时，请重新登录。");
+			out.print(ret.toString());
+			out.flush();
+			out.close();
 		}
 	}
 	

@@ -40,6 +40,8 @@ public class LitigantStateAction extends DispatchAction {
 		LitigantStateForm litigantStateForm = (LitigantStateForm)form;
 		String name = litigantStateForm.getLitigantName();
 		String time = litigantStateForm.getLitigantTime();
+		if(time == null || time.equals(""))
+			time = SystemShare.GetNowTime("yyyy-MM-dd");
 		String content = litigantStateForm.getLitigantContent();
 		String reportID = litigantStateForm.getReportID();
 		String id = litigantStateForm.getId();

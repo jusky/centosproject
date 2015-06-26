@@ -64,7 +64,9 @@ public class DeptAdviceAction extends DispatchAction {
 		DBTools dbTools = new DBTools();
 	
 		String dept = deptAdviceForm.getDept();
-		String time = deptAdviceForm.getTime();
+		String time = deptAdviceForm.getTime();		
+		if(time == null || time.equals(""))
+			time = SystemShare.GetNowTime("yyyy-MM-dd");
 		String advice = deptAdviceForm.getAdvice();
 		String reportID = deptAdviceForm.getReportID();
 		String expertAdvice = deptAdviceForm.getExpertAdvice();

@@ -162,6 +162,8 @@ public class ExpertAdviceAction extends DispatchAction {
 		{
 			String expertName = expertAdviceForm.getExpertName();
 			String time = expertAdviceForm.getTime();
+			if(time == null || time.equals(""))
+				time = SystemShare.GetNowTime("yyyy-MM-dd");
 			String conclusion = expertAdviceForm.getConclusion();
 			String advice = expertAdviceForm.getAdvice();
 			

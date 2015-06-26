@@ -64,7 +64,7 @@ function changeExportNum() {
 				<th width="100" align="center">诚信值</th>
 				<th width="150" align="center">联系方式</th>
 				<th width="150" align="center">通讯地址</th>
-				<th width="100" align="center">管理</th>
+				<th width="200" align="center">管理</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -86,8 +86,8 @@ function changeExportNum() {
 						<td align="center"><bean:write name="IndividualInfo" property="phone"/></td>
 						<td align="center"><bean:write name="IndividualInfo" property="address"/></td>
 						<td align="center">
-							<a href="<%=path%>/miscountManageAction.do?method=queryMsg&operation=search&pid=${IndividualInfo.pid}" target="dialog" mask="true" rel="creditDetail" width="900" height="600" title="查看详细信息">查看</a>
-							<a href="<%=path%>/configIndividualAction.do?method=edit&uid=${IndividualInfo.id}" target="dialog" mask="true" rel="editIndividual" width="750" height="550" title="编辑科研人员信息">编辑</a>
+							<a href="<%=path%>/configIndividualAction.do?method=edit&uid=${IndividualInfo.id}" target="dialog" mask="true" rel="editIndividual" width="750" height="550" title="编辑科研人员信息">编辑</a>							
+							<a href="<%=path%>/miscountManageAction.do?method=queryMsg&operation=search&pid=${IndividualInfo.pid}" target="dialog" mask="true" rel="creditDetail" width="900" height="600" title="查看详细信息">查看不端记录</a>
 							<a href="<%=path%>/individualManageAction.do?method=delete&uid=${IndividualInfo.id}" target="ajaxTodo" title="确定要删除吗?">删除</a>
 						</td>
 					</tr>

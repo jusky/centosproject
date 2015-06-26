@@ -232,7 +232,7 @@ function showreason()
 							</tr>
 						</thead>
 						<tbody>
-							<tr class="unitBox">
+							<tr class="unitBox" style="background-color:#fff;border-color:#fff; ">
     							<td><input type="text" name="items.name[0]" value size="15" class="required textInput"></td>
     							<td><input type="text" name="items.position[0]" value size="25" class="textInput"></td>
     							<td><input type="text" name="items.phone[0]" value size="20" class="digits textInput"></td>

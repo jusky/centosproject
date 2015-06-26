@@ -91,15 +91,17 @@
 		<div class="pageFormContent" layoutH="57">
 			<input type="hidden" name="rid" value="${MistypeBean.rid }"/>
 			<p>
-				<label>端类型名称：</label>
-				<input class="required" name="rname" type="text" size="40" value="${MistypeBean.rname }"/>
+				<label for="rname">不端类型名称：</label>
+				<input class="required" name="rname" type="text" size="35" value="${MistypeBean.rname }"/>
 			</p>
-			<p>
-				<label>影响诚信值：</label>
-				<input type="hidden" id="prid" name="prid" value="${MistypeBean.prid }"/>
-				<input id="creditFactor" readonly name="pzzName" value="${MistypeBean.pname }" type="text" size="40" />
-				<a id="menuBtn" class="btnLook" href="#" onclick="showMenu(); return false;">选择</a>
-			</p>
+			<logic:equal name="MistypeBean" property="isjc" value="0">
+				<p>
+					<label for="pzzName">影响诚信值：</label>
+					<input type="hidden" id="prid" name="prid" value="${MistypeBean.prid }"/>
+					<input id="creditFactor" readonly name="pzzName" value="${MistypeBean.pname }" type="text" size="30" />
+					<a id="menuBtn" class="btnLook" href="#" onclick="showMenu(); return false;">选择</a>
+				</p>
+			</logic:equal>
 		</div>
 		</logic:iterate>
 		</logic:notEmpty>

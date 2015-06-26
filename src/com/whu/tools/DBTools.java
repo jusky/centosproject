@@ -1603,6 +1603,8 @@ public class DBTools {
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
 			String sql = "insert into TB_FACULTYADVICE(REPORTID,FACULTYID,ISFK) values(?, ?, ?)";
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			pst = conn.prepareStatement(sql);
 			conn.setAutoCommit(false);
 			for (String facultyId:facultyArray){
 				if(!facultyId.equals("")) {

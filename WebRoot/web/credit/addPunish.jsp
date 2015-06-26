@@ -1,6 +1,5 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ include file="/commons/taglibs.jsp"%>
-
 <div class="pageContent">
 	<form method="post" action="<%=request.getContextPath()%>/configPunishAction.do?method=save&operation=new" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone);">
 		<div class="pageFormContent" layoutH="56">
@@ -22,7 +21,7 @@
 			</p>
 			<p>
 				<label>恢复上限</label>
-				<input class="required" name="rate" type="number" size="10"/>
+				<input class="required ratePercent" name="rate" type="number" step="0.01" alt="0.00~1.00" size="10"/>
 			</p>
 			<p>
 				<label>说明：</label>

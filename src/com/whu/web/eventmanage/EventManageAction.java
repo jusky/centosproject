@@ -54,7 +54,8 @@ public class EventManageAction extends DispatchAction {
 	/*
 	 * Generated Methods
 	 */
-
+	private static List<String> orderFields =  Arrays.asList(new String[]{"SERIALNUM","a.STATUS","a.REPORTTIME","a.OFFICER"});
+	
 	public ActionForward init(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response) {
 		EventManageForm eventManageForm = (EventManageForm) form;
@@ -297,7 +298,7 @@ public class EventManageAction extends DispatchAction {
 		if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("query" + jdName + "Sql");
 			params = (String[])request.getSession().getAttribute("query" + jdName + "Params");
-			if(orderField != null && !orderField.equals(""))
+			if(orderField != null && orderFields.contains(orderField) && orderDirection != null && orderDirection.matches("asc|desc"))
 			{
 				sql = sql.substring(0, sql.indexOf("order"));
 				sql += " order by " + orderField + " " + orderDirection;
@@ -893,6 +894,7 @@ public class EventManageAction extends DispatchAction {
 		String sql = "select a.*,b.ZZNAME as FACULTYNAME,c.SERIALNUM,c.REPORTNAME,c.BEREPORTNAME from TB_FACULTYADVICE a, SYS_ZZINFO b, TB_REPORTINFO c where a.REPORTID=? and a.FACULTYID=b.ZZID and c.REPORTID=?";
 		request.setAttribute("reportId", reportId);
 		DBTools dbTools = new DBTools();
+		String facultys = dbTools.querySingleData("TB_REPORTINFO", "FACULTY", "REPORTID", reportId);
 		ArrayList result = dbTools.queryFacultyAdvice(sql, "1", new String[]{reportId, reportId});
 		if(result.size() > 0) {
 			eventManageForm.setRecordNotFind("false");
@@ -902,6 +904,7 @@ public class EventManageAction extends DispatchAction {
 			eventManageForm.setRecordNotFind("true");
 			request.setAttribute("totalRows", "0");
 		}
+		request.setAttribute("facultys", facultys);
 		
 		return mapping.findForward("facultyAdviceManage");
 	}

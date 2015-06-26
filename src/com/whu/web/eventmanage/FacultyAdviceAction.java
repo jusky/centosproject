@@ -168,9 +168,9 @@ public class FacultyAdviceAction extends DispatchAction {
 			json.put("statusCode", 300);
 			json.put("message", "提交失败！");
 			if(!isHandled.equals(""))
-				json.put("message", "提交失败！ 已提交,请勿重新提交");
+				json.put("message", "提交失败！ 已提交，请勿重新提交！");
 			if(surveyReport.equals("")) 
-				json.put("message", "提交失败！请先保存调查报告");
+				json.put("message", "提交失败！请先保存调查报告！");
 		}
 		
 		out.write(json.toString());

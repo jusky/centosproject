@@ -88,15 +88,17 @@
 	<form method="post" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone);" action="<%=path%>/configMistypeAction.do?method=save&operation=new">
 		<div class="pageFormContent" layoutH="57">	
 			<p>
-				<label>不端类型名称：</label>
-				<input class="required" name="rname" type="text" size="40"/>
+				<label for="rname">不端类型名称：</label>
+				<input class="required" name="rname" type="text" size="35"/>
 			</p>
+			<% String isjc=(String)request.getParameter("isjc"); if(isjc==null || !isjc.equals("1")) { %>
 			<p>
 				<label>影响诚信值：</label>
 				<input type="hidden" id="prid" name="prid" value=""/>
 				<input id="creditFactor" class="required" readonly name="prname" type="text" size="30" />
 				<a id="menuBtn" class="btnLook" href="#" onclick="showMenu(); return false;">选择</a>				
 			</p>
+			<%} %>
 		</div>
 		<div class="formBar">
 			<ul>

@@ -16,11 +16,11 @@
 			<input type="hidden" name="id" value="${MiscountInfo.id}">
 			<dl class="nowrap">
 				<dt>标题：</dt>
-				<dd><input readonly minlength="2" maxlength="50" name="code" type="text" size="55" value="${MiscountInfo.title}"/></dd>
+				<dd><input readonly minlength="2" maxlength="30" name="code" type="text" size="35" value="${MiscountInfo.title}"/></dd>
 			</dl>			
 			<dl class="nowrap">
 				<dt>当事人：</dt>
-				<dd><input name="individual" type="text" size="50" value="${MiscountInfo.individual}"/></dd>
+				<dd><input name="individual" type="text" size="20" value="${MiscountInfo.individual}"/></dd>
 			</dl>					
 			<dl class="nowrap">
 				<dt>当事单位：</dt>
@@ -30,11 +30,11 @@
 			</dl>				
 			<dl class="nowrap">
 				<dt>不端类型：</dt>
-				<dd><textarea name="mistype" readonly cols="30" rows="2">${MiscountInfo.mistype}</textarea></dd>
+				<dd><textarea name="mistype" readonly cols="40" rows="3">${MiscountInfo.mistype}</textarea></dd>
 			</dl>					
 			<dl class="nowrap">
 				<dt>处罚措施：</dt>
-				<dd><textarea name="punish" readonly cols="30" rows="2" >${MiscountInfo.punish}</textarea></dd>
+				<dd><textarea name="punish" readonly cols="40" rows="3" >${MiscountInfo.punish}</textarea></dd>
 			</dl>					
 			<dl class="nowrap">
 				<dt>生效时间：</dt>
@@ -46,7 +46,7 @@
 			</dl>			
 			<dl class="nowrap">
 				<dt>详细内容的文件地址：</dt>
-				<dd><input readonly name="detail" type="text" size="50" value="${MiscountInfo.detail }"/></dd>
+				<dd>${MiscountInfo.detail }</dd>
 			</dl>				
 		</div>
 		</logic:iterate>

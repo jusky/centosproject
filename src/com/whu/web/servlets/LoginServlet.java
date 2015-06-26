@@ -81,7 +81,14 @@ public class LoginServlet extends HttpServlet {
 				if (intranetAccessOnly && identity.equals("1") && intranet != null && !intranet.matcher(request.getRemoteAddr()).matches()) {
 					response.getWriter().write("用户名或密码有误，请重新输入！");
 				} else {
-				
+
+					String warnout = (String)request.getSession().getAttribute("warnout");
+					if(warnout != null && warnout.equals("1") && identity.equals("1")) {
+						response.getWriter().write("禁止登录！");
+						response.getWriter().flush();
+						response.getWriter().close();
+						return;
+					}
 				
 					//办公室人员查询系统用户表 include faculty user
 					if(identity.equals("1"))

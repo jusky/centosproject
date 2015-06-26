@@ -362,7 +362,7 @@ function drawCld(SY,SM) {
    if(SY>1874 && SY<1909) yDisplay = '光绪' + (((SY-1874)==1)?'元':SY-1874)
    if(SY>1908 && SY<1912) yDisplay = '宣统' + (((SY-1908)==1)?'元':SY-1908)
    if(SY>1911 && SY<1950) yDisplay = '民国' + (((SY-1911)==1)?'元':SY-1911)
-   if(SY>1949) yDisplay = '人民共和国' + (((SY-1949)==1)?'元':SY-1949)
+   if(SY>1949) yDisplay = '中华人民共和国' + (((SY-1949)==1)?'元':SY-1949)
 
    GZ.innerHTML = yDisplay +'年 农历' + cyclical(SY-1900+36) + '年 &nbsp;&nbsp;【'+Animals[(SY-4)%12]+'】';
 
@@ -549,7 +549,8 @@ function tick() {
    var today
    today = new Date()
    Clock.innerHTML = today.toLocaleString().replace(/(年|月)/g, "/").replace(/日/, "");
-   Clock.innerHTML = TimeAdd(today.toGMTString(), CLD.TZ.value)
+  // Clock.innerHTML = TimeAdd(today.toGMTString(), CLD.TZ.value)
+   Clock.innerHTML = timeAdd(today, CLD.TZ.value);
    window.setTimeout("tick()", 1000);
 }
 
@@ -587,11 +588,25 @@ function initial() {
    tick();
 }
 
+function timeAdd(today, t) {
+    var plusMinus = 1;
+    if (t.charAt(0)=="-") plusMinus = -1;
+    var offset = (parseInt(t.substr(1,2), 10)*60 + parseInt(t.substr(3,2), 10))*60000*plusMinus + today.getTimezoneOffset() * 60000 ;
+    today.setTime(today.getTime() + offset)
+    var begin = new Date(today.getFullYear(),3,1);
+    var end = new Date(today.getFullYear(), 9, 31);
+    var minus = 24*60*60*1000;
+    if(t.charAt(5)=="*" && begin.getTime() + (7-begin.getDay())%7 * minus <= today.getTime() && end.getTime() - end.getDay()%7 * minus >= today.getTime()) {
+            today.setTime(today.getTime() + 60*60*1000);
+            tSave.innerHTML = "R";
+    } else {tSave.innerHTML = "";}
+    return today.toLocaleString().replace(/(年|月)/g, "/").replace(/日/, "");
+}
 
 
 //-->
 </SCRIPT>
-
+<!-- 
 <SCRIPT language=VBScript>
 <!--
 '===== 算世界时间
@@ -611,8 +626,8 @@ Function TimeAdd(UTC,T)
    End If
    TimeAdd = CStr(TimeAdd)
 End Function
-'-->
-</SCRIPT>
+'--><!-- 
+</SCRIPT>  -->
 
 <STYLE>.todyaColor {
 	BACKGROUND-COLOR: aqua
@@ -621,10 +636,6 @@ End Function
 
 <META content="MSHTML 6.00.2600.0" name=GENERATOR></HEAD>
 <BODY onload=initial() >
-<SCRIPT language=JavaScript><!--
-   if(navigator.appName == "Netscape" || parseInt(navigator.appVersion) < 4)
-   document.write("<h1>你的浏览器无法执行此程序。</h1>此程序在 IE4 以后的版本才能执行!!")
-//--></SCRIPT>
 <DIV id=detail style="POSITION: absolute"></DIV>
 <CENTER>
 <FORM name=CLD>
@@ -729,7 +740,7 @@ End Function
         <TBODY>
         <TR>
           <TD bgColor=#000080 colSpan=7><FONT style="FONT-SIZE: 9pt" 
-            color=#ffffff size=2>西历<SELECT style="FONT-SIZE: 9pt" 
+            color=#ffffff size=2>公历<SELECT style="FONT-SIZE: 9pt" 
             onchange=changeCld() name=SY> 
               <SCRIPT language=JavaScript><!--
             for(i=1900;i<2050;i++) document.write('<option>'+i)

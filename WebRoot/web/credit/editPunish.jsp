@@ -6,18 +6,6 @@
                 + request.getServerName() + ":" + request.getServerPort()  
                 + path + "/";  
 %>
-<link href="<%=path %>/styles/jquery-ui.min.css" rel="stylesheet" type="text/css">
-<script type="text/javascript" src="<%=path %>/js/jquery-ui.min.js"></script>
-<script>
-	  $(function() {
-	  	$("#rate").spinner({
-		  min: 0.00,
-		  max: 1.00,
-		  step: 0.01,
-		  numberFormat: "n"
-		}); 
-	})
-</script>
 <div class="pageContent">
 	<form method="post" action="<%=request.getContextPath()%>/configPunishAction.do?method=save&operation=edit" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone);">
 		<logic:notEmpty name="configPunishForm" property="recordList">
@@ -42,7 +30,7 @@
 			</p>
 			<p>
 				<label>恢复上限：</label>
-				<input id="rate" class="required" name="rate" size="10" value="${PunishBean.rate}"/>
+				<input id="rate" class="required ratePercent" name="rate" size="10" alt="0.00~1.00" value="${PunishBean.rate}"/>
 			</p>
 			<p>
 				<label>说明：</label>

@@ -167,16 +167,17 @@ public class DispatchEventAction extends DispatchAction {
 			}
 			
 			json.put("statusCode", 200);
-			json.put("message", "更新成功！");
+			json.put("message", " 指派成功！");
 		}
 		else
 		{
 			json.put("statusCode", 300);
-			json.put("message", "更新失败！");
+			json.put("message", " 指派失败！");
 			if (status.charAt(0) == '4') {
-				json.put("message", "事件已结束! 无法指派");
+				json.put("message", "事件已结束! 无法指派! ");
 			}
 		}
+		json.put("callbackType", "closeCurrent");
 		out.write(json.toString());
 		out.flush();
 		out.close();

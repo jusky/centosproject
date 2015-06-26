@@ -31,7 +31,7 @@ function showCljdDiv(aID)
  	  var newDiv = document.getElementById("cljd_box"); 
 	  //让新层的zIndex属性要足够大，才会在最上面显示  	  
 	  newDiv.style.zIndex = "9999";  
-	  newDiv.style.top= r.y - 80 + "px";  
+	  newDiv.style.top= r.y - 65 + "px";  
 	//  newDiv.style.left= r.x - 400 + "px";
 	  newDiv.style.display="block";
  }

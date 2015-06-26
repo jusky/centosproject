@@ -222,7 +222,7 @@ public class MistypeManageAction extends DispatchAction {
 			SystemShare.SplitPageFun(request, pageBean, 0);
 		}
 		//添加完组织之后，会自动刷新页面；如果直接跳转到dicList页面，则左侧的组织机构树将会不显示，出现问题！设置该变量用于控制页面的跳转
-		String type =(String) request.getSession().getAttribute("configFlag");
+		String type =(String) request.getSession().getAttribute("configMistypeFlag");
 		if(type == null || type.equals(""))
 		{
 			//跳转到mistypeList.jsp
@@ -231,7 +231,7 @@ public class MistypeManageAction extends DispatchAction {
 		else if(type.equals("true"))
 		{
 			//跳转到mistypeManage.jsp
-			request.getSession().setAttribute("configFlag", "");
+			request.getSession().setAttribute("configMistypeFlag", "");
 			return mapping.findForward("init");
 		}
 		return null;
@@ -269,7 +269,7 @@ public class MistypeManageAction extends DispatchAction {
 		JSONObject json = new JSONObject();
 		if(result)
 		{
-			request.getSession().setAttribute("configFlag", "true");
+			request.getSession().setAttribute("configMistypeFlag", "true");
 			json.put("statusCode", 200);
 			json.put("message", "删除成功！");
 		}
