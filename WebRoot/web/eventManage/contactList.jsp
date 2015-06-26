@@ -5,7 +5,7 @@ String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
 <form id="pagerForm" onsubmit="return divSearch(this, 'zzUserDiv');" method="post" action='<%=path%>/createGroupAction.do?method=queryGroup&operation=changePage'>
-	<input type="hidden" name="currentPage" value="${currentPage}" />
+	<input type="hidden" name="pageNum" value="${pageNum}" />
 	<input type="hidden" name="pageSize" value="${pageSize}" />
 </form>
 <div class="pageHeader" style="border:1px #B8D0D6 solid">
@@ -75,6 +75,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<div class="pages">
 		<span>每页 20  条, 共 <%=request.getAttribute("totalRows") %> 条, 共 <%=request.getAttribute("pageCount") %> 页</span>
 	</div>
-	<div class="pagination" rel="contactBox" totalCount=" <%=request.getAttribute("totalRows") %>" numPerPage="20" pageNumShown="10" currentPage="<%=request.getAttribute("currentPage") %>"></div>
+	<div class="pagination" rel="contactBox" totalCount=" <%=request.getAttribute("totalRows") %>" numPerPage="20" pageNumShown="10" currentPage="<%=request.getAttribute("pageNum") %>"></div>
 	</div>
 </div>	

@@ -11,5 +11,5 @@
 		</select>
 		<span> 条, 共 ${page.totalResults} 条, ${page.totalPages} 页</span>
 	</div>
-	<div class="pagination" <c:if test='${param.rel != null}'>rel="${param.rel}"</c:if> targetType="navTab" totalCount="${page.totalResults}" numPerPage="${pageSize}" pageNumShown="10" currentPage="${currentPage}"></div>
+	<div class="pagination" <c:if test='${param.rel != null}'>rel="${param.rel}"</c:if> targetType="navTab" totalCount="${page.totalResults}" numPerPage="${pageSize}" pageNumShown="10" currentPage="${pageNum}"></div>
 </div>

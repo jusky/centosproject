@@ -30,7 +30,7 @@ function showMailDiv(aID)
 	 }
 </script>
 <form id="pagerForm" method="post" action='<%=path%>/mailManageAction.do?method=queryMsg&operation=changePage'>
-	<input type="hidden" name="currentPage" value="${currentPage}" />
+	<input type="hidden" name="pageNum" value="${pageNum}" />
 	<input type="hidden" name="pageSize" value="${pageSize}" />
 </form>
 <div id="mail_box" class="ops_box ops_itemDiv">
@@ -129,6 +129,6 @@ function showMailDiv(aID)
 	<div class="pages">
 		<span>每页 20  条, 共 <%=request.getAttribute("totalRows") %> 条, 共 <%=request.getAttribute("pageCount") %> 页</span>
 	</div>
-	<div class="pagination" targetType="navTab" totalCount=" <%=request.getAttribute("totalRows") %>" numPerPage="20" pageNumShown="10" currentPage="<%=request.getAttribute("currentPage") %>"></div>
+	<div class="pagination" targetType="navTab" totalCount=" <%=request.getAttribute("totalRows") %>" numPerPage="20" pageNumShown="10" currentPage="<%=request.getAttribute("pageNum") %>"></div>
 </div>
 </div>

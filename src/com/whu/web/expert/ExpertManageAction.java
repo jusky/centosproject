@@ -123,8 +123,8 @@ public class ExpertManageAction extends DispatchAction {
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryExpertSql");
 			params = (String[])request.getSession().getAttribute("queryExpertParams");
-			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
-				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
+			if (request.getParameter("pageNum") != null && request.getParameter("pageNum") != "") {
+				queryPageNo = Integer.parseInt(request.getParameter("pageNum"));
 			}
 		}
 		pageBean.setQuerySql(sql);

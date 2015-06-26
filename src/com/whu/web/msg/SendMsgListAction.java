@@ -37,7 +37,7 @@ public class SendMsgListAction extends DispatchAction {
 			HttpServletRequest request, HttpServletResponse response) {
 		SendMsgListForm sendMsgListForm = (SendMsgListForm) form;// TODO Auto-generated method stub
 		sendMsgListForm.setRecordNotFind("true");
-		request.setAttribute("currentPage",String.valueOf(0));
+		request.setAttribute("pageNum",String.valueOf(0));
 		request.setAttribute("totalRows",String.valueOf(0));
 		request.setAttribute("pageCount",String.valueOf(0));
 		return mapping.findForward("init");

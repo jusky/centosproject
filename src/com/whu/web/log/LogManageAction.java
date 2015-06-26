@@ -138,8 +138,8 @@ public class LogManageAction extends DispatchAction {
 				sql = sql.substring(0, sql.indexOf("order"));
 				sql += " order by " + orderField + " " + orderDirection;
 			}
-			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
-				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
+			if (request.getParameter("pageNum") != null && request.getParameter("pageNum") != "") {
+				queryPageNo = Integer.parseInt(request.getParameter("pageNum"));
 			}
 		}
 		pageBean.setQuerySql(sql);

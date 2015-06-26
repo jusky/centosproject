@@ -231,7 +231,7 @@ $(function(a) {
 $(function(){
 	DWZ.init("<%=path%>/dwz/dwz.frag.xml", {
 		loginUrl:"login_dialog.jsp", loginTitle:"登录",	// 弹出登录对话框
-		pageInfo:{pageNum:"currentPage", numPerPage:"pageSize", orderField:"orderField", orderDirection:"orderDirection"}, //【可选】
+		pageInfo:{pageNum:"pageNum", numPerPage:"pageSize", orderField:"orderField", orderDirection:"orderDirection"}, //【可选】
 		debug:false,	// 调试模式 【true|false】
 		callback:function(){
 			initEnv();

@@ -64,14 +64,14 @@ public class DicManageAction extends DispatchAction {
 			int totalRows = pageBean.getTotalRows();
 			int pagecount = pageBean.getTotalPage();// �õ���ҳ��
 			int currentPage = pageBean.getQueryPageNo();// �õ���ǰҳ
-			request.setAttribute("currentPage",String.valueOf(currentPage));
+			request.setAttribute("pageNum",String.valueOf(currentPage));
 			request.setAttribute("totalRows",String.valueOf(totalRows));
 			request.setAttribute("pageCount",String.valueOf(pagecount));
 		}
 		else
 		{
 			dicManageForm.setRecordNotFind("true");
-			request.setAttribute("currentPage",String.valueOf(0));
+			request.setAttribute("pageNum",String.valueOf(0));
 			request.setAttribute("totalRows",String.valueOf(0));
 			request.setAttribute("pageCount",String.valueOf(0));
 		}
@@ -119,8 +119,8 @@ public class DicManageAction extends DispatchAction {
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryDicSql");
 			params = (String[])request.getSession().getAttribute("queryDicParams");
-			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
-				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
+			if (request.getParameter("pageNum") != null && request.getParameter("pageNum") != "") {
+				queryPageNo = Integer.parseInt(request.getParameter("pageNum"));
 			}
 		}
 		pageBean.setQuerySql(sql);
@@ -137,7 +137,7 @@ public class DicManageAction extends DispatchAction {
 			int totalRows = pageBean.getTotalRows();
 			int pagecount = pageBean.getTotalPage();// �õ���ҳ��
 			int currentPage = pageBean.getQueryPageNo();// �õ���ǰҳ
-			request.setAttribute("currentPage",String.valueOf(currentPage));
+			request.setAttribute("pageNum",String.valueOf(currentPage));
 			request.setAttribute("totalRows",String.valueOf(totalRows));
 			request.setAttribute("pageCount",String.valueOf(pagecount));
 		}
@@ -145,7 +145,7 @@ public class DicManageAction extends DispatchAction {
 		{
 			dicManageForm.setRecordNotFind("true");
 			
-			request.setAttribute("currentPage",String.valueOf(0));
+			request.setAttribute("pageNum",String.valueOf(0));
 			request.setAttribute("totalRows",String.valueOf(0));
 			request.setAttribute("pageCount",String.valueOf(0));
 		}

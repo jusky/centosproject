@@ -5,7 +5,7 @@
 <%@ taglib uri="/WEB-INF/struts-nested.tld" prefix="nested" %>
 
 <form id="pagerForm" method="post" action='<%=request.getContextPath()%>/lookUpGroupAction.do?method=queryMsg&operation=changePage&type=contact'>
-	<input type="hidden" name="currentPage" value="${currentPage}" />
+	<input type="hidden" name="pageNum" value="${pageNum}" />
 	<input type="hidden" name="pageSize" value="${pageSize}" />
 </form>
 
@@ -68,6 +68,6 @@
 	<div class="pages">
 		<span>每页 20  条, 共 <%=request.getAttribute("totalRows") %> 条, 共 <%=request.getAttribute("pageCount") %> 页</span>
 	</div>
-	<div class="pagination" targetType="dialog" totalCount=" <%=request.getAttribute("totalRows") %>" numPerPage="20" pageNumShown="10" currentPage="<%=request.getAttribute("currentPage") %>"></div>
+	<div class="pagination" targetType="dialog" totalCount=" <%=request.getAttribute("totalRows") %>" numPerPage="20" pageNumShown="10" currentPage="<%=request.getAttribute("pageNum") %>"></div>
 </div>
 </div>

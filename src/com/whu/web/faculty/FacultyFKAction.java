@@ -142,8 +142,8 @@ public class FacultyFKAction extends DispatchAction {
 				sql += " order by " + orderField + " " + orderDirection;
 			}
 			
-			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
-				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
+			if (request.getParameter("pageNum") != null && request.getParameter("pageNum") != "") {
+				queryPageNo = Integer.parseInt(request.getParameter("pageNum"));
 			}			
 		} else {
 			return null;

@@ -157,8 +157,8 @@ public class DcbgManageAction extends DispatchAction {
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryDcbgSql");
 			params = (String[])request.getSession().getAttribute("queryDcbgParams");
-			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
-				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
+			if (request.getParameter("pageNum") != null && request.getParameter("pageNum") != "") {
+				queryPageNo = Integer.parseInt(request.getParameter("pageNum"));
 			}
 		}
 		pageBean.setQuerySql(sql);
@@ -391,8 +391,8 @@ public class DcbgManageAction extends DispatchAction {
 		int queryPageNo = 1;// 
 		int rowsPerPage = 20;// 
 		pageBean.setRowsPerPage(rowsPerPage);
-		if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
-			queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
+		if (request.getParameter("pageNum") != null && request.getParameter("pageNum") != "") {
+			queryPageNo = Integer.parseInt(request.getParameter("pageNum"));
 		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select * from TB_COMBINEREPORT order by ID desc";

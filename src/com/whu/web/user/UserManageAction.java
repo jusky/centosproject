@@ -115,8 +115,8 @@ public class UserManageAction extends DispatchAction {
 		if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryUserSql");
 			params = (String[])request.getSession().getAttribute("queryUserParams");
-			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
-				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
+			if (request.getParameter("pageNum") != null && request.getParameter("pageNum") != "") {
+				queryPageNo = Integer.parseInt(request.getParameter("pageNum"));
 			}
 		}
 		pageBean.setQuerySql(sql);

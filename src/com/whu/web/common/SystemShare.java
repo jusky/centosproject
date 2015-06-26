@@ -52,13 +52,13 @@ public class SystemShare {
 			int totalRows = pageBean.getTotalRows();
 			int pagecount = pageBean.getTotalPage();
 			int currentPage = pageBean.getQueryPageNo();
-			request.setAttribute("currentPage",String.valueOf(currentPage));
+			request.setAttribute("pageNum",String.valueOf(currentPage));
 			request.setAttribute("totalRows",String.valueOf(totalRows));
 			request.setAttribute("pageCount",String.valueOf(pagecount));
 		}
 		else if(flag == 0)
 		{
-			request.setAttribute("currentPage",String.valueOf(0));
+			request.setAttribute("pageNum",String.valueOf(0));
 			request.setAttribute("totalRows",String.valueOf(0));
 			request.setAttribute("pageCount",String.valueOf(0));
 		}

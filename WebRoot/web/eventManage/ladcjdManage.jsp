@@ -54,7 +54,7 @@ function setAnonymity(cb)
 }
 </script>
 <form id="pagerForm" method="post" action='<%=path%>/eventManageAction.do?method=queryMsg&operation=changePage&jdid=2'>
-	<input type="hidden" name="currentPage" value="${currentPage}" />
+	<input type="hidden" name="pageNum" value="${pageNum}" />
 	<input type="hidden" name="pageSize" value="${pageSize}" />
 	<input type="hidden" name="orderField" value="${param.orderField}" />
 	<input type="hidden" name="orderDirection" value="${param.orderDirection}" />
@@ -219,6 +219,6 @@ function setAnonymity(cb)
 	<div class="pages">
 		<span>每页 20  条, 共 <%=request.getAttribute("totalRows") %> 条, 共 <%=request.getAttribute("pageCount") %> 页</span>
 	</div>
-	<div class="pagination" targetType="navTab" totalCount=" <%=request.getAttribute("totalRows") %>" numPerPage="20" pageNumShown="10" currentPage="<%=request.getAttribute("currentPage") %>"></div>
+	<div class="pagination" targetType="navTab" totalCount=" <%=request.getAttribute("totalRows") %>" numPerPage="20" pageNumShown="10" currentPage="<%=request.getAttribute("pageNum") %>"></div>
 </div>
 </div>

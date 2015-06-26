@@ -166,8 +166,8 @@ public class ZzManageAction extends DispatchAction {
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryZZSql");
 			params = (String[])request.getSession().getAttribute("queryZZParams");
-			if (request.getParameter("currentPage") != null && request.getParameter("currentPage") != "") {
-				queryPageNo = Integer.parseInt(request.getParameter("currentPage"));
+			if (request.getParameter("pageNum") != null && request.getParameter("pageNum") != "") {
+				queryPageNo = Integer.parseInt(request.getParameter("pageNum"));
 			}
 		}
 		pageBean.setQuerySql(sql);
