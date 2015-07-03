@@ -72,7 +72,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
       <div class="formarea">
         <ul>
 	        <li class="user"><p>用户名</p><input type="text" id="usename" name="usename" value=""/></li>
-	        <li class="pass"><p>密&nbsp;&nbsp;&nbsp;&nbsp;码</p><input type="password" id="password" name="password" value=""/></li>
+	        <li class="pass"><p>密&nbsp;&nbsp;&nbsp;&nbsp;码</p><input type="password" id="password" name="password" autocomplete="off" value=""/></li>
         </ul>
       </div>
     </form>

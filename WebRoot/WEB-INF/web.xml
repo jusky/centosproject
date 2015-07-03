@@ -136,31 +136,7 @@
       	<param-name>encoding</param-name>
          <param-value>UTF-8</param-value>
      	</init-param>
-   </filter>   
-   <filter>
-   	<filter-name>DefaultCharset</filter-name>
-   	<filter-class>org.apache.catalina.filters.AddDefaultCharsetFilter</filter-class>
-   	<init-param>
-   		<param-name>encoding</param-name>
-   		<param-value>UTF-8</param-value>
-   	</init-param>	   	
-   </filter> 
-	<filter>
-		<filter-name>Expires</filter-name>
-		<filter-class>org.apache.catalina.filters.ExpiresFilter</filter-class>
-		<init-param>
-			<param-name>ExpiresByType image</param-name>
-			<param-value>access plus 1 month</param-value>
-		</init-param>
-		<init-param>
-			<param-name>ExpiresByType text/css</param-name>
-			<param-value>access plus 10 days</param-value>
-		</init-param>
-		<init-param>
-			<param-name>ExpiresByType application/javascript</param-name>
-			<param-value>access plus 10 days</param-value>
-		</init-param>
-	</filter>
+   </filter>
 		
 	<!-- block unlogined users -->
 	<filter>
@@ -210,18 +186,6 @@
   		</init-param>
    </filter>
    <filter>
-   	<filter-name>RequestRateThrottleFilter</filter-name>
-   	<filter-class>com.whu.tools.filter.RequestRateThrottleFilter</filter-class>
-   	<init-param>
-   		<param-name>hits</param-name>
-   		<param-value>500</param-value>
-   	</init-param>
-   	<init-param>
-   		<param-name>period</param-name>
-   		<param-value>10</param-value>
-   	</init-param>
-   </filter>
-   <filter>
    	<filter-name>ClickjackFilterSameOrigin</filter-name>
    	<filter-class>com.whu.tools.filter.ClickjackFilter</filter-class>
    	<init-param>
@@ -230,27 +194,21 @@
    	</init-param>
    </filter>
     
+    <!-- filter for prompt download attachment and key file -->
+    <filter>
+    	<filter-name>PromptDownload</filter-name>
+    	<filter-class>com.whu.tools.filter.PromptDownloadFilter</filter-class>
+    </filter>
+    
     
 	<filter-mapping>
    	<filter-name>SetCharacterEncoding</filter-name>
       <url-pattern>/*</url-pattern>
    </filter-mapping>
    <filter-mapping>
-   	<filter-name>DefaultCharset</filter-name>
-   	<url-pattern>/*</url-pattern>
-   </filter-mapping>
-   <filter-mapping>
-   	<filter-name>Expires</filter-name>
-   	<url-pattern>/*</url-pattern>
-   </filter-mapping>  
-   <filter-mapping>
   		<filter-name>SecurityWrapper</filter-name>
   		<url-pattern>/*</url-pattern>
   	</filter-mapping> 
-   <filter-mapping>
-   	<filter-name>RequestRateThrottleFilter</filter-name>
-   	<url-pattern>/*</url-pattern>
-   </filter-mapping>  
    <filter-mapping>
    	<filter-name>ClickjackFilterSameOrigin</filter-name>
    	<url-pattern>/*</url-pattern>
@@ -263,6 +221,14 @@
    	<filter-name>userLoginedFilter</filter-name>
    	<url-pattern>/*</url-pattern>
    </filter-mapping>
+   <filter-mapping>
+   	<filter-name>PromptDownload</filter-name>
+   	<url-pattern>/attachment/*</url-pattern>
+   </filter-mapping>
+   <filter-mapping>
+   	<filter-name>PromptDownload</filter-name>
+   	<url-pattern>/key/*</url-pattern>
+   </filter-mapping> 
   
   <!-- set session timeout -->
   <session-config>

@@ -8,15 +8,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<div class="pageFormContent" layoutH="56">
 			<p>
 				<label>旧密码：</label>
-				<input class="required" name="oldPwd" type="password" size="20"/>
+				<input class="required" name="oldPwd" type="password" autocomplete="off" size="20"/>
 			</p>
 			<p>
 				<label>新密码：</label>
-				<input id="pwd" name="newPwd" type="password" size="20" class="required password" alt="字母、数字、!@#$%^&*()_+-= 6-20位"/>
+				<input id="pwd" name="newPwd" type="password" size="20" class="required password" autocomplete="off" alt="字母、数字、!@#$%^&*()_+-= 6-20位"/>
 			</p>
 			<p>
 				<label>确认新密码：</label>
-				<input type="password" name="repassword" class="required" equalto="#pwd"/>
+				<input type="password" name="repassword" class="required" autocomplete="off" equalto="#pwd"/>
 			</p>
 		</div>
 		<div class="formBar">

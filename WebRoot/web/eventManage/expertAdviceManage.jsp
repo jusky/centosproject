@@ -330,9 +330,6 @@ function generateMixed(n) {
 								密码：
 							</p>
 							<p>
-								在选择身份时，请选择“鉴定专家”！
-							</p>
-							<p>
 								&nbsp;
 							</p>
 							<p dir="ltr">

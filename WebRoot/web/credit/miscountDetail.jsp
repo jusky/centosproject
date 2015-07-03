@@ -20,7 +20,7 @@
 			</dl>			
 			<dl class="nowrap">
 				<dt>当事人：</dt>
-				<dd><input name="individual" type="text" size="20" value="${MiscountInfo.individual}"/></dd>
+				<dd><input readonly name="individual" type="text" size="20" value="${MiscountInfo.individual}"/></dd>
 			</dl>					
 			<dl class="nowrap">
 				<dt>当事单位：</dt>

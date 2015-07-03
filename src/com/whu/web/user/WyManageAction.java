@@ -291,7 +291,7 @@ public class WyManageAction extends DispatchAction {
 		String sqlAddr="";
 		String[] params = null;
 		String[] addrParams = null;
-		if(wyID.equals(""))//新增
+		if(wyID == null || wyID.equals(""))//新增
 		{
 			sql = "insert into TB_WYINFO(NAME,SEX,DEPT,TITLE,TXADDRESS,EMAIL,PHONE) values(?, ?, ?, ?, ?, ?, ?)";
 			params = new String[]{name, sex, dept, title, txAddress, email, phone};
