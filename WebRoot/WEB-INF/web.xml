@@ -227,6 +227,10 @@
    </filter-mapping>
    <filter-mapping>
    	<filter-name>PromptDownload</filter-name>
+   	<url-pattern>/upload/*</url-pattern>
+   </filter-mapping>
+   <filter-mapping>
+   	<filter-name>PromptDownload</filter-name>
    	<url-pattern>/key/*</url-pattern>
    </filter-mapping> 
   
