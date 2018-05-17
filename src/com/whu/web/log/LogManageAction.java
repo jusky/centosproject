@@ -169,7 +169,7 @@ public class LogManageAction extends DispatchAction {
 		String ids = request.getParameter("ids");
 		DBTools dbTool = new DBTools();
 		boolean result = true;
-		if(ids == null || ids == "")
+		if(ids == null || ids.equals(""))
 		{
 			String id = request.getParameter("id");
 			result = dbTool.deleteItemReal(id, "SYS_LOGINFO", "ID");

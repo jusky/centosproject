@@ -145,6 +145,7 @@ public class ExpertFKAction extends DispatchAction {
 			json.put("statusCode", 200);
 			json.put("message", "提交成功！");
 			json.put("callbackType", "closeCurrent");
+			json.put("navTabId", "ajjd");
 		}
 		else
 		{

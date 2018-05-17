@@ -30,10 +30,86 @@ public class CheckEventForm extends ActionForm {
 	private String checkName;
 	//所属学部
 	private String faculty;
+	//当事人姓名
+	private String beReportName;
+	//身份证号
+	private String idNumber;
+	//职称
+	private String title;
+	//单位
+	private String institution;
+	//手机
+	private String telphone;
+	//邮箱
+	private String email;
+	//相关项目编号
+	private String relatedProject;
+	//相关项目编号sl
+	private String relatedProjectsl;
+	//
+	private String nibanName;
+	private String nibanTime;
+	private String nibanAdvice;
+	
+	public String getRelatedProject() {
+		return relatedProject;
+	}
+	public void setRelatedProject(String relatedProject) {
+		this.relatedProject = relatedProject;
+	}
+	
+	public String getRelatedProjectsl() {
+		return relatedProjectsl;
+	}
+	public void setRelatedProjectsl(String relatedProjectsl) {
+		this.relatedProjectsl = relatedProjectsl;
+	}
+	
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	
+	public String getTelphone() {
+		return telphone;
+	}
+	public void setTelphone(String telphone) {
+		this.telphone = telphone;
+	}
+	
+	public String getInstitution() {
+		return institution;
+	}
+	public void setInstitution(String institution) {
+		this.institution = institution;
+	}
+	
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
+	public String getIdNumber() {
+		return idNumber;
+	}
+	public void setIdNumber(String idNumber) {
+		this.idNumber = idNumber;
+	}
+	
+	public String getBeReportName() {
+		return beReportName;
+	}
+	public void setBeReportName(String beReportName) {
+		this.beReportName = beReportName;
+	}
+	
 	public String getFaculty() {
 		return faculty;
 	}
-
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
 	}
@@ -65,9 +141,29 @@ public class CheckEventForm extends ActionForm {
 	public String getCheckName() {
 		return checkName;
 	}
-
 	public void setCheckName(String checkName) {
 		this.checkName = checkName;
+	}
+	
+	public String getNibanName() {
+		return nibanName;
+	}
+	public void setNibanName(String nibanName) {
+		this.nibanName = nibanName;
+	}
+	
+	public String getNibanTime() {
+		return nibanTime;
+	}
+	public void setNibanTime(String nibanTime) {
+		this.nibanTime = nibanTime;
+	}
+	
+	public String getNibanAdvice() {
+		return nibanAdvice;
+	}
+	public void setNibanAdvice(String nibanAdvice) {
+		this.nibanAdvice = nibanAdvice;
 	}
 
 	/** 

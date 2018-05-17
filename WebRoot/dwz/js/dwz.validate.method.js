@@ -21,7 +21,7 @@
 		}, "Please specify a valid postcode");
 
       $.validator.addMethod("password", function(value, element) {
-         return this.optional(element) || /^[a-zA-Z0-9!@#$%^&*-=_+\(\)]{6,20}$/.test(value);
+         return this.optional(element) || /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*-=_+\(\)])[A-Za-z\d!@#$%^&*-=_+\(\)]{8,}$/.test(value);
       }, "Letters, numbers or !@#$%^&*()-=_+ only please");
         
     	$.validator.addMethod("ratePercent", function(val, ele) {

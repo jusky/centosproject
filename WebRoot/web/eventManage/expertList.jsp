@@ -70,7 +70,7 @@
 							</td>
 							<td align="center">
 								<a href="#">&nbsp;</a>
-								<a class="btnSelect" href="javascript:$.bringBack({expertID:'${ExpertInfo.id}',expertName:'${ExpertInfo.name}', email:'${ExpertInfo.name}' + '<${ExpertInfo.email}>'})" title="查找带回">选择</a>
+								<a href="javascript:$.bringBack({expertID:'${ExpertInfo.id}',expertName:'${ExpertInfo.name}', email:'${ExpertInfo.name}' + '<${ExpertInfo.email}>'})" title="查找带回">选择</a>
 							</td>
 						</tr>
 					</logic:iterate>

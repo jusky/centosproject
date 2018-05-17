@@ -18,6 +18,8 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 
 import com.whu.tools.DBTools;
+import com.whu.tools.SystemConstant;
+import com.whu.web.log.LogBean;
 import com.whu.web.user.UserBean;
 
 /** 
@@ -66,6 +68,8 @@ public class ChangePwdAction extends DispatchAction {
 		// sql = "select * from " + tableName + " where LOGINNAME='" + loginName + "' and PASSWORD='" + oldPwd + "'";
 		sql = "select * from " + tableName + " where LOGINNAME=? and PASSWORD=?";
 		boolean result = db.isHave(sql, loginName, oldPwd);
+		
+		
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if (result) {
@@ -73,7 +77,14 @@ public class ChangePwdAction extends DispatchAction {
 			sql = "update " + tableName + " set PASSWORD=? where LOGINNAME=?";
 			String[] params = new String[]{newPwd, loginName};
 			result = db.updateItem(sql, params);
-			
+			//记录到日志
+			LogBean lb = new LogBean();
+			lb.setOperator(loginName);
+			lb.setLogType(SystemConstant.LOG_CHANGEPWD);
+			lb.setIpAddr(request.getRemoteAddr());
+			//lb.setDetail("将旧密码"+oldPwd+"修改成新密码"+newPwd+"。");
+			lb.setDetail("修改密码"+"。");
+			result = db.insertLogInfo(lb);
 			if(result)
 			{
 				

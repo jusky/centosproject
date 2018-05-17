@@ -22,11 +22,28 @@ public class WsjbManageForm extends ActionForm {
 	/*
 	 * Generated Methods
 	 */
-	
+	private String id;
 	private String reportName;
 	private String jbBeginTime;
 	private String jbEndTime;
 	private String beReportName;
+	private String wsjbreportReason;
+	
+	public String getWsjbreportReason() {
+		return wsjbreportReason;
+	}
+
+	public void setWsjbreportReason(String wsjbreportReason) {
+		this.wsjbreportReason = wsjbreportReason;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 	public String getBeReportName() {
 		return beReportName;
 	}

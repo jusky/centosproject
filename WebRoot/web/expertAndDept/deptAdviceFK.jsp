@@ -18,8 +18,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
             'multi' : true,
             'simUploadLimit' : 2,
             'fileDesc': "请选择office/pdf/压缩包文件",
-    		'fileExt': '*.doc;*.docx;*.xls;*.xlsx;*.pdf;*.jpg;*.jpeg;*.png;*.tiff;*.rar;*.zip', 
-            'buttonText' : 'BROWSE'
+    		   'fileExt': '*.doc;*.docx;*.xls;*.xlsx;*.pdf;*.jpg;*.jpeg;*.png;*.tiff;*.rar;*.zip', 
+            'buttonText' : 'BROWSE',
+            'removeCompleted':false ,
+            'onComplete' :function(event,queueId,file,response,data){if(response == "1"){alert(file.name +"上传成功！");}else{alert(file.name +"上传失败！");}}
         });
     });
     
@@ -43,14 +45,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	{
 		var text = document.getElementById(id).value;
 		var len;
-		if(text.length >= 2500)
+		if(text.length >= 5000)
 		{
-			document.getElementById(id).value=text.substr(0, 2500);
+			document.getElementById(id).value=text.substr(0, 5000);
 			len = 0;
 		}
 		else
 		{
-			len = 2500 - text.length;
+			len = 5000 - text.length;
 		}
 		document.getElementById(id + "Label").innerText = "还可以输入" + len + "字！";
 	}
@@ -64,11 +66,36 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<logic:notEmpty name="deptFKManageForm" property="recordList">
      		<logic:iterate name="deptFKManageForm" property="recordList" id="DeptAdviceBean">
      		<logic:equal name="isSubmit" scope="request" value="1">
-     					<div class="panel">
+     			<div class="panel">
+     			<h1>涉案人员信息（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
+				<div style="background:#ffffff;">
+     			<logic:notEmpty name="DeptAdviceBean" property="beReportList">
+				<logic:iterate name="DeptAdviceBean" property="beReportList" id="BeReportBean" indexId="number">
+				<input type="hidden" name="beReportedList[${number}].ID" value="BeReportBean.ID"/>
+				<dl class="nowrap">
+					<dt>当事人姓名：</dt>
+					<dd><input class="required" name="beReportedList[${number}].beName" type="text" size="30" value='${BeReportBean.beName}' style="color:#ff0000;"/></dd>
+				</dl>
+				<dl class="nowrap">
+					<dt>身份证号：</dt>
+					<dd><input class="required" name="beReportedList[${number}].beidNumber" type="text" size="30" value='${BeReportBean.idNumber}' style="color:#ff0000;"/></dd>
+				</dl>
+				<dl class="nowrap">
+					<dt>出生年月：</dt>
+					<dd>
+						<input id="beReportedList[${number}].birth" type="text" name="beReportedList[${number}].birth" class="date required" size="20"/><a class="inputDateButton" href="javascript:;">选择</a>
+					</dd>
+				</dl>
+				</logic:iterate>
+				</logic:notEmpty>
+     			</div>
+     			</div>
+     			
+     			<div class="panel">
 				<h1>调查结果（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
 				<div style="background:#ffffff;">
 				<dl class="nowrap">
-					<dt>事实和贵单位意见：<font color="#ff0000">*</font></dt>
+					<dt>调查情况和单位意见：<font color="#ff0000">*</font></dt>
 					<dd>
 						<textarea readonly id="deptAdvice" cols="100" name="deptAdvice" rows="15" onKeyUp="countRemind('deptAdvice')" onblur="countRemind('deptAdvice')">${DeptAdviceBean.deptAdvice }</textarea>
 						<br/>
@@ -104,7 +131,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<h1>其他情况（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
 				<div style="background:#ffffff;">
 				<dl class="nowrap">
-					<dt>专家意见：</dt>
+					<dt>贵单位专家意见：</dt>
 					<dd>
 						<textarea readonly id="expertAdvice" cols="100" name="expertAdvice" rows="10" onKeyUp="countRemind('expertAdvice')" onblur="countRemind('expertAdvice')">${DeptAdviceBean.expertAdvice }</textarea>
 						<br/>
@@ -122,14 +149,38 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
      		</logic:equal>
 			<logic:equal name="isSubmit" scope="request" value="0">
 			<div class="panel">
+				<h1>涉案人员信息（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
+				<div style="background:#ffffff;">
+     			<logic:notEmpty name="DeptAdviceBean" property="beReportList">
+				<logic:iterate name="DeptAdviceBean" property="beReportList" id="BeReportBean" indexId="number">
+				<input type="hidden" name="beReportedList[${number}].ID" value="${BeReportBean.ID}"/>
+				<dl class="nowrap">
+					<dt>当事人姓名：</dt>
+					<dd><input class="required" name="beReportedList[${number}].beName" type="text" size="30" value='${BeReportBean.beName}' style="color:#ff0000;"/></dd>
+				</dl>
+				<dl class="nowrap">
+					<dt>身份证号：</dt>
+					<dd><input class="required" name="beReportedList[${number}].beidNumber" type="text" size="30" value='${BeReportBean.idNumber}' style="color:#ff0000;"/></dd>
+				</dl>
+				<dl class="nowrap">
+					<dt>出生年月：</dt>
+					<dd>
+						<input id="beReportedList[${number}].birth" type="text" name="beReportedList[${number}].birth" class="date required" size="20"/><a class="inputDateButton" href="javascript:;">选择</a>
+					</dd>
+				</dl>
+				</logic:iterate>
+				</logic:notEmpty>
+     			</div>
+     			</div>
+			<div class="panel">
 				<h1>调查结果（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
 				<div style="background:#ffffff;">
 				<dl class="nowrap">
-					<dt>事实和贵单位意见：<font color="#ff0000">*</font></dt>
+					<dt>调查情况和单位意见：<font color="#ff0000">*</font></dt>
 					<dd>
 						<textarea id="deptAdvice" cols="100" name="deptAdvice" rows="15" onKeyUp="countRemind('deptAdvice')" onblur="countRemind('deptAdvice')">${DeptAdviceBean.deptAdvice }</textarea>
 						<br/>
-						<label id="deptAdviceLabel">还可以输入2500字！</label>
+						<label id="deptAdviceLabel">还可以输入5000字！</label>
 					</dd>
 				</dl>
 				</div>
@@ -163,11 +214,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<h1>其他情况（注意：标有<font color="#ff0000">*</font>的必须填写）</h1>
 				<div style="background:#ffffff;">
 				<dl class="nowrap">
-					<dt>专家意见：</dt>
+					<dt>贵单位专家意见：</dt>
 					<dd>
 						<textarea id="expertAdvice" cols="100" name="expertAdvice" rows="10" onKeyUp="countRemind('expertAdvice')" onblur="countRemind('expertAdvice')">${DeptAdviceBean.expertAdvice }</textarea>
 						<br/>
-						<label id="expertAdviceLabel">还可以输入2500字！</label>
+						<label id="expertAdviceLabel">还可以输入5000字！</label>
 					</dd>
 				</dl>
 				<dl class="nowrap">

@@ -72,17 +72,8 @@ public class DeptFKManageAction extends DispatchAction {
 		request.setAttribute("title", title);
 		
 		String sql = "select a.ADVICE,a.EXPERTADVICE,a.ATTACHNAME,b.LITIGANTNAME,b.LITIGANTTIME,b.LITIGANTCONTENT from TB_DEPTADVICE a, TB_LITIGANTSTATE b where a.ID=b.DEPTADVICEID and a.ID=?";
-		DeptAdviceBean dab = dbTools.queryDeptAdvice(sql, new String[]{adviceID});
+		DeptAdviceBean dab = dbTools.queryDeptAdvice(sql, new String[]{adviceID},reportID);
 		ArrayList result = new ArrayList();
-		if(dab==null)
-		{
-			dab = new DeptAdviceBean();
-			dab.setDeptAdvice("");
-			dab.setLitigantName("");
-			dab.setAttitude("");
-			dab.setLitigantTime("");
-			dab.setExpertAdvice("");
-		}
 		result.add(dab);
 		deptFKForm.setRecordList(result);
 
@@ -97,4 +88,44 @@ public class DeptFKManageAction extends DispatchAction {
 		
 		return mapping.findForward("onlineSubmit");
 	}
+//	public ActionForward onlineSubmit(ActionMapping mapping, ActionForm form,
+//			HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+//		response.setContentType("text/html;charset=utf-8");
+//		request.setCharacterEncoding("utf-8");
+//		DeptFKManageForm deptFKForm = (DeptFKManageForm)form;
+//		String id = request.getParameter("id");
+//		String reportID = request.getParameter("reportID");
+//		String adviceID = request.getParameter("adviceID");
+//		DBTools dbTools = new DBTools();
+//		//String sql = "select a.*,b.TITLE from TB_ED_ADVICE a,TB_DEPTSURVEYLETTER where a.ID=" + id + " and a.ADVICEID=b.DEPTADVICEID";
+//		
+//		String title = dbTools.querySingleData("TB_DEPTSURVEYLETTER", "TITLE", "DEPTADVICEID", adviceID);
+//		request.setAttribute("title", title);
+//		
+//		String sql = "select a.ADVICE,a.EXPERTADVICE,a.ATTACHNAME,b.LITIGANTNAME,b.LITIGANTTIME,b.LITIGANTCONTENT from TB_DEPTADVICE a, TB_LITIGANTSTATE b where a.ID=b.DEPTADVICEID and a.ID=?";
+//		DeptAdviceBean dab = dbTools.queryDeptAdvice(sql, new String[]{adviceID},reportID);
+//		ArrayList result = new ArrayList();
+//		if(dab==null)
+//		{
+//			dab = new DeptAdviceBean();
+//			dab.setDeptAdvice("");
+//			dab.setLitigantName("");
+//			dab.setAttitude("");
+//			dab.setLitigantTime("");
+//			dab.setExpertAdvice("");
+//		}
+//		result.add(dab);System.out.println(dab.toString());
+//		deptFKForm.setRecordList(result);
+//
+//		request.setAttribute("dcID", id);
+//		request.setAttribute("reportID", reportID);
+//		request.setAttribute("adviceID", adviceID);
+//		
+//		// if submit, cannot edit separate in deptAdviceFk.jsp
+//		String loginName = (String)request.getSession().getAttribute("LoginName");
+//		String isSubmit = dbTools.querySingleData("TB_ED_ADVICE", "ISSUBMIT", "LOGINNAME", loginName);
+//		request.setAttribute("isSubmit", isSubmit);
+//		
+//		return mapping.findForward("onlineSubmit");
+//	}
 }

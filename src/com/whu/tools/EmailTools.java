@@ -79,17 +79,17 @@ public class EmailTools {
 	{
 		try
 		{
-			String mailAddress = emailBean.getMailBoxAddress();
-			String pwd = emailBean.getMailBoxPwd();
-			String smtpPC = emailBean.getSmtpPC();
-			String smtpPort = emailBean.getSmtpPort(); 
+			String mailAddress = emailBean.getMailBoxAddress();//发件人邮箱
+			String pwd = emailBean.getMailBoxPwd();//发件人密码
+			String smtpPC = emailBean.getSmtpPC();//发件人smtp主机
+			String smtpPort = emailBean.getSmtpPort(); //发件人smtp端口
 			
-			String title = emailInfo.getTitle();
-			String sendName = emailInfo.getSendName();
-			String recvName = emailInfo.getRecvName();
-			String csName = emailInfo.getCsName();
-			String accessoryPath = emailInfo.getAccessory();
-			String content = emailInfo.getContent();
+			String title = emailInfo.getTitle();//主题
+			String sendName = emailInfo.getSendName();//发件人邮箱
+			String recvName = emailInfo.getRecvName();//收件人邮箱
+			String csName = emailInfo.getCsName();//抄送人邮箱
+			String accessoryPath = emailInfo.getAccessory();//
+			String content = emailInfo.getContent();//内容
 			
 			String allRecv = recvName + "," + csName;
 			
@@ -101,13 +101,13 @@ public class EmailTools {
 			String unionRecvName = "", unionCsName = "";
 			if(allRecv != null && allRecv != "")
 			{
-				allList = allRecv.split(",");
-				count += allList.length;
+				allList = allRecv.split(",");//收件人与抄送人列表
+				count += allList.length;//收件人与抄送人总人数
 				
-				recvList = recvName.split(",");
-				csList = csName.split(",");
+				recvList = recvName.split(",");//收件人列表
+				csList = csName.split(",");//抄送人列表
 				
-				Address[] addr = new Address[count];
+				Address[] addr = new Address[count];//收件人和抄送人邮箱序列{714139625@qq.com,1271448120@qq.com}
 				int i = 0, j = 0;
 				for(i = 0; i < recvList.length; i++)
 				{
@@ -153,8 +153,8 @@ public class EmailTools {
 					}
 				}
 				
-				unionRecvName = removeLastChar(unionRecvName);
-				unionCsName = removeLastChar(unionCsName);
+				unionRecvName = removeLastChar(unionRecvName);//收件人{王文武<714139625@qq.com>,沈金山<1271448120@qq.com>}
+				unionCsName = removeLastChar(unionCsName);//抄送人{王文武<714139625@qq.com>,沈金山<1271448120@qq.com>}
 				
 				/*
 				Message msg = new MimeMessage(session);
@@ -172,10 +172,10 @@ public class EmailTools {
 				*/
 				
 				MimeMessage msg = new MimeMessage(session);
-				msg.setFrom(new InternetAddress(sendName));
-				msg.setSubject(title);
-				msg.setRecipients(RecipientType.TO, InternetAddress.parse(unionRecvName));
-				msg.setRecipients(RecipientType.CC, InternetAddress.parse(unionCsName));
+				msg.setFrom(new InternetAddress(sendName));//发件人邮箱
+				msg.setSubject(title);//主题
+				msg.setRecipients(RecipientType.TO, InternetAddress.parse(unionRecvName));//收件人{王文武<714139625@qq.com>,沈金山<1271448120@qq.com>}
+				msg.setRecipients(RecipientType.CC, InternetAddress.parse(unionCsName));//抄送人{王文武<714139625@qq.com>,沈金山<1271448120@qq.com>}
 				
 				MimeMultipart msgMultipart = new MimeMultipart("mixed");
 				msg.setContent(msgMultipart);
@@ -212,7 +212,7 @@ public class EmailTools {
 				MimeBodyPart htmlPart= new MimeBodyPart();
 				bodyMultipart.addBodyPart(htmlPart);
 
-				htmlPart.setContent(content, "text/html;charset=gbk");
+				htmlPart.setContent(content, "text/html;charset=utf-8");
 				
 				msg.saveChanges();
 				

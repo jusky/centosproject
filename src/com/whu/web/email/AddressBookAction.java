@@ -193,7 +193,7 @@ public class AddressBookAction extends DispatchAction {
 		String mailAddr = addressBookForm.getEmailAddr();
 		DBTools dbTools = new DBTools();
 		String sql = "";
-		if(addrID.equals(""))//新增
+		if(addrID==null||addrID.equals(""))//新增
 		{
 			sql = "insert into TB_CONTACT(LOGINNAME,CONNAME,CONADDR) values(?,?,?)";
 		//	sql = "insert into TB_CONTACT(LOGINNAME,CONNAME,CONADDR) values('" + loginName + "','" + addrName + "','" + mailAddr + "')";
@@ -231,7 +231,7 @@ public class AddressBookAction extends DispatchAction {
 		boolean result = false;
 		String ids = request.getParameter("ids");
 		DBTools dbTool = new DBTools();
-		if(ids == null || ids == "")
+		if(ids == null || ids.equals(""))
 		{
 			String uid = request.getParameter("uid");
 			result = dbTool.deleteItemReal(uid, "TB_CONTACT", "ID");

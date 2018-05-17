@@ -1,6 +1,6 @@
 //web office
 word = function() {
-	var localDir="c:/kxjjbdxw/"; // 本地保存的临时目录
+	var localDir="d:/kxjjbdxw/"; // 本地保存的临时目录
 	var docName;// 本地保存的文件名, 也为上传到服务器上时的文件名
 	var docUrl; // 远程文件 e.g. http://128.96.172.238:9080/aaa/upload/aaa.doc
 	var uploadUrl; //上传到服务器的url

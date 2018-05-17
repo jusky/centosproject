@@ -19,7 +19,9 @@
             'auto' : false,
             'multi' : true,
             'simUploadLimit' : 2,
-            'buttonText' : 'BROWSE'
+            'buttonText' : 'BROWSE',
+            'removeCompleted':false ,
+            'onComplete' :function(event,queueId,file,response,data){if(response == "1"){alert(file.name +"上传成功！");}else{alert(file.name +"上传失败！");document.getElementById("cfile").click();}}
         });
     });
 </script>
@@ -41,21 +43,23 @@
 			<dl class="nowrap">
 				<dt>举报事由：</dt>
 				<dd>
-					<textarea class="requird" rows="5" cols="100" name="reportReason">${EventBean.reportReason }</textarea>
+					<textarea class="requird " readonly rows="5" cols="100" name="reportReason">${EventBean.reportReason }</textarea>
 				</dd>
 			</dl>
 			<dl class="nowrap">
 				<dt>举报内容：</dt>
 				<dd>
-					<textarea class="requird" rows="20" cols="100" name="reportContent">${EventBean.reportContent }</textarea>
+					<textarea class="requird" readonly rows="20" cols="100" name="reportContent">${EventBean.reportContent }</textarea>
 				</dd>
 			</dl>
 			<dl class="nowrap">
-					<dt>上传附件：</dt>
+					<dt>上传附件：
+					<br/><font color="red">请将多个附件打包压缩后再一起上传，谢谢！</font>
+					</dt>
 					<dd>
 						<input type="file" name="editUpload" id="editUpload" />
         					<a href="javascript:uploadNewEvent('#editUpload','event')">开始上传</a>&nbsp;
-        					<a href="javascript:jQuery('#editUpload').uploadifyClearQueue()">取消所有上传</a>
+        					<a id="cfile" href="javascript:jQuery('#editUpload').uploadifyClearQueue()">取消所有上传</a>
     					<div id="fileQueue"></div>
 					</dd>
 			</dl>

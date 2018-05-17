@@ -46,13 +46,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<script type="text/javascript">
 			var word = new word();
              //决定路径
-		     word.setUploadUrl("<%=serverPath%>" + "/web/dsoframer/upload_handle.jsp");
+		     word.setUploadUrl("<%=basePath%>" + "/web/dsoframer/upload_handle.jsp");
 
 		     var docurl = "";
 		     var flag = "<%=isEdit%>";
 		     function load()
 			{
-				word.openDoc('zjjdh.doc',"<%=templatePath%>");
+				word.openDoc('zjjdh.doc',"<%=basePath%>" + "<%=templatePath%>");
 				if(flag == "0")
 				{
 					setFileVal();

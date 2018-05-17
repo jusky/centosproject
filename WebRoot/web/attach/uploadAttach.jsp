@@ -17,7 +17,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
             'auto' : false,
             'multi' : true,
             'simUploadLimit' : 2,
-            'buttonText' : 'BROWSE'
+            'buttonText' : 'BROWSE',
+            'removeCompleted':false ,
+            'onComplete' :function(event,queueId,file,response,data){alert(file.name +"上传成功！");}
         });
     });
 </script>
@@ -25,7 +27,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<form method="post" action="<%=path %>/attachManageAction.do?method=upload" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone);">
 		<div class="pageFormContent" layoutH="58">
 		<dl>
-			<dt>上传附件：</dt>
+			<dt>上传附件：
+			<br/><font color="red">请将多个附件打包压缩后再一起上传，谢谢！</font>
+			</dt>
 			<dd>
 				<input type="file" name="attachUpload" id="attachUpload" />
       				<a href="javascript:jQuery('#attachUpload').uploadifyUpload()">开始上传</a>&nbsp;

@@ -5,6 +5,10 @@
     String basePath = request.getScheme() + "://"  
                 + request.getServerName() + ":" + request.getServerPort()  
                 + path + "/";
+    
+    String contextPath = request.getContextPath();  
+    String headerReferer  =request.getHeader("Referer");  
+    String domain = headerReferer.substring(0,headerReferer.indexOf(contextPath)+contextPath.length()+1);  
 %> 
 <script type="text/javascript">
 function makeSJYBD()
@@ -17,7 +21,7 @@ function makeSJYBD()
 	else
 	{
 		var reportID = document.getElementById("reportID").value;
-		var url = "<%=path%>/sjybdManageAction.do?method=makeSJYBD&reportID=" + reportID;
+		var url = "<%=basePath%>sjybdManageAction.do?method=makeSJYBD&reportID=" + reportID;
 		openMaxWin(url);
 	}
 }
@@ -52,6 +56,12 @@ function makeSJYBD()
 				<dt>来件标题：</dt>
 				<dd>
 					<textarea class="requird" rows="5" cols="60" name="title">${SjybdBean.title }</textarea>
+				</dd>
+			</dl>
+			<dl class="nowrap">
+				<dt>拟办意见：</dt>
+				<dd>
+					<textarea class="requird" rows="5" cols="60" name="proposedOpinion">${SjybdBean.proposedOpinion }</textarea>
 				</dd>
 			</dl>
 			</logic:iterate>

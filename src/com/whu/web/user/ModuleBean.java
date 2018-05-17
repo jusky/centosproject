@@ -1,8 +1,8 @@
 package com.whu.web.user;
 
 public class ModuleBean {
-	private String grbg = "0";
-	private String wsjb = "0";
+	private String grbg = "0";//个人办公
+	private String wsjb = "0";//网上举报
 	private String sjlr = "0";
 	private String sjsp = "0";
 	private String sjgl = "0";
@@ -13,6 +13,8 @@ public class ModuleBean {
 	private String yscsj = "0";
 	private String hygl = "0";
 	private String sjtj = "0";
+	private String wdlzj= "0";//未登录专家
+	private String ed= "0";//依托单位和鉴定专家
 	private String yhzzgl = "0";
 	private String zzgl = "0";
 	private String gwgl = "0";
@@ -302,5 +304,19 @@ public class ModuleBean {
 	}
 	public void setMygl(String mygl) {
 		this.mygl = mygl;
+	}
+	
+	public String getWdlzj() {
+		return wdlzj;
+	}
+	public void setWdlzj(String wdlzj) {
+		this.wdlzj = wdlzj;
+	}
+	
+	public String getEd() {
+		return ed;
+	}
+	public void setEd(String ed) {
+		this.ed = ed;
 	}
 }

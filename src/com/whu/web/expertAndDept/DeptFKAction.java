@@ -7,6 +7,7 @@ package com.whu.web.expertAndDept;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,7 +25,9 @@ import org.apache.struts.actions.DispatchAction;
 import com.whu.tools.DBTools;
 import com.whu.tools.SystemConstant;
 import com.whu.web.common.SystemShare;
+import com.whu.web.event.BeReportBean;
 import com.whu.web.eventbean.JDYJSBean;
+import com.whu.web.eventmanage.CheckEventForm;
 
 /** 
  * MyEclipse Struts
@@ -90,6 +93,36 @@ public class DeptFKAction extends DispatchAction {
       String sql = "update TB_DEPTADVICE set ADVICE=?,TIME=?,ISFK=?,ATTACHNAME=?,EXPERTADVICE=? where ID=?";
       String[] params = new String[]{deptAdvice, time, "1", attachName, expertAdvice, adviceID};
       boolean result = dbTools.insertItem(sql, params);
+      
+      BeReportBean brb = null;
+      String beID = "";
+      String beName = "";
+      String beidNumber = "";
+      String beBirth = "";
+      ArrayList list = new ArrayList();
+		for(int i = 0; i < SystemConstant.beReportNum; i++)
+		{
+			beID = request.getParameter("beReportedList[" + i + "].ID");
+			beName = request.getParameter("beReportedList[" + i + "].beName");
+			beidNumber = request.getParameter("beReportedList[" + i + "].beidNumber");
+			beBirth = request.getParameter("beReportedList[" + i + "].birth"); 
+			if(beName != null && beName != "")
+			{
+				brb = new BeReportBean();
+				brb.setID(beID);
+				brb.setBeName(beName);
+				brb.setIdNumber(beidNumber);
+				brb.setBirth(beBirth);
+				list.add(brb);
+			}
+		}
+		try {
+			//插入被举报人信息
+			result = result && dbTools.updateBeReportFK(list);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			result = result && false;
+		}
         
       if(result)
         {
@@ -132,6 +165,7 @@ public class DeptFKAction extends DispatchAction {
 			json.put("statusCode", 200);
 			json.put("message", "提交成功！");
 			json.put("callbackType", "closeCurrent");
+			json.put("navTabId", "ajdc");
 		}
 		else
 		{

@@ -203,7 +203,7 @@ public class SystemShare {
 	                               ab = new AttachBean();
 	                               ab.setFileName(file.getName());
 	                               ab.setUploadName(userName);
-	                               ab.setFilePath(serverIPAddr);
+	                               ab.setFilePath(serverIPAddr);System.out.println(serverIPAddr);
 	                               list.add(ab);
                                }
                                serverIPAddr = "/" + relDirectory;
@@ -265,7 +265,7 @@ public class SystemShare {
                       try{
                                FileInputStream fin = new FileInputStream(file);
                                BufferedInputStream bin = new BufferedInputStream(fin);
-                               filePath = targetdirectory.getAbsolutePath()+"/"+file.getName();
+                               filePath = targetdirectory.getAbsolutePath()+"/"+file.getName();///home/apache-tomcat-8.0.9/webapps/KXJJBDXW/attachment/expert/20151024151657/专家鉴定函4.doc
                                PrintStream pout = new PrintStream(filePath);
                                BufferedOutputStream bout = new BufferedOutputStream(pout);
                                int total =bin.available();  //文件的总大小

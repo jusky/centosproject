@@ -3,6 +3,7 @@ package com.whu.web.user;
 public class UserBean {
 	
 	//���
+	
 	private String id;
 	private String serialNum;
 	
@@ -34,7 +35,14 @@ public class UserBean {
 	//担任职务名称
 	private String posNames;
 	private String isHead;
+	private String dispatchChecked;
 
+	public String getDispatchChecked() {
+		return dispatchChecked;
+	}
+	public void setDispatchChecked(String dispatchChecked) {
+		this.dispatchChecked = dispatchChecked;
+	}
 	public String getIsHead() {
 		return isHead;
 	}

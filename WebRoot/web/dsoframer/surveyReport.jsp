@@ -25,26 +25,28 @@ String id = "1";
 		<script type="text/javascript">
 			var word = new word();
              //决定路径
-		     word.setUploadUrl("<%=serverPath%>" + "/web/dsoframer/upload_handle.jsp");
+		     word.setUploadUrl("<%=basePath%>" + "/web/dsoframer/upload_handle.jsp");
 
 		     var docurl = "";
 		     var flag = "<%=isEdit%>";
 		     function load()
 				{
-					word.openDoc('dcbg.doc',"<%=templatePath%>");
+					word.openDoc('dcbg.doc',"<%=basePath%>" + "<%=templatePath%>");
 		         if(flag == "0")//如果是新增处理决定，则自动填充一些信息，如果是编辑，则由于标签位置可能发生改变，不用自动填充
 		        	 {
 		         	setFileVal();
 		         	}
 				}
 			function setFileVal(){
-				document.getElementById('oframe').SetFieldValue("beReportName","<%=beReportName%>","");
+				document.getElementById('oframe').SetFieldValue("beReportName1","<%=beReportName%>","");
+				document.getElementById('oframe').SetFieldValue("beReportName2","<%=beReportName%>","");
 				reportContent = document.getElementById("reportContent").value;
 		       checkInfo = document.getElementById("checkInfoID").value;
 			   deptAdvice = document.getElementById("deptAdviceID").value;
 			   expertAdvice = document.getElementById("expertAdviceID").value;
 			   litigantState = document.getElementById("litigantStateID").value;
 			   facultyAdvice = document.getElementById("facultyAdviceID").value;
+			   
 			   
 		       document.getElementById('oframe').SetFieldValue("deptAdvice",deptAdvice,"");
 		       document.getElementById('oframe').SetFieldValue("reportInfo",reportContent,"");

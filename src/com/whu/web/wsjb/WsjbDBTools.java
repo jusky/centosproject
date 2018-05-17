@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import com.whu.tools.CheckPage;
 import com.whu.tools.DBPools;
 import com.whu.tools.crypto.AESCrypto;
+import com.whu.web.event.BeReportBean;
 
 public class WsjbDBTools {
 
@@ -19,6 +20,18 @@ public class WsjbDBTools {
 	private PreparedStatement pst = null;
 	private Statement stmt = null;
 
+	public WsjbDBTools() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/WW_REPORT",
+					"root", "3951345");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	public int getTotalRows(String sql, String[] params) {
 		int count = 0;
 		try {
@@ -91,8 +104,11 @@ public class WsjbDBTools {
 				wsjbInfo.setId(String.valueOf(rs.getInt("ID")));
 				wsjbInfo.setSerialNum(String.valueOf(num));
 				wsjbInfo.setReportID(rs.getString("REPORTID"));
+				wsjbInfo.setReportIP(rs.getString("REPORTIP"));
 				wsjbInfo.setReportName(new String(aes.createDecryptor(rs.getBytes("REPORTNAME"), key)));
 				wsjbInfo.setBeReportName(new String(aes.createDecryptor(rs.getBytes("BEREPORTNAME"), key)));
+				//System.out.println("BEREPORTNAME="+(new String(aes.createDecryptor(rs.getBytes("BEREPORTNAME"), key))));
+				//System.out.println("BEDEPT="+(new String(aes.createDecryptor(rs.getBytes("BEDEPT"), key))));
 				wsjbInfo.setBeDept(new String(aes.createDecryptor(rs.getBytes("BEDEPT"), key)));
 				wsjbInfo.setJbsy2(rs.getString("JBSY2"));
 				//wsjbInfo.setDetail(new String(aes.createDecryptor(rs.getBytes("DETAIL"), key)));
@@ -159,18 +175,7 @@ public class WsjbDBTools {
 		}
 	}
 
-	public WsjbDBTools() {
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/WW_REPORT",
-					"root", "3951345");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
+	
 	/**
 	 * 从指定数据表中批量删除多条记录
 	 * @param ids 记录的ID数组
@@ -227,6 +232,38 @@ public class WsjbDBTools {
 		return true;
 	}
 
+	/**
+	 * 查询被举报人信息，返回list
+	 * @param sql
+	 * @return
+	 */
+	public ArrayList queryBeReport(String sql, String[] params) {
+		ArrayList list = new ArrayList();
+		try {
+			AESCrypto aes = new AESCrypto();
+			String key = "TB_BEREPORTPE";
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param: params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
+			BeReportBean brb = null;
+			while (rs != null && rs.next()) {
+				brb = new BeReportBean();
+				brb.setReportID(params[0]);
+				brb.setBeName(new String(aes.createDecryptor(rs.getBytes("BEREPORTNAME"), key)));
+				brb.setBePosition(rs.getString("POSITION"));
+				brb.setBeTelPhone(new String(aes.createDecryptor(rs.getBytes("TELPHONE"), key)));
+				brb.setBeDept(new String(aes.createDecryptor(rs.getBytes("DEPTNAME"), key)));
+				list.add(brb);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
 	public WsjbInfo QueryWsjbInfo(String id) {
 		WsjbInfo wsjbInfo = new WsjbInfo();
 		try {
@@ -237,7 +274,9 @@ public class WsjbDBTools {
 			AESCrypto aes = new AESCrypto();
 			String key = "TB_REPORTINFO";
 			while (rs.next()) {
+				wsjbInfo.setId(id);
 				wsjbInfo.setReportID(rs.getString("REPORTID"));
+				wsjbInfo.setReportIP(rs.getString("REPORTIP"));
 				wsjbInfo.setReportName(new String(aes.createDecryptor(rs.getBytes("REPORTNAME"), key)));
 				wsjbInfo.setIsNi(rs.getString("ISNI"));
 				wsjbInfo.setSex(rs.getString("SEX"));
@@ -251,12 +290,14 @@ public class WsjbDBTools {
 				wsjbInfo.setBeDept(new String(aes.createDecryptor(rs.getBytes("BEDEPT"), key)));
 				wsjbInfo.setBePosition(rs.getString("BEPOSITION"));
 				wsjbInfo.setBePhone(new String(aes.createDecryptor(rs.getBytes("BEPHONE"), key)));
+				wsjbInfo.setNotice(rs.getString("NOTICE"));
 				wsjbInfo.setJbsy1(rs.getString("JBSY1"));
 				wsjbInfo.setJbsy2(rs.getString("JBSY2"));
 				wsjbInfo.setDetail(new String(aes.createDecryptor(rs.getBytes("DETAIL"), key)));
 				wsjbInfo.setTime(rs.getString("TIME"));
 				wsjbInfo.setSearchID(rs.getString("SEARCHID"));
 				wsjbInfo.setAttachPath(rs.getString("ATTACHPATH"));
+				wsjbInfo.setSearchID(rs.getString("SEARCHID"));
 			}
 		} catch (SQLException ex) {
 			ex.printStackTrace();

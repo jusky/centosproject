@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +34,7 @@ import com.whu.tools.XmlTools;
 import com.whu.tools.crypto.AESCrypto;
 import com.whu.web.common.SystemShare;
 import com.whu.web.event.EventBean;
+import com.whu.web.event.BeReportBean;//coding test
 import com.whu.web.eventbean.CheckBean;
 import com.whu.web.eventbean.DeptAdvice;
 import com.whu.web.eventbean.ExpertAdvice;
@@ -62,62 +64,65 @@ public class EventManageAction extends DispatchAction {
 		DBTools db = new DBTools();
 		
 		// get isHead, Leader can see all event, otherwise see event belongs to himself
-		String isHead = (String)request.getSession().getAttribute("IsHead");
+		String isHead = (String)request.getSession().getAttribute("IsHead");//是否领导
 		String officer = (String)request.getSession().getAttribute("LoginName");
 		
 		//获得阶段编号
 		String jdID = request.getParameter("jdid");
 		String sql = "";
 		String[] params = new String[0];
-		String jdName = SystemShare.GetJDName(jdID);
+		String jdName = SystemShare.GetJDName(jdID);//比如:sljd
 		//事件审核
 		if(jdID.equals("4"))
 		{
 			//String loginName = (String)request.getSession().getAttribute("LoginName");
 			String recvName =  (String)request.getSession().getAttribute("UserName");
-			String tempSql = "select REPORTID from TB_MSGNOTIFY where RECVNAME=? and TYPE=? and ISHANDLE='0'";
-			String ids = db.queryUnApprove(tempSql, new String[]{recvName, SystemConstant.MSG_GZTX});
+			//String tempSql = "select REPORTID from TB_MSGNOTIFY where (RECVNAME=? or AGENTOFFICER=? ) and TYPE=? and ISHANDLE='0'";
+			//String ids = db.queryUnApprove(tempSql, new String[]{recvName,recvName, SystemConstant.MSG_GZTX});
+			
+			String tempSql = "select REPORTID from TB_MSGNOTIFY where TYPE=? and ISHANDLE='0'";
+			String ids = db.queryUnApprove(tempSql, new String[]{SystemConstant.MSG_GZTX});
+			
 			if(!ids.equals(""))
 			{
-				
-				StringBuilder sqlBuilder = new StringBuilder("select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.REPORTID in (");
+		    //StringBuilder sqlBuilder = new StringBuilder("select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM from TB_REPORTINFO a, SYS_DATA_DIC b where a.REPORTID in (");
+				StringBuilder sqlBuilder =  new StringBuilder("select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER,c.AGENTOFFICER from TB_REPORTINFO a, SYS_DATA_DIC b, TB_CHECKINFO c where a.REPORTID=c.REPORTID and a.REPORTID in (");
 				String[] idArray = ids.split(",");
 				for(int i = 0; i < idArray.length; i++) {
 					sqlBuilder.append(" ?,");
 					if(i == idArray.length - 1) sqlBuilder.replace(sqlBuilder.length()-1, sqlBuilder.length(), ")");					
 				}
-				sqlBuilder.append(" and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' and a.STATUS='" + SystemConstant.SS_CHECKEVENT + "' and a.ISDELETE='0' order by REPORTTIME asc");
-				
+				sqlBuilder.append(" and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' and (a.STATUS='" + SystemConstant.SS_CHECKEVENT+"'or a.STATUS='"+ SystemConstant.SS_YSH+ "') and a.ISDELETE='0' ");
+				if ( isHead == null || isHead.equals("0"))
+				{
+					sqlBuilder.append(" and (find_in_set('"+officer+"',a.OFFICER) or c.AGENTOFFICER='"+officer+"') order by REPORTTIME desc");
+				}
+				else 	sqlBuilder.append(" order by REPORTTIME desc");
 		//		sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.REPORTID in (" + ids + ") and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' and a.STATUS='" + SystemConstant.SS_CHECKEVENT + "' and a.ISDELETE='0' order by REPORTTIME asc";
 				sql = sqlBuilder.toString();
 				params = idArray;
 			}
 			else//没有记录，但是也需要设置一下查询语句，否则会报错，返回没有结果集
 			{
-				sql = "select * from TB_REPORTINFO where 1=0";
+				sql = "select * from TB_REPORTINFO a,TB_CHECKINFO b where 1=0 and a.REPORTID=b.REPORTID";
 			}
 		}
 		else
 		{
 			String tempStr =  GetQuerySql(jdID);
-			
 			if ( isHead != null && isHead.equals("1")) {
-				sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where " +  tempStr + " and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' order by REPORTTIME asc";				
+				sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where " +  tempStr + " and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' order by REPORTTIME desc";				
 				params = new String[0];
 			} else { // officer only see events belong to himself
-				sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.OFFICER=? and " +  tempStr + " and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' order by REPORTTIME asc";
+				sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where find_in_set(?,a.OFFICER) and " +  tempStr + " and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' order by REPORTTIME desc";
 				params = new String[]{officer};
 			}			
 		}
-		
-		
 		CheckPage pageBean = new CheckPage();
 		int queryPageNo = 1;// 
 		int rowsPerPage = 20;// 
 		pageBean.setRowsPerPage(rowsPerPage);
-		if (request.getParameter("queryPageNo") != null && request.getParameter("queryPageNo") != "") {
-			queryPageNo = Integer.parseInt(request.getParameter("queryPageNo"));
-		}
+		
 		pageBean.setQueryPageNo(queryPageNo);
 		
 		request.getSession().setAttribute("query" + jdName + "Sql", sql);
@@ -126,13 +131,20 @@ public class EventManageAction extends DispatchAction {
 		pageBean.setParams(params);
 		
 		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
-		ArrayList result = db.queryEventList(rs, rowsPerPage);
+		ArrayList result;
+		if(jdID.equals("4"))
+		{
+			result = db.queryEventListSjsh(rs, rowsPerPage);
+		}
+		else{
+			result = db.queryEventList(rs, rowsPerPage);
+		}
+		
 		if(result.size() > 0)
 		{
 			eventManageForm.setRecordNotFind("false");
 			eventManageForm.setRecordList(result);
-			
-			SystemShare.SplitPageFun(request, pageBean, 1);
+			SystemShare.SplitPageFun(request, pageBean, 1);//生成分页数据
 		}
 		else
 		{
@@ -159,10 +171,8 @@ public class EventManageAction extends DispatchAction {
 		String operation = request.getParameter("operation");
 		
 		//排序控制
-		//排序的字段，数据库字段名称
-		//排序的方向，desc,asc
-		String orderField = request.getParameter("orderField");
-		String orderDirection = request.getParameter("orderDirection");
+		String orderField = request.getParameter("orderField");//排序的字段(数据库字段名称)
+		String orderDirection = request.getParameter("orderDirection");//排序的方向，desc,asc
 		
 		
 
@@ -250,9 +260,9 @@ public class EventManageAction extends DispatchAction {
 				
 				if(jdID != null && jdID.equals("4"))
 				{
-					String loginName = (String)request.getSession().getAttribute("UserName");
-					String tempSql = "select REPORTID from TB_MSGNOTIFY where TYPE='" + SystemConstant.MSG_GZTX + "' and ISHANDLE='0' and RECVNAME=?'";
-					String ids = db.queryUnApprove(tempSql, new String[]{loginName});
+					String userName = (String)request.getSession().getAttribute("UserName");
+					String tempSql = "select REPORTID from TB_MSGNOTIFY where TYPE='" + SystemConstant.MSG_GZTX + "' and ISHANDLE='0' and (RECVNAME=? or AGENTOFFICER=? )"; // ... and (RECVNAME=? OR AGENTOFFICER=?)
+					String ids = db.queryUnApprove(tempSql, new String[]{userName,userName});
 					if(!ids.equals(""))
 					{
 						ids = ids.substring(0, ids.length() - 1);
@@ -268,7 +278,7 @@ public class EventManageAction extends DispatchAction {
 						sqlBuilder.append(" and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' " + temp + " order by REPORTTIME asc");
 					//	sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM,a.OFFICER from TB_REPORTINFO a, SYS_DATA_DIC b where a.REPORTID in (" + ids + ") and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt + "' " + temp + " order by REPORTTIME asc";
 						sql = sqlBuilder.toString();
-						List<String> idList = Arrays.asList(idArray);
+						List<String> idList = new ArrayList<String>(Arrays.asList(idArray));
 						idList.addAll(paramList);
 						params = idList.toArray(new String[0]);
 					}
@@ -500,7 +510,6 @@ public class EventManageAction extends DispatchAction {
 		EventManageForm eventManageForm =  (EventManageForm) form;
 		//得到查询详情的类别：举报信息、核实信息等等
 		String id = request.getParameter("id");
-		
 		String sql = "select * from TB_REPORTINFO where REPORTID=?";
 		DBTools db = new DBTools();
 		EventBean eb = db.queryEvent(sql, new String[]{id});
@@ -529,6 +538,8 @@ public class EventManageAction extends DispatchAction {
 			request.getSession().setAttribute("reportID", eb.getReportID());
 			eventManageForm.setRecordNotFind("false");
 			eventManageForm.setRecordList(result);
+			if(eb.getIsRev().equals("1"))
+				eventManageForm.setIsEdit("true");
 		}
 		else
 		{
@@ -581,7 +592,7 @@ public class EventManageAction extends DispatchAction {
 		String type = request.getParameter("type");
 		DBTools db = new DBTools();
 		String sql = "";
-
+		EventManageForm eventManageForm =  (EventManageForm) form;//coding test
 		sql = "select * from TB_REPORTINFO where REPORTID=?";			
 		EventBean eb = db.queryEvent(sql, new String[]{id});
 		String reportInfo = "";
@@ -601,13 +612,54 @@ public class EventManageAction extends DispatchAction {
 			request.setAttribute("CheckInfo", cb.getPreAdvice());
 			request.setAttribute("CheckName", cb.getCheckName());
 			request.setAttribute("CheckTime", cb.getCheckTime());
+			request.setAttribute("PreAdvice", cb.getPreAdvice());
 		}
-		else if(type.equals("check")){
-			
+		else if(type.equals("finalApprove"))
+		{
+			sql = "select * from TB_CHECKINFO where REPORTID=?";
+			CheckBean cb = db.queryCheckInfo(sql, new String[]{id});
+			request.setAttribute("CheckInfo", cb.getPreAdvice());
+			request.setAttribute("CheckName", cb.getCheckName());
+			request.setAttribute("CheckTime", cb.getCheckTime());
+			sql = "select * from TB_APPROVEINFO where REPORTID=?";
+			ApproveBean ab = db.queryApproveInfoBean(sql, new String[]{id});
+			request.setAttribute("ApproveName", ab.getApproveName());
+			request.setAttribute("ApproveTime", ab.getApproveTime());
+			request.setAttribute("IsXY", ab.getIsXY());
+			request.setAttribute("HeadAdvice", ab.getHeadAdvice());
 		}
-		
+		else if(type.equals("check")){//核实
+			//coding test
+			sql = "select * from TB_CHECKINFO where REPORTID=?";
+			db = new DBTools();
+			ArrayList beReportList = db.queryCheckInfoList(sql, new String[]{id});
+			if(beReportList != null && beReportList.size() > 0)
+			{
+				CheckEventForm tmpcef = (CheckEventForm)beReportList.get(0);
+				if(tmpcef.getPreAdvice() != null)
+				{
+					request.setAttribute("PreAdvice", tmpcef.getPreAdvice());
+				}else
+				{
+					request.setAttribute("PreAdvice", "无");
+				}
+				eb.setBeReportList(beReportList);
+			}
+			if(eb != null)
+			{
+				ArrayList result = new ArrayList();
+				result.add(eb);
+				request.getSession().setAttribute("reportID", eb.getReportID());
+				eventManageForm.setRecordNotFind("false");
+				eventManageForm.setRecordList(result);
+			}
+			else
+			{
+				eventManageForm.setRecordNotFind("true");
+			}
+		//coding test
+		}
 		request.setAttribute("ReportID", id);
-		
 		return mapping.findForward(type);
 	}
 	/**
@@ -831,7 +883,18 @@ public class EventManageAction extends DispatchAction {
 		String reportID = request.getParameter("id");
 		request.getSession().setAttribute("expertReportID", reportID);
 		String sql = "select * from TB_EXPERTADVICE where REPORTID=?";
+		
+		
+		String time = SystemShare.GetNowTime("yyyy-MM-dd");
+		String year=time.substring(0, 4);
+		String month=time.substring(5, 7);
+		String day=time.substring(8, 10);
+		
+		request.setAttribute("year", year);
+		request.setAttribute("month", month);
+		request.setAttribute("day", day);
 		request.setAttribute("reportID", reportID);
+		
 		DBTools dbTools = new DBTools();
 		ArrayList result = dbTools.queryExpertAdvice(sql, "1", new String[]{reportID});
 		if(result.size() > 0)
@@ -891,10 +954,11 @@ public class EventManageAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		EventManageForm eventManageForm = (EventManageForm)form;
 		String reportId = request.getParameter("id");
-		String sql = "select a.*,b.ZZNAME as FACULTYNAME,c.SERIALNUM,c.REPORTNAME,c.BEREPORTNAME from TB_FACULTYADVICE a, SYS_ZZINFO b, TB_REPORTINFO c where a.REPORTID=? and a.FACULTYID=b.ZZID and c.REPORTID=?";
+		String sql = "select a.*,b.ZZNAME as FACULTYNAME,c.SERIALNUM,c.REPORTNAME,c.BEREPORTNAME,c.OFFICER from TB_FACULTYADVICE a, SYS_ZZINFO b, TB_REPORTINFO c where a.REPORTID=? and a.FACULTYID=b.ZZID and c.REPORTID=?";
 		request.setAttribute("reportId", reportId);
 		DBTools dbTools = new DBTools();
 		String facultys = dbTools.querySingleData("TB_REPORTINFO", "FACULTY", "REPORTID", reportId);
+		String officer = dbTools.querySingleData("TB_REPORTINFO", "OFFICER", "REPORTID", reportId);
 		ArrayList result = dbTools.queryFacultyAdvice(sql, "1", new String[]{reportId, reportId});
 		if(result.size() > 0) {
 			eventManageForm.setRecordNotFind("false");
@@ -905,10 +969,131 @@ public class EventManageAction extends DispatchAction {
 			request.setAttribute("totalRows", "0");
 		}
 		request.setAttribute("facultys", facultys);
-		
+		request.getSession().setAttribute("OFFICER", officer);
 		return mapping.findForward("facultyAdviceManage");
 	}
 	
+	/**
+	 * 分析结论
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws IOException
+	 */
+	public ActionForward analysisAndInvestigation(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		EventManageForm eventManageForm =  (EventManageForm) form;
+		String reportID = request.getParameter("id");
+		String sql = "select * from TB_ANALYSANDINVE where REPORTID=?";
+		request.setAttribute("reportID", reportID);
+		request.getSession().setAttribute("AIReportID", reportID);
+		DBTools dbTools = new DBTools();
+		ArrayList result = dbTools.queryanalysisAndInvestigation(sql, "1", new String[]{reportID});
+		if(result.size() > 0)
+		{
+			
+			eventManageForm.setRecordNotFind("false");
+			request.setAttribute("totalRows", result.size());
+			eventManageForm.setRecordList(result);
+		}
+		else
+		{
+			eventManageForm.setRecordNotFind("true");
+			request.setAttribute("totalRows", "0");
+		}
+		/*
+		String templatePath = SystemConstant.GetServerPath() + "/web/template/ytdwdch.doc";
+		String templateName = SystemConstant.TemplateLocalPath + "ytdwdch.doc";
+		request.setAttribute("templatePath", templatePath);
+		request.setAttribute("templateName", templateName);
+		*/
+		return mapping.findForward("analysisAndInvestigation");
+	}
+	
+	/**
+	 * 处理建议
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws IOException
+	 */
+	public ActionForward treatmentSuggestion(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		EventManageForm eventManageForm =  (EventManageForm) form;
+		String reportID = request.getParameter("id");
+		String sql = "select * from TB_TREATANDSUG where REPORTID=?";
+		request.setAttribute("reportID", reportID);
+		request.getSession().setAttribute("tsReportID", reportID);
+		DBTools dbTools = new DBTools();
+		ArrayList result = dbTools.querytreatmentSuggestion(sql, "1", new String[]{reportID});
+		if(result.size() > 0)
+		{
+			
+			eventManageForm.setRecordNotFind("false");
+			request.setAttribute("totalRows", result.size());
+			eventManageForm.setRecordList(result);
+		}
+		else
+		{
+			eventManageForm.setRecordNotFind("true");
+			request.setAttribute("totalRows", "0");
+		}
+		/*
+		String templatePath = SystemConstant.GetServerPath() + "/web/template/ytdwdch.doc";
+		String templateName = SystemConstant.TemplateLocalPath + "ytdwdch.doc";
+		request.setAttribute("templatePath", templatePath);
+		request.setAttribute("templateName", templateName);
+		*/
+		return mapping.findForward("treatmentSuggestion");
+	}
+	/**
+	 * 会议结论
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws IOException
+	 */
+	public ActionForward conclusionOfMeet(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		EventManageForm eventManageForm =  (EventManageForm) form;
+		String reportID = request.getParameter("id");
+		String sql = "select * from TB_CONOFMEET where REPORTID=?";
+		request.setAttribute("reportID", reportID);
+		request.getSession().setAttribute("cmReportID", reportID);
+		DBTools dbTools = new DBTools();
+		ArrayList result = dbTools.queryconOfMeet(sql, "1", new String[]{reportID});
+		if(result.size() > 0)
+		{
+			
+			eventManageForm.setRecordNotFind("false");
+			request.setAttribute("totalRows", result.size());
+			eventManageForm.setRecordList(result);
+		}
+		else
+		{
+			eventManageForm.setRecordNotFind("true");
+			request.setAttribute("totalRows", "0");
+		}
+		/*
+		String templatePath = SystemConstant.GetServerPath() + "/web/template/ytdwdch.doc";
+		String templateName = SystemConstant.TemplateLocalPath + "ytdwdch.doc";
+		request.setAttribute("templatePath", templatePath);
+		request.setAttribute("templateName", templateName);
+		*/
+		return mapping.findForward("conclusionOfMeet");
+	}
 	/**
 	 * 处理决定管理
 	 * @param mapping
@@ -1186,7 +1371,8 @@ public class EventManageAction extends DispatchAction {
 			String tempFilePath = dicPath + filePath;
 			if((new File(tempFilePath)).exists())//如果存在，则得到路径
 			{
-				templatePath = SystemConstant.GetServerPath() + "/attachment/" +  filePath;
+				//templatePath = SystemConstant.GetServerPath() + "/attachment/" +  filePath;
+				templatePath = "attachment/" +  filePath;
 				request.setAttribute("IsEdit", "1");
 				isEdit = true;
 			}
@@ -1194,22 +1380,24 @@ public class EventManageAction extends DispatchAction {
 			{
 				request.setAttribute("IsEdit", "0");
 				isEdit = false;
-				templatePath = SystemConstant.GetServerPath() + "/web/template/dcbg.doc";
+				//templatePath = SystemConstant.GetServerPath() + "/web/template/dcbg.doc";
+				templatePath = "web/template/dcbg.doc";
 			}
 		}
 		else
 		{
-			templatePath = SystemConstant.GetServerPath() + "/web/template/dcbg.doc";
+			//templatePath = SystemConstant.GetServerPath() + "/web/template/dcbg.doc";
+			templatePath = "web/template/dcbg.doc";
 			request.setAttribute("IsEdit", "0");
 			isEdit = false;
-		}
+		}System.out.println("dcbg:" + isEdit);
 		//如果不是编辑，则查询数据库，得到各个默认的信息
 		if(!isEdit)
 		{
 			String sql = "select * from TB_REPORTINFO where REPORTID=?";
 			EventBean eb = dbTools.queryEvent(sql, new String[]{id});
 			beReportName = eb.getBeReportName();
-			reportContent = eb.getReportReason();
+			reportContent = eb.getReportContent();
 
 			checkInfo = dbTools.querySingleData("TB_CHECKINFO", "PREADVICE", "REPORTID", id);
 			ArrayList result = new ArrayList();
@@ -1337,6 +1525,52 @@ public class EventManageAction extends DispatchAction {
 		String jdName = SystemShare.GetJDName(jdID);
 		String sql = (String)request.getSession().getAttribute("query" + jdName + "Sql");
 		String[] params = (String[])request.getSession().getAttribute("query" + jdName + "Params");
+		System.out.println("sql: " + sql);
+		System.out.println("params: " + params);
+		try
+		{
+			String fname = "event";
+			OutputStream os = response.getOutputStream();
+			response.reset();
+			response.setHeader("Content-disposition", "attachment;filename=" + fname + ".xls");
+			response.setContentType("application/msexcel");
+			ResultSet rs = db.queryRsList(sql, params);
+			rs.last();
+			int length = rs.getRow();
+			rs.beforeFirst();
+			ArrayList result = db.queryEventList(rs, length);
+			ExcelTools et = new ExcelTools();
+			//et.createSheet(rs, os);
+			String sheetName = "收文汇总表";
+			ArrayList titleList = new ArrayList();
+			titleList.add("编号");
+			titleList.add("举报人姓名");
+			titleList.add("被举报人姓名");
+			titleList.add("举报事由");
+			titleList.add("举报时间");
+			titleList.add("状态");
+			et.createEventSheet(result, os, sheetName,2, titleList);
+			rs.close();
+		}
+		catch(Exception e)
+		{
+			DebugLog.WriteDebug(e);
+		}
+		return null;
+	}
+	/**
+	 * 导出excel
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward exportTjResult(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) {
+		DBTools db = new DBTools();
+		String sql = (String)request.getSession().getAttribute("queryTJStatusSql");
+		String[] params = (String[])request.getSession().getAttribute("queryTJStatusParams");
 		try
 		{
 			String fname = "event";
@@ -1536,10 +1770,14 @@ public class EventManageAction extends DispatchAction {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 		String reportID = request.getParameter("id");
+		String fkInfo = SystemConstant.FK_END;//已结案！
+		String approveTime = SystemShare.GetNowTime("yyyy-MM-dd");//2015-10-20
 		String sql = "update TB_REPORTINFO set STATUS=? where REPORTID=?";
 		String[] params = new String[]{SystemConstant.SS_END, reportID};
 		DBTools dbTools = new DBTools();
 		boolean result = dbTools.insertItem(sql, params);
+		//插入反馈信息到门户数据库中
+		result = result && dbTools.InsertFKInfo(reportID, fkInfo, approveTime);
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
@@ -1557,4 +1795,265 @@ public class EventManageAction extends DispatchAction {
 		out.close();
 		return null;
 	}
+	/**
+	 * 不予立案
+	 * 
+	 */
+	public ActionForward notRegister(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		DBTools db = new DBTools();
+		String reportID = request.getParameter("id");//20151020161248
+		String approveTime = SystemShare.GetNowTime("yyyy-MM-dd");//2015-10-20
+		
+		String status = SystemConstant.SS_NOT_REGISTER;//50
+		String fkInfo = SystemConstant.FK_APPROVEEVENT6;//经审核，该事件与诚信办无关，对该事件不予立案！
+		String flowStr = SystemConstant.LCT_BYLIA;//不予立案
+		String processStr = SystemConstant.HP_BYLA;//领导审核完毕，对该事件不予立案
+		String gyDesc = approveTime + "，领导审核完毕，对该事件不予立案！";
+		String approveName = (String)request.getSession().getAttribute("UserName");
+
+		//更新消息提醒状态，使得“事件审批”栏目不会再重复出现该事件
+		String sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME=? and REPORTID=?";
+		String[] params = new String[]{approveName, reportID};
+		boolean result= db.insertItem(sql, params);
+				
+		//插入反馈信息到门户数据库中
+		db.InsertFKInfo(reportID, fkInfo, approveTime);
+
+		//将事件状态修改为“不予立案”
+		sql = "update TB_REPORTINFO set STATUS=? where REPORTID=?";
+		params = new String[]{status, reportID};
+		result = db.insertItem(sql, params);
+			
+		//插入处理过程到数据库中
+		String describe = approveTime + ",办公人员" + approveName + "审批该事件,审核意见详情请查看《审核信息》一栏";
+		db.InsertHandleProcess(reportID, approveName, SystemConstant.HP_BYLA, SystemConstant.SS_NOT_REGISTER, SystemConstant.LCT_BYLIA, describe);
+			
+		//控制“立案调查”和“不予调查”的流程图节点的显示
+		db.InsertHandleProcess(reportID, approveName, processStr, SystemConstant.SS_NOT_REGISTER, flowStr, gyDesc);
+			
+		//写入日志文件
+		db.insertLogInfo(approveName, SystemConstant.LOG_APPROVE, approveName+"审批事件,不予立案，事件编号为：" + reportID, request.getRemoteAddr());
+
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+		if(result)
+		{
+			json.put("statusCode", 200);
+			json.put("message", "不予立案成功！");
+			json.put("callbackType", "closeCurrent");
+		}
+		else
+		{
+			json.put("statusCode", 300);
+			json.put("message", "事件不予立案失败");
+		}
+		out.write(json.toString());
+		out.flush();
+		out.close();
+		return null;
+	}
+	
+	/**
+	 * 暂不立案
+	 * 
+	 */
+	public ActionForward tempNotRegister(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		DBTools db = new DBTools();
+		String reportID = request.getParameter("id");//20151020161248
+		String approveTime = SystemShare.GetNowTime("yyyy-MM-dd");//2015-10-20
+		
+		String status = SystemConstant.SS_TEMP_NOT_REGISTER;//51
+		String fkInfo = SystemConstant.FK_APPROVEEVENT7;//经审核，对该事件暂不立案！
+		String flowStr = SystemConstant.LCT_ZBLA;//暂不立案
+		String processStr = SystemConstant.HP_ZBLA;//领导审核完毕，对该事件暂不立案
+		String gyDesc = approveTime + "，领导审核完毕，对该事件暂不立案！";
+		String approveName = (String)request.getSession().getAttribute("UserName");
+
+		//更新消息提醒状态，使得“事件审批”栏目不会再重复出现该事件
+		String sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME=? and REPORTID=?";
+		String[] params = new String[]{approveName, reportID};
+		boolean result= db.insertItem(sql, params);
+				
+		//插入反馈信息到门户数据库中
+		db.InsertFKInfo(reportID, fkInfo, approveTime);
+
+		//将事件状态修改为“不予立案”
+		sql = "update TB_REPORTINFO set STATUS=? where REPORTID=?";
+		params = new String[]{status, reportID};
+		result = db.insertItem(sql, params);
+			
+		//插入处理过程到数据库中
+		String describe = approveTime + ",办公人员" + approveName + "审批该事件,审核意见详情请查看《审核信息》一栏";
+		db.InsertHandleProcess(reportID, approveName, SystemConstant.HP_ZBLA, SystemConstant.SS_TEMP_NOT_REGISTER, SystemConstant.LCT_ZBLA, describe);
+			
+		//控制“立案调查”和“不予调查”的流程图节点的显示
+		//db.InsertHandleProcess(reportID, approveName, processStr, SystemConstant.SS_TEMP_NOT_REGISTER, flowStr, gyDesc);
+			
+		//写入日志文件
+		db.insertLogInfo(approveName, SystemConstant.LOG_APPROVE, approveName+"审批事件,暂不立案，事件编号为：" + reportID, request.getRemoteAddr());
+
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+		if(result)
+		{
+			json.put("statusCode", 200);
+			json.put("message", "暂不立案成功！");
+			json.put("callbackType", "closeCurrent");
+		}
+		else
+		{
+			json.put("statusCode", 300);
+			json.put("message", "事件暂不立案失败");
+		}
+		out.write(json.toString());
+		out.flush();
+		out.close();
+		return null;
+	}
+	/**撤回
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws IOException
+	 */
+	public ActionForward revocation(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		String reportID = request.getParameter("id");
+		
+		DBTools dbTools = new DBTools();
+		
+		String time = SystemShare.GetNowTime("yyyy-MM-dd");
+		String status = "";
+		String sql = "";
+		
+		sql = "select STATUS from TB_REPORTINFO where REPORTID=?";
+		String[] params = new String[]{reportID};
+		status = dbTools.queryStatus(sql, params);
+		
+		if(status.equals("11"))
+		{
+			sql = "update TB_REPORTINFO set STATUS=?,LASTTIME=?,isRev=? where REPORTID=?";
+			params = new String[]{SystemConstant.SS_RECVEVENT, time,"1", reportID};
+		}else if(status.equals("22"))
+		{
+			sql = "update TB_REPORTINFO set STATUS=?,LASTTIME=? where REPORTID=?";
+			params = new String[]{SystemConstant.SS_CHECKEVENT, time, reportID};
+		}
+		boolean result = dbTools.insertItem(sql, params);
+		
+		String createName = (String)request.getSession().getAttribute("UserName");
+		//插入处理过程到数据库中
+		result = result && dbTools.InsertHandleProcess(reportID, createName, SystemConstant.HP_AJCH, status, "", "");
+		
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+		if(result)
+		{
+			json.put("statusCode", 200);
+			json.put("message", "设置成功，该案件撤回至上一状态！");
+		}
+		else
+		{
+			json.put("statusCode", 300);
+			json.put("message", "设置失败！");
+		}
+		out.write(json.toString());
+		out.flush();
+		out.close();
+		return null;
+	}
+	/**上传调查报告
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws IOException
+	 */
+	public ActionForward uploaddcbg(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		String id = request.getParameter("id");
+		request.getSession().setAttribute("ID", id);
+		return mapping.findForward("uploaddcbg");
+	}
+	public ActionForward savedcbg(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		DBTools dbTools = new DBTools();
+		String loginName = (String)request.getSession().getAttribute("LoginName");
+		String id = (String)request.getSession().getAttribute("ID");
+		
+		String sql = "insert into TB_CONOFMEET(REPORTID,ATTACHNAMEF) values(?,?)";
+		String attachname = id + "/" +(String)request.getSession().getAttribute("EventAttachName");
+		dbTools.insertItem(sql, new String[]{id,attachname});
+		
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
+		//String path1 = filePath + "temp";
+		String path1 = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";
+		String path2 = filePath + id;
+		//将临时文件夹中的附件转存到以警情编号为目录的文件夹下
+		//获得服务器的IP地址路径，存放在数据库中，便于下载
+		String relDirectory = "attachment/" + id;
+		String createName = (String)request.getSession().getAttribute("UserName");
+		boolean result = SystemShare.IOCopy(path1, path2, relDirectory, createName);
+		
+		if(result)
+		{
+			//防止高级检索功能模块执行
+			request.getSession().setAttribute("GjSearch", "false");
+			json.put("statusCode", 200);
+			json.put("message", "操作成功！");
+		}
+		else
+		{
+			json.put("statusCode", 300);
+			json.put("message", "操作失败！");
+		}
+		out.write(json.toString());
+		out.flush();
+		out.close();
+		return null;
+	}
+	
+	/*public ActionForward rollOutEvent(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		String reportID = request.getParameter("id");
+		String sql = "update TB_REPORTINFO set STATUS=? where REPORTID=?";
+		String[] params = new String[]{SystemConstant.SS_ROLLOUT, reportID};
+		DBTools dbTools = new DBTools();
+		boolean result = dbTools.insertItem(sql, params);
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+		if(result)
+		{
+			json.put("statusCode", 200);
+			json.put("message", "转出案件成功，可以在“全部事件”中查询到该案件！");
+		}
+		else
+		{
+			json.put("statusCode", 300);
+			json.put("message", "转出案件失败！");
+		}
+		out.write(json.toString());
+		out.flush();
+		out.close();
+		return null;
+	}*/
 }

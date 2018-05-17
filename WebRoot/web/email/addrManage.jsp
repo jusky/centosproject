@@ -64,7 +64,7 @@
 		</td>
 		<td align="center" >
 			<a href="#">&nbsp;</a>
-			<a href = "<%=path%>/addressBookAction.do?method=configADDR&type=edit&uid=${ContactBean.id}" target="dialog" mask="true" rel="editAddress" width="750" height="200" title="编辑联系人">编辑</a>
+			<a href="<%=path%>/addressBookAction.do?method=configADDR&type=edit&uid=${ContactBean.id}" target="dialog" mask="true" rel="editAddress" width="750" height="200" title="编辑联系人">编辑</a>
 			<a href="<%=path %>/addressBookAction.do?method=delete&uid=${ContactBean.id}" target="ajaxTodo" title="确定要删除该联系人吗?">删除</a>
 		</td>
 	</tr>

@@ -70,6 +70,8 @@ public class SystemConstant {
 	public static String SS_CHECKEVENT="11";
 	//已受理
 	public static String SS_RECVEVENT = "12";
+	//已审核
+	public static String SS_YSH = "13";	
 	//未受理
 	public static String SS_UNRECVEVENT = "42";
 	//不予调查
@@ -86,6 +88,14 @@ public class SystemConstant {
 	//public static String SS_LAEVENT="20";
 	//结束
 	public static String SS_END = "40";
+	//转出
+	public static String SS_ROLLOUT = "43";
+	//不予立案
+	public static String SS_NOT_REGISTER = "50";
+	//暂不立案
+	public static String SS_TEMP_NOT_REGISTER = "51";
+	//暂不结案
+	public static String SS_TEMP_NOT_END = "52";
 
 	
 	//总共数据库表的个数
@@ -102,6 +112,7 @@ public class SystemConstant {
 	public static String LOG_NEW = "录入事件";
 	public static String LOG_EDIT = "编辑记录";
 	public static String LOG_RECV = "接收举报";
+	public static String LOG_UNRECV = "不接收举报";
 	public static String LOG_LOGIN = "登陆系统";
 	public static String LOG_NEWKEY = "生成密钥";
 	public static String LOG_IMPORTKEY = "导入密钥";
@@ -109,7 +120,11 @@ public class SystemConstant {
 	public static String LOG_DISABLEKEY = "停用密钥";
 	public static String LOG_APPROVE = "审批事件";
 	public static String LOG_CHECK = "初步核实事件";
+	public static String LOG_SBLD = "上报领导";
 	public static String LOG_DEPTADVICE = "依托单位调查函";
+	public static String LOG_ANALYSINVE = "分析结论";
+	public static String LOG_TREATSUGG = "处理建议";
+	public static String LOG_CONOFMEET = "会议结论";
 	public static String LOG_EXPERTADVICE = "专家鉴定意见";
 	public static String LOG_LITIGANTSTATE = "当事人陈述";
 	public static String LOG_SURVEYREPORT = "调查报告";
@@ -118,7 +133,8 @@ public class SystemConstant {
 	public static String LOG_DISPATCH = "分派查办人员";
 	public static String LOG_FACULTYADVICE = "学部意见";
 	public static String LOG_HANDLEUPFACULTY = "提交学部";
-	
+	public static String LOG_DISPATCHAGENT = "指定代理审批";
+	public static String LOG_CHANGEPWD = "修改密码";
 	//密钥文件改变后，无法解密
 	public static byte[] UNDECRPTOR = "无法解密".getBytes();
 	public static byte[] NODATA = "无".getBytes();
@@ -126,12 +142,18 @@ public class SystemConstant {
 	//事件处理过程类型 HandleProcess
 	public static String HP_REPORT = "在线举报科研不端行为";
 	public static String HP_RECVEVENT = "接收从网上提交的投诉举报";
+	public static String HP_UNRECVEVENT = "不接收从网上提交的投诉举报";
 	public static String HP_INPUT = "录入事件";
+	public static String HP_BJJB = "编辑举报信息";
 	public static String HP_CHECKEVENT = "初步调查核实";
-	public static String HP_APPROVEEVENT = "审核事件是否开展调查";
-	public static String HP_KZDC = "领导审核完毕，开展调查";
-	public static String HP_NOKZDC = "领导审核完毕，不予开展调查";
+	public static String HP_APPROVEEVENT = "审核事件是否受理";
+	public static String HP_KZDC = "领导审核完毕，准备受理";
+	public static String HP_NOKZDC = "领导审核完毕，准备不受理";
+	public static String HP_FINALKZDC = "领导终极审核完毕";
 	public static String HP_DEPTADVICE = "编辑依托单位反馈意见";
+	public static String HP_ANALYSINVE = "编辑分析结论";
+	public static String HP_TREATSUGG = "编辑处理建议";
+	public static String HP_CONOFMEET = "编辑会议结论";
 	public static String HP_EXPERTADVICE = "编辑鉴定专家意见";
 	public static String HP_LIGITANTSTATE = "编辑当事人陈述";
 	public static String HP_SURVEYREPORT = "编辑调查报告";
@@ -140,6 +162,15 @@ public class SystemConstant {
 	public static String HP_FYAPPLY = "当事人提出复议申请";
 	public static String HP_RESURVEY = "复议申请通过，对事件重新开展调查";
 	public static String HP_FACULTYADVICE = "编辑学部意见";
+	public static String HP_DISPACH = "分派查办人员";
+	public static String HP_DISPATCHAGENT = "指定代理录入";
+	public static String HP_KZDC1 = "领导审核完毕，开展调查";
+	public static String HP_NOKZDC1 = "领导审核完毕，不予开展调查";
+	public static String HP_ZC = "领导审核完毕，对该事件转出";
+	public static String HP_BYLA = "领导审核完毕，对该事件不予立案";
+	public static String HP_ZBLA = "领导审核完毕，对该事件暂不立案";
+	public static String HP_ZBJA = "领导审核完毕，对该事件暂不结案";
+	public static String HP_AJCH = "案件撤回至上一状态";
 	
 	//举报方式
 	public static String JBFS_SXJB = "书信举报";
@@ -148,12 +179,21 @@ public class SystemConstant {
 	public static String JBFS_DHJB = "电话举报";
 	public static String JBFS_QTFS = "其他方式";
 	//反馈信息
-	public static String FK_RECVEVENT = "您举报的事件已经被接收，正在核实中...";
+	public static String FK_RECVEVENT = "您举报的事件已经被接收，正在处理中...";
+	public static String FK_UNRECVEVENT = "您举报的事件未被接收！";
 	public static String FK_CHECKEVENT = "已经初步调查核实，审核中!";
-	public static String FK_APPROVEEVENT1 = "审核完毕，开展调查中！";
-	public static String FK_APPROVEEVENT2 = "经审核，对该事件不予调查！";
+	public static String FK_APPROVEEVENT1 = "审核完毕，准备受理中！";
+	public static String FK_APPROVEEVENTFINAL = "终极审核完毕！";
+	public static String FK_APPROVEEVENT2 = "经审核，准备对该事件不受理！";
 	public static String FK_HANDLING = "调查完成，等待委员会讨论！";
 	public static String FK_HANDLEDECIDE = "处理决定已经讨论完成，具体结果请等待我们的另行通知！";
+	public static String FK_APPROVEEVENT3 = "审核完毕，开展调查中！";
+	public static String FK_APPROVEEVENT4 = "经审核，对该事件不受理！";
+	public static String FK_APPROVEEVENT5 = "经审核，该事件与诚信办无关，对该事件转出！";
+	public static String FK_APPROVEEVENT6 = "经审核，该事件与诚信办无关，对该事件不予立案！";
+	public static String FK_APPROVEEVENT7 = "经审核，对该事件暂不立案！";
+	public static String FK_APPROVEEVENT8 = "经审核，对该事件暂不结案！";
+	public static String FK_END = "已结案！";
 	
 	//消息通知类型
 	//工作提醒
@@ -181,9 +221,13 @@ public class SystemConstant {
 	//流程图需要显示节点的文本内容
 	//
 	public static String LCT_SLJB = "监委会受理举报";
+	public static String LCT_UNSLJB = "不监委会受理举报";
 	public static String LCT_LDSP = "领导审批";
 	public static String LCT_BYLA = "不予调查";
 	public static String LCT_DWDC = "委托依托单位调查";
+	public static String LCT_FXJL = "录入分析结论";
+	public static String LCT_CLJY = "录入处理建议";
+	public static String LCT_HYJL = "录入会议结论";
 	public static String LCT_ZJJD = "委托专家鉴定";
 	public static String LCT_JB = "个人/单位举报";
 	public static String LCT_DCHS = "初步调查核实";
@@ -196,6 +240,14 @@ public class SystemConstant {
 	public static String LCT_LADC = "开展调查";
 	public static String LCT_FYSQ = "复议申请";
 	public static String LCT_FACULTY = "学部意见";
+	public static String LCT_DISPATCH = "分派";
+	public static String LCT_DISPATCHAGENT = "指派";
+	public static String LCT_LADC1 = "开展调查";
+	public static String LCT_BYLA1 = "不予调查";
+	public static String LCT_ZC = "转出";
+	public static String LCT_BYLIA = "不予立案";
+	public static String LCT_ZBLA = "暂不立案";
+	public static String LCT_ZBJA = "暂不结案";
 	
-	public static String[] LCT_ARR = new String[]{"监委会受理举报","领导审批","不予调查","委托依托单位调查","委托专家鉴定","个人/单位举报","初步调查核实","当事人陈述","调查报告","全委会讨论","处理决定","委内相关部门","依托单位/个人","开展调查", "复议申请","学部意见"};
+	public static String[] LCT_ARR = new String[]{"监委会受理举报","领导审批","不予调查","委托依托单位调查","委托专家鉴定","个人/单位举报","初步调查核实","当事人陈述","调查报告","全委会讨论","处理决定","委内相关部门","依托单位/个人","开展调查", "复议申请","学部意见","分派","指派"};
 }

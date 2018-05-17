@@ -5,7 +5,6 @@
 	<input type="hidden" name="pageNum" value="${pageNum}" />
 	<input type="hidden" name="pageSize" value="${pageSize}" />
 </form>
-
 <div class="pageHeader">
 	<form method="post" action="<%=request.getContextPath()%>/lookUpGroupAction.do?method=queryMsg&operation=search&type=bsld" onsubmit="return dwzSearch(this, 'dialog');">
 	<div class="searchBar">
@@ -25,7 +24,6 @@
 	</form>
 </div>
 <div class="pageContent">
-
 	<table class="table" layoutH="118" targetType="dialog" width="100%">
 		<thead>
 			<tr>
@@ -43,20 +41,20 @@
       					<tr>
       						<td align="center">
       							<input type="checkbox" name="userId" value="{id:'${UserBean.id}', loginName:'${UserBean.loginName }', userName:'${UserBean.userName}'}"/>
-							</td>
-							<td align="center">
-								<bean:write name="UserBean" property="userName"/>
-							</td>
-							<td align="center">
-								<bean:write name="UserBean" property="zzName"/>
-							</td>
-      						<td align="center">
-								<bean:write name="UserBean" property="bgPhone"/>
-							</td>
-							<td align="center">
-								<bean:write name="UserBean" property="bgsNum"/>
-							</td>
-						</tr>
+								</td>
+								<td align="center">
+									<bean:write name="UserBean" property="userName"/>
+								</td>
+								<td align="center">
+									<bean:write name="UserBean" property="zzName"/>
+								</td>
+	      						<td align="center">
+									<bean:write name="UserBean" property="bgPhone"/>
+								</td>
+								<td align="center">
+									<bean:write name="UserBean" property="bgsNum"/>
+								</td>
+							</tr>
 					</logic:iterate>
 				</logic:notEmpty>
 			</logic:notEqual>

@@ -182,7 +182,7 @@ public class EventDetailAction extends DispatchAction {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 		
-		String type = request.getParameter("type");
+		String type = request.getParameter("type");//approveInfo
 		String reportID = (String)request.getSession().getAttribute("reportID");
 		
 		String sql = "";
@@ -191,26 +191,33 @@ public class EventDetailAction extends DispatchAction {
 		if(type.equals("approveInfo"))
 		{
 			ApproveInfo ai = new ApproveInfo();
-			sql = "select * from TB_CHECKINFO where REPORTID=?";
-			CheckBean cb = dbTools.queryCheckInfo(sql, new String[]{reportID});
-			if(cb != null)
+			sql = "select * from TB_CHECKINFO where REPORTID=? limit 1";
+			ArrayList checkList = dbTools.queryCheckInfoList2(sql, new String[]{reportID});
+			if(checkList!=null&& checkList.size() > 0)
 			{
-				ai.setNibanName(cb.getCheckName());
-				ai.setNibanTime(cb.getCheckTime());
-				ai.setNibanAdvice(cb.getPreAdvice());
+				ai.setCheckList(checkList);
 			}
 			sql = "select * from TB_APPROVEINFO where REPORTID=?";
 			// TODO
 			// may be multi APPROVEINFO to one REPORTID, to be fixed...
 			
-			ApproveBean ab = dbTools.queryApproveInfo(sql, new String[]{reportID});
-			if(ab != null)
+			//ApproveBean ab = dbTools.queryApproveInfo(sql, new String[]{reportID});
+			ArrayList approveList=dbTools.queryApproveInfo(sql, new String[]{reportID});
+			//if(ab != null)
+			//{
+			//	ai.setHeadAdvice(ab.getLaAdvice());
+			//	ai.setHeadName(ab.getApproveName());
+			//	ai.setHeadTime(ab.getApproveTime());
+			//	ai.setIsXY(ab.getIsXY());
+			//}
+			if(approveList!=null&& approveList.size() > 0)
 			{
-				ai.setHeadAdvice(ab.getLaAdvice());
-				ai.setHeadName(ab.getApproveName());
-				ai.setHeadTime(ab.getApproveTime());
+				ai.setApproveList(approveList);
 			}
-			result.add(ai);
+			if(ai!=null)
+			{
+				result.add(ai);
+			}
 		}
 		else if(type.equals("deptAdvice"))
 		{
@@ -219,7 +226,8 @@ public class EventDetailAction extends DispatchAction {
 		}
 		else if(type.equals("expertAdvice"))
 		{
-			sql = "select a.*,b.JDCONCLUSION from TB_EXPERTADVICE a, TB_JDYJSINFO b where a.REPORTID=b.REPORTID and a.REPORTID=?";
+			//sql = "select a.*,b.JDCONCLUSION from TB_EXPERTADVICE a, TB_JDYJSINFO b where a.REPORTID=b.REPORTID and a.REPORTID=?";
+			sql = "select * from TB_EXPERTADVICE where REPORTID=?";
 			result = dbTools.queryExpertAdvice(sql, "2", new String[]{reportID});
 		}
 		else if(type.equals("litigantState"))
@@ -241,6 +249,21 @@ public class EventDetailAction extends DispatchAction {
 		{
 			sql = "select a.*,b.CAPTION from TB_HANDLEPROCESS a,SYS_DATA_DIC b  where a.REPORTID=? and a.STATUS=b.CODE and b.CODENAME='" + SystemConstant.sjzt +"' order by a.ID asc";
 			result = dbTools.queryHandleFlow(sql, new String[]{reportID});
+		}
+		else if(type.equals("analysInve"))
+		{
+			sql = "select * from TB_ANALYSANDINVE where REPORTID=?";
+			result = dbTools.queryanalysisAndInvestigation(sql,"2",new String[]{reportID});
+		}
+		else if(type.equals("treatSuggest"))
+		{
+			sql = "select * from TB_TREATANDSUG where REPORTID=?";
+			result = dbTools.querytreatmentSuggestion(sql,"2", new String[]{reportID});
+		}
+		else if(type.equals("conofmeet"))
+		{
+			sql = "select * from TB_CONOFMEET where REPORTID=?";
+			result = dbTools.queryconOfMeet(sql,"2", new String[]{reportID});
 		}
 		
 		request.setAttribute("size", result.size());
@@ -304,7 +327,8 @@ public class EventDetailAction extends DispatchAction {
 			key = (String)itr.next();
 			hf = (HandleFlow)ht.get(key);
 			temp = GetJsonStr(key, hf.getSel(), hf.getName(), hf.getTime(), hf.getDescribe());
-			jsonStart += temp + ",";
+			if(temp != null)
+				jsonStart += temp + ",";
 		}
 		/*
 		//节点数据
@@ -355,7 +379,7 @@ public class EventDetailAction extends DispatchAction {
 	 */
 	public String GetJsonStr(String name, String sel,  String user, String time, String desc)
 	{
-		String result = "";
+		String result = "";		
 //		public static String LCT_SLJB = "监委会受理举报";
 //		public static String LCT_LDSP = "领导审批";
 //		public static String LCT_BYLA = "不予立案";
@@ -435,6 +459,8 @@ public class EventDetailAction extends DispatchAction {
 		else if(name.equals(SystemConstant.LCT_FACULTY))
 		{
 			result = GetSigleNodeJson("node_70", name, sel, "node", "rect", "70", "255", "356", "100", "40", user, time, desc);
+		} else {
+			return null;
 		}
 		return result;
 	}
@@ -458,7 +484,7 @@ public class EventDetailAction extends DispatchAction {
 	public String GetSigleNodeJson(String id, String name, String sel, String type, String shape, String number, String left, String top, String width, String height, String user, String time, String desc)
 	{
 		String result = "";
-		result = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"sel\":\"" + sel + "\",\"type\":\"" + type + "\",\"shape\":\"" + shape + "\",\"number\":" + number + ",\"left\":" + left + ",\"top\":" + top + ",\"width\":" + width + ",\"height\":" + height + ",\"property\":[{\"id\":\"n_p_name\",\"text\":\"input\",\"value\":\"" + name + "\"},{\"id\":\"n_p_user\",\"text\":\"input\",\"value\":\"" + user + "\"},{\"id\":\"n_p_time\",\"text\":\"input\",\"value\":\"" + time + "\"},{\"id\":\"n_p_desc\",\"text\":\"textarea\",\"value\":\"" + desc + "\"}]}";
+		result = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\",\"sel\":\"" + sel + "\",\"type\":\"" + type + "\",\"shape\":\"" + shape + "\",\"number\":" + number + ",\"left\":" + left + ",\"top\":" + top + ",\"width\":" + width + ",\"height\":" + height + ",\"property\":[{\"id\":\"n_p_name\",\"text\":\"input\",\"value\":\"" + name + "\"},{\"id\":\"n_p_user\",\"text\":\"input\",\"value\":\"" + user + "\"},{\"id\":\"n_p_time\",\"text\":\"input\",\"value\":\"" + time + "\"},{\"id\":\"n_p_desc\",\"text\":\"textarea\",\"value\":\"" + desc.trim() + "\"}]}";
 		return result;
 	}
 	/**
@@ -474,7 +500,8 @@ public class EventDetailAction extends DispatchAction {
 			HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
-		String id = (String)request.getSession().getAttribute("reportID");
+		//String id = (String)request.getSession().getAttribute("reportID");
+		String id = request.getParameter("id");
 		String templatePath = "";
 		
 		String sql = "select * from TB_REPORTINFO where REPORTID=?";
@@ -488,7 +515,9 @@ public class EventDetailAction extends DispatchAction {
 			eb.setBeReportList(beReportList);
 		}
 		
-		templatePath = SystemConstant.GetServerPath() + "/web/template/sjxq.doc";
+		//templatePath = SystemConstant.GetServerPath() + "/web/template/sjxq.doc";
+		templatePath = "web/template/sjxq" + String.valueOf(beReportList.size()) + ".doc";
+		System.out.println("ceshi:" + templatePath);
 		request.setAttribute("EventBean", eb);
 		
 		request.setAttribute("ReportID", id);

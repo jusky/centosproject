@@ -2,11 +2,15 @@
 <%
 String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+response.addHeader("Pragma", "no-cache");
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+response.addHeader("Cache-Control", "pre-check=0, post-check=0");
+response.setDateHeader("Expires", 0);
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>国家自然科学基金委员会监督委员会</title>
+<title>科学基金科研诚信管理平台</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <link href="<%=path %>/styles/login.css" rel="stylesheet" type="text/css" />
 <script language="javascript" type="text/javascript">
@@ -42,44 +46,60 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
                 		if(("登录成功，即将转向管理页面！" == root)||("登录成功，即将转向管理页面！\n注意，你没有拥有任何权限!" == root)) {
                 			window.location.href = "<%=path%>/loginAction.do?method=login";
                 		}
+                		else{
+                		window.location.href = loadimage();
+                		}
               		}
               		else{
                 		window.alert("所请求的页面有异常");
               		}
             	}
           }
+    function loadimage() {
+    	//alert("aaa");
+		document.getElementById("randImageId").src = "<%=path%>/web/image.jsp?page=input&"+Math.random();
+		$("#checkCode").html("");
+  }
+
     function login(){
    		var username = document.getElementById("usename").value;
    		var password = document.getElementById("password").value;
-   		send('<%=path%>/servlet/LoginServlet?username=' + username + '&password=' + password);
+   		var temp = document.getElementById("randNum").value;
+   		send('<%=path%>/servlet/LoginServlet?username=' + username + '&password=' + password+ '&page=input&code=' + temp);
     }
     document.onkeydown = function() {
     	if(window.event.keyCode=='13') login();
     }
+    function func(){
+    window.location.href = loadimage();
+    }
+    
 </script>
-	
+
 </head>
 
-<body class="conatrainer">
+<body class="conatrainer" onload="func()">
 <div class="main">
   <div class="header">
-  	<a href="#"><img src="<%=path %>/images/top_logo.jpg" alt="监督委员会科研不端行为管理平台" width="573" height="62" /></a>
+  	<img src="<%=path %>/images/top_logo.jpg" alt="科学基金科研不端行为管理平台" width="573" height="62" />
   </div><!--// header-->
   <div class="content">
     <div class="earth"><img src="<%=path %>/images/logo_gp.jpg" alt="地球" width="564" height="240" /></div>
     <div class="login">
-    <form id="form-login" action="" method="post">
-      <div class="formarea">
-        <ul>
-	        <li class="user"><p>用户名</p><input type="text" id="usename" name="usename" value=""/></li>
-	        <li class="pass"><p>密&nbsp;&nbsp;&nbsp;&nbsp;码</p><input type="password" id="password" name="password" autocomplete="off" value=""/></li>
-        </ul>
-      </div>
-    </form>
-    <div class="buttonActive">
-      <input type="image" name="submit" src="<%=path %>/images/loginbuttonbg.png" onclick="login();" />
-    </div>
-    <span class="error" id="msg"></span>
+	    <form id="form-login" action="" method="post">
+	      <div class="formarea">
+	        <ul>
+		        <li class="user"><p>用户名</p><input type="text" id="usename" name="usename"/></li>
+		        <li class="pass"><p>密&nbsp;&nbsp;&nbsp;&nbsp;码</p><input type="password" id="password" name="password" autocomplete="off" value="NSFC123456"/></li>
+	        	  <li class="prove"><p>验证码</p><input type="text" name="rand" id="randNum" autocomplete="off" size="10"/>&nbsp;<img alt="code..." name="randImage" id="randImageId" src="<%=path%>/web/image.jsp?page=input" width="75" height="22" border="1" onclick="loadimage();" style="cursor:pointer; vertical-align:middle"/></li>
+	        	  <span id="checkCode"></span>
+	        </ul>
+	      </div>
+	    </form>
+	    <div class="buttonActive" align="center">
+	      <input type="image" name="submit" src="<%=path %>/images/loginbuttonbg.png" onclick="login();" />
+	    </div>
+    	 <span class="error" id="msg"></span>
     </div><!--login结束 -->
      <div class="footer"><p>Copyright 国家自然科学基金委员会 All Rights Reserved</p></div>
   </div><!--content结束 -->

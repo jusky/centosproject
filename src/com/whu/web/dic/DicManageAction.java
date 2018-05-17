@@ -44,13 +44,10 @@ public class DicManageAction extends DispatchAction {
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
-		if (request.getParameter("queryPageNo") != null && request.getParameter("queryPageNo") != "") {
-			queryPageNo = Integer.parseInt(request.getParameter("queryPageNo"));
-		}
 		pageBean.setQueryPageNo(queryPageNo);
 		String sql = "select ID,CODENAME,CODE,CAPTION,REMARK from SYS_DATA_DIC";
 		request.getSession().setAttribute("queryDicSql", sql);
-		request.getSession().setAttribute("queryDicSql", new String[0]);
+		request.getSession().setAttribute("queryDicParams", new String[0]);
 		pageBean.setQuerySql(sql);
 		pageBean.setParams(new String[0]);
 		DBTools db = new DBTools();
@@ -171,7 +168,7 @@ public class DicManageAction extends DispatchAction {
 		String ids = request.getParameter("ids");
 		String[] params = null;
 		boolean result = false;
-		if(ids == null || ids == "")
+		if(ids == null || ids.equals(""))
 		{
 			String id = request.getParameter("id");
 			sql = "delete from SYS_DATA_DIC where ID=?";

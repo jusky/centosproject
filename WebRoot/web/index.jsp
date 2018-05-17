@@ -248,7 +248,7 @@ $(function(){
 				<a class="logo" href="#">标志</a>
 				<ul class="nav">
 					<li><a href = "#"><%=request.getSession().getAttribute("UserName") %></a></li>
-					<li><a href="<%=path%>/web/changePwd.jsp" target="dialog" width="450" height="230" title="修改密码">修改密码</a></li>
+					<li><a href="<%=path%>/web/changePwd.jsp" target="dialog" width="600" height="230" title="修改密码">修改密码</a></li>
 					<!-- <li><a href="<%=path%>/login.jsp">退出</a></li>  -->
 					<li><a href="<%=path%>/servlet/LogoutServlet">退出</a></li>
 				</ul>
@@ -284,33 +284,31 @@ $(function(){
 					<div class="accordionContent">
 						<ul class="tree treeFolder">
 							<logic:notEqual value="0" name="ModuleBean" property="wsjb">
-							<li><a href="<%=path%>/wsjbManageAction.do?method=init" target="navTab" rel="wsjb">网上举报</a></li>
+							<li><a href="<%=path%>/wsjbManageAction.do?method=init" target="navTab" rel="wsjb">接收</a></li>
 							</logic:notEqual>
 							<logic:notEqual value="0" name="ModuleBean" property="sjlr">
 							<li><a href="<%=path%>/newEventAction.do?method=init" target="navTab" rel="newEvent">事件录入</a></li>
 							</logic:notEqual>
-							<logic:notEqual value="0" name="ModuleBean" property="sjsp">
+							<!--<logic:notEqual value="0" name="ModuleBean" property="sjsp">
 							<li><a href="<%=path%>/eventManageAction.do?method=init&jdid=4" target="navTab" rel="myDealEvent">事件审批</a></li>
 							</logic:notEqual>
-							<!-- 
 							<li><a href="<%=path%>/myStartEventAction.do?method=init" target="navTab" rel="myEvent">我参与的事件</a></li>
-							 -->
-							<!-- 
 							<li><a href="<%=path%>/web/date/myDate.jsp" target="navTab" rel="myDate">我的日程</a></li>
 							-->
-							
-							
 							<logic:notEqual value="0" name="ModuleBean" property="sjgl">
 							<li><a>事件管理</a>
 								<ul>
 									<logic:notEqual value="0" name="ModuleBean" property="sljd">
-									<li><a href="<%=path%>/eventManageAction.do?method=init&jdid=1" target="navTab" rel="sljd">受理阶段</a></li>
+									<li><a href="<%=path%>/eventManageAction.do?method=init&jdid=1" target="navTab" rel="sljd">初核</a></li>
+									</logic:notEqual>
+									<logic:notEqual value="0" name="ModuleBean" property="sjsp">
+									<li><a href="<%=path%>/eventManageAction.do?method=init&jdid=4" target="navTab" rel="myDealEvent">受理</a></li>
 									</logic:notEqual>
 									<logic:notEqual value="0" name="ModuleBean" property="ladcjd">
-									<li><a href="<%=path%>/eventManageAction.do?method=init&jdid=2" target="navTab" rel="ladcjd">调查阶段</a></li>
+									<li><a href="<%=path%>/eventManageAction.do?method=init&jdid=2" target="navTab" rel="ladcjd">调查</a></li>
 									</logic:notEqual>
 									<logic:notEqual value="0" name="ModuleBean" property="cljd">
-									<li><a href="<%=path%>/eventManageAction.do?method=init&jdid=3" target="navTab" rel="cljd">处理阶段</a></li>
+									<li><a href="<%=path%>/eventManageAction.do?method=init&jdid=3" target="navTab" rel="cljd">处理决定</a></li>
 									</logic:notEqual>
 									<logic:notEqual value="0" name="ModuleBean" property="qbsj">
 									<li><a href="<%=path%>/eventManageAction.do?method=init&jdid=9" target="navTab" rel="allEvent">全部事件</a></li>
@@ -346,6 +344,12 @@ $(function(){
 									</logic:notEqual>
 								</ul>
 							</li>
+							<logic:notEqual value="0" name="ModuleBean" property="wdlzj">
+							<li><a href="<%=path%>/unLoginedExpertAction.do?method=init" target="navTab" rel="wdlzj">未登录专家</a></li>
+							</logic:notEqual>
+							<logic:notEqual value="0" name="ModuleBean" property="ed">
+							<li><a href="<%=path%>/deptAndExpertAction.do?method=init" target="navTab" rel="ed">单位和专家账号延时</a></li>
+							</logic:notEqual>
 							</logic:notEqual>
 							<!-- 
 							<li><a>内部消息</a>
@@ -524,25 +528,7 @@ $(function(){
 								</div>
 							</div>
 							
-							<div style="float:left; display:block; overflow:auto; width:480px; line-height:21px;">
-								<div class="panel" defH="300">
-									<h1>阶段统计</h1>
-									<div>
-										<div id="jdChartXml" style="display:none;"><%=request.getAttribute("jdChartXml") %></div>
-										<div id="jdChartContainer" align="center">
-											<script type="text/javascript">	
-												var myChart = new FusionCharts( "<%=path%>/Charts/Column3D.swf", 
-												"jdChartId", "440", "300", "0" ); 
-												var chartXMLObj = document.getElementById("jdChartXml");
-												
-												var chartXML = chartXMLObj.innerHTML;
-												 myChart.setDataXML(chartXML);
-												 myChart.render("jdChartContainer");
-											</script>
-										</div>
-									</div>
-								</div>
-							</div>
+							
 							
 							<div style="float:left; display:block; overflow:auto; width:480px; line-height:21px;">
 								<div class="panel" defH="300">
@@ -580,6 +566,27 @@ $(function(){
 									</div>
 								</div>
 							</div>
+							
+							<div style="float:left; display:block; overflow:auto; width:480px; line-height:21px;">
+								<div class="panel" defH="300">
+									<h1>阶段统计</h1>
+									<div>
+										<div id="jdChartXml" style="display:none;"><%=request.getAttribute("jdChartXml") %></div>
+										<div id="jdChartContainer" align="center">
+											<script type="text/javascript">	
+												var myChart = new FusionCharts( "<%=path%>/Charts/Column3D.swf", 
+												"jdChartId", "440", "300", "0" ); 
+												var chartXMLObj = document.getElementById("jdChartXml");
+												
+												var chartXML = chartXMLObj.innerHTML;
+												 myChart.setDataXML(chartXML);
+												 myChart.render("jdChartContainer");
+											</script>
+										</div>
+									</div>
+								</div>
+							</div>
+							
      						</logic:equal>
      						<logic:equal value="1" name="ModuleBean" property="userType">
      							<iframe src="<%=path%>/web/date/time.jsp" width="100%" frameborder="0" height="100%" name="show"></iframe>
@@ -620,6 +627,6 @@ $(function(){
 	</div>
 	</div>
 
-	<div id="footer">Copyright &copy; 2013 <a href="/NSFCOSC/index.html" target="_blank">国家自然科学基金委员会监督委员会</a></div>
+	<div id="footer">Copyright &copy; 2013 <a href="/NSFCOSC/index.html" target="_blank">科学基金科研诚信管理平台</a></div>
 </body>
 </html>

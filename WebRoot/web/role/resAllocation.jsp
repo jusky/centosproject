@@ -44,7 +44,7 @@
 	        error: function () {//请求失败处理函数  
 	            alert('请求失败');  
 	        },  
-	        success:function(data){ //请求成功后处理函数。    
+	        success:function(data){ //请求成功后处理函数    
 	            treeNodes = data;   //把后台封装好的简单Json格式赋给treeNodes
 	        }
 	    });

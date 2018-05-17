@@ -48,6 +48,7 @@ public class DispatchEventForm extends ActionForm {
 	public void setOperation(String operation) {
 		this.operation = operation;
 	}
+	
 	public List getRecordList() {
 		return recordList;
 	}

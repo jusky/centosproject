@@ -175,7 +175,7 @@ public class CljdManageAction extends DispatchAction {
 		DBTools dbTool = new DBTools();
 		
 		boolean result = true;
-		if(ids == null || ids == "")
+		if(ids == null || ids.equals(""))
 		{
 			String id = request.getParameter("id");
 			String dirPath = request.getSession().getServletContext().getRealPath("/");

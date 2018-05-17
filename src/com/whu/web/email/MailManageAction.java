@@ -152,7 +152,7 @@ public class MailManageAction extends DispatchAction {
 		boolean result = false;
 		String ids = request.getParameter("ids");
 		DBTools dbTool = new DBTools();
-		if(ids == null || ids == "")
+		if(ids == null || ids.equals(""))
 		{
 			String uid = request.getParameter("id");
 			result = dbTool.deleteItemReal(uid, "TB_MAILCONFIG", "ID");

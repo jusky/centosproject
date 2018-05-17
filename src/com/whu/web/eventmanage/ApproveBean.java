@@ -10,8 +10,14 @@ public class ApproveBean {
 	private String laAdvice;
 	//审核领导
 	private String approveName;
-	//审核时间
+	//批示时间
 	private String approveTime;
+	//领导批示意见
+	private String headAdvice;
+	//批示领导
+	private String headName;
+	
+	private String isXY;
 	public String getApproveTime() {
 		return approveTime;
 	}
@@ -30,6 +36,14 @@ public class ApproveBean {
 	public void setIsLA(String isLA) {
 		this.isLA = isLA;
 	}
+	
+	public String getIsXY() {
+		return isXY;
+	}
+	public void setIsXY(String isXY) {
+		this.isXY = isXY;
+	}
+	
 	public String getLaAdvice() {
 		return laAdvice;
 	}
@@ -42,5 +56,18 @@ public class ApproveBean {
 	public void setApproveName(String approveName) {
 		this.approveName = approveName;
 	}
+	public String getHeadAdvice() {
+		return headAdvice;
+	}
+	public void setHeadAdvice(String headAdvice) {
+		this.headAdvice = headAdvice;
+	}
+	public String getHeadName() {
+		return headName;
+	}
+	public void setHeadName(String headName) {
+		this.headName = headName;
+	}
+	
 	
 }

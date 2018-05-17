@@ -70,19 +70,17 @@
 						<a href="<%=path%>/deptFKManageAction.do?method=onlineSubmit&id=${DeptDCBean.id }&reportID=${DeptDCBean.reportID }&adviceID=${DeptDCBean.adviceID }" target="navTab" rel="onlineSubmit"><font color="red">查看已提交调查结果</font></a>
 					</logic:equal>
 					<logic:equal value="0" name="DeptDCBean" property="isSubmit">
-						<a href="<%=path%>/deptFKManageAction.do?method=onlineSubmit&id=${DeptDCBean.id }&reportID=${DeptDCBean.reportID }&adviceID=${DeptDCBean.adviceID }" target="navTab" rel="onlineSubmit"><font color="red">在线提交调查结果</font></a>					
+						<a href="<%=path%>/deptFKManageAction.do?method=onlineSubmit&id=${DeptDCBean.id }&reportID=${DeptDCBean.reportID }&adviceID=${DeptDCBean.adviceID }" target="navTab" rel="onlineSubmit"><font color="red">在线提交调查结果</font></a>		
 					</logic:equal>
 				</logic:notEqual>
 				</dd>
 			</dl>
 		</div>
-		
 	</div>
 	</logic:iterate>
 	</logic:notEmpty>
 	</logic:notEqual>
 	<logic:equal value="true" name="deptFKManageForm" property="recordNotFind">
-	
 	</logic:equal>
 </div>
 </div>

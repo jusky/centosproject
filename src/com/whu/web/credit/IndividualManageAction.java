@@ -156,10 +156,10 @@ public class IndividualManageAction extends DispatchAction {
 		boolean result = false;
 		String ids = request.getParameter("ids");
 		DBTools dbTool = new DBTools();
-		if(ids == null || ids == "")
+		if(ids == null || ids.equals(""))
 		{
 			String uid = request.getParameter("uid");
-			System.out.println(uid);
+			//System.out.println(uid);
 			result = dbTool.deleteItemReal(uid, "SYS_INDIVIDUAL_INFO", "ID");
 		}
 		else

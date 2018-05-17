@@ -26,7 +26,6 @@ public class DeptFKManageForm extends ValidatorForm {
 	public String getReportID() {
 		return reportID;
 	}
-
 	public void setReportID(String reportID) {
 		this.reportID = reportID;
 	}
@@ -34,7 +33,6 @@ public class DeptFKManageForm extends ValidatorForm {
 	public String getAdviceID() {
 		return adviceID;
 	}
-
 	public void setAdviceID(String adviceID) {
 		this.adviceID = adviceID;
 	}

@@ -17,7 +17,14 @@ public class SjybdBean {
 	private String comeName;
 	private String title;
 	private String filePath;
+	private String proposedOpinion;//拟办意见
 	
+	public String getProposedOpinion() {
+		return proposedOpinion;
+	}
+	public void setProposedOpinion(String proposedOpinion) {
+		this.proposedOpinion = proposedOpinion;
+	}
 	public String getFilePath() {
 		return filePath;
 	}

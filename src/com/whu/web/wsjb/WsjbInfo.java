@@ -1,9 +1,12 @@
 package com.whu.web.wsjb;
 
+import java.util.List;
+
 public class WsjbInfo {
 
 	private String id;
 	private String reportID;
+	private String reportIP;
 	private String reportName;
 	private String isNi;
 	private String sex;
@@ -17,6 +20,7 @@ public class WsjbInfo {
 	private String beDept;
 	private String bePosition;
 	private String bePhone;
+	private String notice;
 	private String jbsy1;
 	private String jbsy2;
 	private String detail;
@@ -25,6 +29,14 @@ public class WsjbInfo {
 	private String status;
 	private String attachPath;
 	private String serialNum;
+	//被举报人列表
+	private List beReportList = null;
+	public List getBeReportList() {
+		return beReportList;
+	}
+	public void setBeReportList(List beReportList) {
+		this.beReportList = beReportList;
+	}
 	public String getSerialNum() {
 		return serialNum;
 	}
@@ -54,6 +66,12 @@ public class WsjbInfo {
 	}
 	public void setReportID(String reportID) {
 		this.reportID = reportID;
+	}
+	public String getReportIP() {
+		return reportIP;
+	}
+	public void setReportIP(String reportIP) {
+		this.reportIP = reportIP;
 	}
 	public String getReportName() {
 		return reportName;
@@ -132,6 +150,12 @@ public class WsjbInfo {
 	}
 	public void setBePhone(String bePhone) {
 		this.bePhone = bePhone;
+	}
+	public String getNotice() {
+		return notice;
+	}
+	public void setNotice(String notice) {
+		this.notice = notice;
 	}
 	public String getJbsy1() {
 		return jbsy1;

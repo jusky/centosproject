@@ -67,7 +67,7 @@
 		<a href="#">&nbsp;</a>
 		<a href = "<%=path%>/posManageAction.do?method=detail&uid=${PosBean.id}" class="btnLook" target="dialog" mask="true" rel="detail" width="600" height="300" title="查看岗位详情">查看</a>
 		<a href = "<%=path%>/posConfigAction.do?method=edit&uid=${PosBean.id}" class="btnInfo" target="dialog" mask="true" rel="editUser" width="600" height="300" title="编辑岗位信息">编辑</a>
-		<a href = "<%=path%>/posManageAction.do?method=delete&uid=${PosBean.id}" class="btnDel"  target="ajaxTodo" title="确定要删除吗?">删除</a>
+		<!-- <a href = "<%=path%>/posManageAction.do?method=delete&uid=${PosBean.id}" class="btnDel"  target="ajaxTodo" title="确定要删除吗?">删除</a> -->
 		</td>
 	</tr>
 	</logic:iterate>

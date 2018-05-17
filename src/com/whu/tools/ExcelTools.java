@@ -418,7 +418,7 @@ public class ExcelTools {
 			}
 		}
 		catch (Exception e) {
-			System.out.println(e);
+			e.printStackTrace();
 		}
 		wb.write(os);
 		os.flush();

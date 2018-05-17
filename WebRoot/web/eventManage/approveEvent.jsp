@@ -30,11 +30,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					</dl>
 			</fieldset>
 			<fieldset>
-					<legend>审批信息</legend>
+					<legend>领导审批</legend>
 					<dl class="nowrap">
 						<dt>审核意见：</dt>
 						<dd>
-							<textarea name="laAdvice" cols="80" rows="10" class="required"></textarea>
+							<textarea name="laAdvice" cols="80" rows="10" class="required" value="">同意调查。</textarea>
 						</dd>
 					</dl>
 					<dl class="nowrap">
@@ -42,6 +42,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<dd>
 							<input type="radio" name="isLA" value="1" checked="true"/>调查
 							<input type="radio" name="isLA" value="0"/>不调查
+						</dd>
+					</dl>
+					<dl class="nowrap">
+						<dt>是否需要：</dt>
+						<dd>
+							<input type="checkbox" name="isXY" value="依托单位鉴定"/>依托单位鉴定
+							<input type="checkbox" name="isXY" value="专家鉴定"/>专家鉴定
+							<input type="checkbox" name="isXY" value="当事人陈述"/>当事人陈述
 						</dd>
 					</dl>
 					<dl class="nowrap">

@@ -13,6 +13,7 @@ String month = "";
 String day = "";
 String reportName = "";
 String title = "";
+String proposedOpinion = "";
 if(isEdit.equals("0") && sjybdBean != null)
 {
 	numYear = sjybdBean.getNumYear();
@@ -22,6 +23,7 @@ if(isEdit.equals("0") && sjybdBean != null)
 	day = sjybdBean.getDay();
 	reportName = sjybdBean.getReportName();
 	title = sjybdBean.getTitle();
+	proposedOpinion=sjybdBean.getProposedOpinion();
 }
 String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+path+"/";
@@ -34,12 +36,12 @@ String id = "1";
 		<script type="text/javascript">
              var word = new word();
              //决定路径
-		     word.setUploadUrl("<%=serverPath%>" + "/web/dsoframer/upload_handle.jsp");
+		     word.setUploadUrl("<%=basePath%>" + "web/dsoframer/upload_handle.jsp");
 
 		     var docurl = "";
 		     var flag = "<%=isEdit%>";
 		     function load(){
-		         word.openDoc('sjybd.doc',"<%=templatePath%>");
+		         word.openDoc('sjybd.doc',"<%=basePath%>" + "<%=templatePath%>");
 		         if(flag == "0")
 		         {
 		         	setFileVal();
@@ -52,14 +54,16 @@ String id = "1";
 		     
 		     function setFileVal(){
 		     	var title = document.getElementById("titleID").value;
-   				document.getElementById('oframe').SetFieldValue("numYear","<%=numYear%>","");	
-		     	document.getElementById('oframe').SetFieldValue("numID","<%=numID%>","");	
-		     	document.getElementById('oframe').SetFieldValue("year","<%=year%>","");
-		     	document.getElementById('oframe').SetFieldValue("month","<%=month%>","");	
-		     	document.getElementById('oframe').SetFieldValue("day","<%=day%>","");	
-		     	document.getElementById('oframe').SetFieldValue("reportName","<%=reportName%>","");	
-		     	document.getElementById('oframe').SetFieldValue("title",title,"");	
-		     	document.getElementById('oframe').SetFieldValue("count","1","");
+		     	var proposedOpinion= document.getElementById("proposedOpinionID").value;
+   				 document.getElementById('oframe').SetFieldValue("numYear","<%=numYear%>","");	
+			     	document.getElementById('oframe').SetFieldValue("numID","<%=numID%>","");	
+			     	document.getElementById('oframe').SetFieldValue("year","<%=year%>","");
+			     	document.getElementById('oframe').SetFieldValue("month","<%=month%>","");	
+			     	document.getElementById('oframe').SetFieldValue("day","<%=day%>","");	
+			     	document.getElementById('oframe').SetFieldValue("reportName","<%=reportName%>","");	
+			     	document.getElementById('oframe').SetFieldValue("title",title,"");	
+			     	document.getElementById('oframe').SetFieldValue("proposedOpinion",proposedOpinion,"");	
+			     	document.getElementById('oframe').SetFieldValue("count","1","");
 		     }
 		      
 		     //保存文件到服务器上
@@ -90,6 +94,7 @@ String id = "1";
 	<body onload="load();" onunload="unload();">
 	<form action="" method="post">
 		<input type="hidden" id="titleID" name="title" value="<%=title %>"/>
+		<input type="hidden" id="proposedOpinionID" name="proposedOpinion" value="<%=proposedOpinion %>"/>
 		<!-- 
 	  <input type="button" value="保存关闭" onclick="saveclose()" >
 	   -->

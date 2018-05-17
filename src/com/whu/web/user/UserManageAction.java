@@ -8,10 +8,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.struts.action.ActionForm;
@@ -34,10 +36,25 @@ public class UserManageAction extends DispatchAction {
 	/*
 	 * Generated Methods
 	 */
+	public void initTree(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		UserManageForm zzManageForm = (UserManageForm) form;// TODO Auto-generated method stub
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		//type=1 表示正常显示菜单，type=2表示展开所有菜单项，用于选择上级组织时的下拉菜单
+		String type = request.getParameter("type");
+		
+		String sql = "select ID,LOGINNAME,USERNAME from SYS_USER where POSIDS='9'";
+			
+		DBTools dbTools = new DBTools();
+		
+        List<String> lstTree = dbTools.queryAllUser(sql, new String[0], type);
+        //利用Json插件将Array转换成Json格式
+        response.getWriter().print(JSONArray.fromObject(lstTree).toString()); 
+	}
 	public ActionForward init(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response) {
 		UserManageForm userManageForm = (UserManageForm)form;
-		
 		CheckPage pageBean = new CheckPage();
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
@@ -149,7 +166,7 @@ public class UserManageAction extends DispatchAction {
 		boolean result = false;
 		String ids = request.getParameter("ids");
 		DBTools dbTool = new DBTools();
-		if(ids == null || ids == "")
+		if(ids == null || ids.equals(""))
 		{
 			String uid = request.getParameter("uid");
 			result = dbTool.deleteItemReal(uid, "SYS_USER", "ID");
@@ -195,7 +212,7 @@ public class UserManageAction extends DispatchAction {
 			String roleNames = "";
 			if(roleIDs != null && !roleIDs.equals(""))
 			{
-				StringBuilder sqlBuilder = new StringBuilder("select ROLENAME from SYS_ROLE where SYS_ROLE where ID in (");
+				StringBuilder sqlBuilder = new StringBuilder("select ROLENAME from SYS_ROLE  where ID in (");
 				String[] roleIdArray = roleIDs.split(",");
 				int len =  roleIdArray.length;
 				for(int i = 0; i < len; i++) {
@@ -320,7 +337,7 @@ public class UserManageAction extends DispatchAction {
 		JSONObject json = new JSONObject();
 		DBTools dbTools = new DBTools();
 		String id = request.getParameter("uid");
-		String sql = "update SYS_USER set PASSWORD='123456' where ID=?";
+		String sql = "update SYS_USER set PASSWORD='NSFC123456' where ID=?";
 		boolean result = dbTools.insertItem(sql, new String[]{id});
 		if(result)
 		{

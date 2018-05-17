@@ -17,7 +17,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
             'auto' : false,
             'multi' : true,
             'simUploadLimit' : 2,
-            'buttonText' : 'BROWSE'
+            'buttonText' : 'BROWSE',
+            'removeCompleted':false ,
+            'onComplete' :function(event,queueId,file,response,data){if(response == "1"){alert(file.name +"上传成功！");}else{alert(file.name +"上传失败！");document.getElementById("cfile").click();}}
         });
     });
 </script>
@@ -30,7 +32,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<dd>
 				<input type="file" name="keyUpload" id="keyUpload" />
       				<a href="javascript:jQuery('#keyUpload').uploadifyUpload()">开始上传</a>&nbsp;
-  					<a href="javascript:jQuery('#keyUpload').uploadifyClearQueue()">取消</a>
+  					<a id="cfile" href="javascript:jQuery('#keyUpload').uploadifyClearQueue()">取消</a>
   					<div id="fileQueue"></div>
 			</dd>
 		</dl>

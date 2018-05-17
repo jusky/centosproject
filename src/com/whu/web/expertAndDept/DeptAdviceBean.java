@@ -1,5 +1,7 @@
 package com.whu.web.expertAndDept;
 
+import java.util.List;
+
 public class DeptAdviceBean {
 
 	//单位意见
@@ -14,6 +16,14 @@ public class DeptAdviceBean {
 	private String expertAdvice;
 	//附件
 	private String filePath;
+	//被举报人列表
+	private List beReportList = null;
+	public List getBeReportList() {
+		return beReportList;
+	}
+	public void setBeReportList(List beReportList) {
+		this.beReportList = beReportList;
+	}
 	public String getDeptAdvice() {
 		return deptAdvice;
 	}

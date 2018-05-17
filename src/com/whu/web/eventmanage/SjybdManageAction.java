@@ -46,7 +46,7 @@ public class SjybdManageAction extends DispatchAction {
 		DBTools dbTools = new DBTools();
 		SjybdBean sb = dbTools.querySJYBD(sql, new String[]{reportID});
 		ArrayList result = new ArrayList();
-		if(sb==null)
+		if(sb==null)//生成阅办单信息还未保存，从TB_REPORTINFO提取相关信息保存到TB_SJYBDINFO
 		{
 			sb = new SjybdBean();
 			sql = "select * from TB_REPORTINFO where REPORTID=?";
@@ -73,21 +73,22 @@ public class SjybdManageAction extends DispatchAction {
 		String comeName = sjybdManageForm.getComeName();
 		String recvTime = sjybdManageForm.getRecvTime();
 		String title = sjybdManageForm.getTitle();
+		String proposedOpinion = sjybdManageForm.getProposedOpinion();//拟办意见
 
 		DBTools dbTools = new DBTools();
 		String checkSql="select * from TB_SJYBDINFO where REPORTID=?";
 		SjybdBean sb = dbTools.querySJYBD(checkSql, new String[]{reportID});
 		String sql="";
 		String[] params = new String[0];
-		if(sb==null)
+		if(sb==null)//原始保存
 		{
-			sql = "insert into TB_SJYBDINFO(REPORTID,TITLE,SERIALNUM,COMENAME,RECVTIME) values(?, ?, ?, ?, ?)";
-			params = new String[]{reportID, title, serialNum, comeName, recvTime};
+			sql = "insert into TB_SJYBDINFO(REPORTID,TITLE,SERIALNUM,COMENAME,RECVTIME,PROPOSEDOPINION) values(?, ?, ?, ?, ?,?)";
+			params = new String[]{reportID, title, serialNum, comeName, recvTime,proposedOpinion};
 		}
-		else
+		else//更新保存
 		{
-			sql = "update TB_SJYBDINFO set TITLE=?, SERIALNUM=?,recvTime=?,COMENAME=? where REPORTID=?";
-			params = new String[]{title, serialNum, recvTime, comeName, reportID};
+			sql = "update TB_SJYBDINFO set TITLE=?, SERIALNUM=?,recvTime=?,COMENAME=?,PROPOSEDOPINION=? where REPORTID=?";
+			params = new String[]{title, serialNum, recvTime, comeName, proposedOpinion, reportID};
 		}
 		boolean result = dbTools.insertItem(sql, params);
 		PrintWriter out = response.getWriter();
@@ -146,6 +147,112 @@ public class SjybdManageAction extends DispatchAction {
 			String tempFilePath = filePath + sjybdPath;
 			if((new File(tempFilePath)).exists())//如果存在，则得到路径
 			{
+				//templatePath = SystemConstant.GetServerPath() + "/attachment/" +  sjybdPath;
+				templatePath = "attachment/" +  sjybdPath;
+				request.setAttribute("IsEdit", "1");
+			}
+			else//不存在，则继续使用模板，例如：人工删除或系统出错
+			{
+				isEdit = false;
+				
+			}
+		}
+		else//如果是新增，则调出模板发送到客户端
+		{
+			isEdit = false;
+		}
+		if(!isEdit)
+		{
+			request.setAttribute("IsEdit", "0");
+			//templatePath = SystemConstant.GetServerPath() + "/web/template/sjybd.doc";
+			templatePath = "web/template/sjybd.doc";
+			//System.out.println(templatePath);
+			if(sb != null)
+			{
+				String serialNum = sb.getSerialNum();
+				String numYear =serialNum.substring(0, 4);
+//				String numID =String.valueOf(Integer.parseInt(serialNum.substring(4, serialNum.length())));
+				String numID =serialNum.substring(4, serialNum.length());
+				
+				String recvTime = sb.getRecvTime();
+				String year = recvTime.substring(0, 4);
+				String month = recvTime.substring(5, 7);
+				String day = recvTime.substring(8, 10);
+				sb.setReportID(id);
+				sb.setReportName(sb.getComeName());
+
+				sb.setDay(day);
+				sb.setMonth(month);
+				sb.setNumID(numID);
+				sb.setNumYear(numYear);
+				sb.setYear(year);
+				request.setAttribute("SJYBDBean", sb);
+			}
+		}
+	
+		request.setAttribute("ReportID", id);
+		request.setAttribute("ServerPath", SystemConstant.GetServerPath());
+		request.setAttribute("templatePath", templatePath);
+		//request.setAttribute("DomainPath", "http://ri.nsfc.gov.cn/KXJJBDXW/web/template/sjybd.doc");
+		return mapping.findForward("makeSJYBD");
+	}
+	
+	public ActionForward recvYBD(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		SjybdManageForm sjybdManageForm = (SjybdManageForm)form;
+		String reportID = sjybdManageForm.getReportID();
+		String serialNum = sjybdManageForm.getSerialNum();
+		String comeName = sjybdManageForm.getComeName();
+		String recvTime = sjybdManageForm.getRecvTime();
+		String title = sjybdManageForm.getTitle();
+		String proposedOpinion = sjybdManageForm.getProposedOpinion();//拟办意见
+		
+		DBTools dbTools = new DBTools();
+		String checkSql="select * from TB_SJYBDINFO where REPORTID=?";
+		SjybdBean sb = dbTools.querySJYBD(checkSql, new String[]{reportID});
+		String sql="";
+		String[] params = new String[0];
+		if(sb==null)//原始保存
+		{
+			sql = "insert into TB_SJYBDINFO(REPORTID,TITLE,SERIALNUM,COMENAME,RECVTIME,PROPOSEDOPINION) values(?, ?, ?, ?, ?,?)";
+			params = new String[]{reportID, title, serialNum, comeName, recvTime,proposedOpinion};
+		}
+		else//更新保存
+		{
+			sql = "update TB_SJYBDINFO set TITLE=?, SERIALNUM=?,recvTime=?,COMENAME=?,PROPOSEDOPINION=? where REPORTID=?";
+			params = new String[]{title, serialNum, recvTime, comeName, proposedOpinion, reportID};
+		}
+		boolean result = dbTools.insertItem(sql, params);
+		if(result)
+		{
+			System.out.println(reportID);
+		}
+		
+		if(reportID.equals(""))
+		{
+			return null;
+		}
+		sql = "select * from TB_SJYBDINFO where REPORTID=?";
+		sb = dbTools.querySJYBD(sql, new String[]{reportID});
+		
+		String sjybdPath = "";
+		if(sb !=null) sjybdPath = sb.getFilePath();
+		
+		//System.out.println(sjybdPath);
+		
+		String templatePath = "";
+		boolean isEdit = true;
+		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
+		
+		//System.out.println(filePath);
+		
+		if(sjybdPath != null && !sjybdPath.equals(""))//如果是编辑，则查询数据库判断上次编辑过的文件是否存在，若存在，则发送到客户端继续编辑
+		{			
+			String tempFilePath = filePath + sjybdPath;
+			if((new File(tempFilePath)).exists())//如果存在，则得到路径
+			{
 				templatePath = SystemConstant.GetServerPath() + "/attachment/" +  sjybdPath;
 				request.setAttribute("IsEdit", "1");
 			}
@@ -166,15 +273,13 @@ public class SjybdManageAction extends DispatchAction {
 			//System.out.println(templatePath);
 			if(sb != null)
 			{
-				String serialNum = sb.getSerialNum();
 				String numYear =serialNum.substring(0, 4);
 				String numID =String.valueOf(Integer.parseInt(serialNum.substring(4, serialNum.length())));
 				
-				String recvTime = sb.getRecvTime();
 				String year = recvTime.substring(0, 4);
 				String month = recvTime.substring(5, 7);
 				String day = recvTime.substring(8, 10);
-				sb.setReportID(id);
+				sb.setReportID(reportID);
 				sb.setReportName(sb.getComeName());
 
 				sb.setDay(day);
@@ -182,14 +287,14 @@ public class SjybdManageAction extends DispatchAction {
 				sb.setNumID(numID);
 				sb.setNumYear(numYear);
 				sb.setYear(year);
-				
 				request.setAttribute("SJYBDBean", sb);
 			}
 		}
 	
-		request.setAttribute("ReportID", id);
+		request.setAttribute("ReportID", reportID);
 		request.setAttribute("ServerPath", SystemConstant.GetServerPath());
 		request.setAttribute("templatePath", templatePath);
 		return mapping.findForward("makeSJYBD");
 	}
+	
 }

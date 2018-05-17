@@ -143,7 +143,7 @@ public class WyManageAction extends DispatchAction {
 		boolean result = false;
 		String ids = request.getParameter("ids");
 		DBTools dbTool = new DBTools();
-		if(ids == null || ids == "")
+		if(ids == null || ids.equals(""))
 		{
 			String uid = request.getParameter("uid");
 			result = dbTool.deleteItemReal(uid, "TB_WYINFO", "ID");
@@ -296,7 +296,7 @@ public class WyManageAction extends DispatchAction {
 			sql = "insert into TB_WYINFO(NAME,SEX,DEPT,TITLE,TXADDRESS,EMAIL,PHONE) values(?, ?, ?, ?, ?, ?, ?)";
 			params = new String[]{name, sex, dept, title, txAddress, email, phone};
 			sqlAddr="insert into TB_CONTACT(LOGINNAME,CONNAME,CONADDR) values(?, ?, ?)";
-			params = new String[]{mark, name, email};
+			addrParams = new String[]{mark, name, email};
 		}
 		else
 		{

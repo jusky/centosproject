@@ -67,6 +67,8 @@
 				<th width="120" align="center">研究方向</th>
 				<th width="100" align="center">联系方式</th>
 				<th width="100" align="center">所属学部</th>
+				<th width="100" align="center">其他1</th>
+				<th width="100" align="center">其他2</th>
 				<th width="100" align="center">管理</th>
 			</tr>
 		</thead>
@@ -101,6 +103,12 @@
 		</td>
 		<td align="center" >
 			<bean:write name="ExpertInfo" property="faculty"/>
+		</td>
+		<td align="center" >
+			<bean:write name="ExpertInfo" property="other1"/>
+		</td>
+		<td align="center" >
+			<bean:write name="ExpertInfo" property="other2"/>
 		</td>
 		<td  align="center" >
 		<a href="#">&nbsp;</a>

@@ -1,10 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" import="org.apache.commons.lang.StringUtils" %>
 <%@ include file="/commons/taglibs.jsp"%>
 <%  
     String path = request.getContextPath();  
     String basePath = request.getScheme() + "://"  
                 + request.getServerName() + ":" + request.getServerPort()  
-                + path + "/";  
+                + path + "/";                  
 %> 
 
 <form id="pagerForm" method="post" action='<%=request.getContextPath()%>/dispatchEventAction.do?method=queryMsg&operation=changePage&serialNum=<%=request.getParameter("serialNum") %>'>
@@ -30,34 +31,43 @@
 	</form>
 </div>
 <div class="pageContent">
-
+<div class="panelBar">
+		<ul class="toolBar">
+			<li><a class="add" rel="ids" href="<%=path%>/dispatchEventAction.do?method=dispatch&reportID=<%=request.getParameter("reportID") %>" postType="string" target="selectedTodo" targetType="dialog" title="确定指派这些查办人员吗？"><span>确定</span></a></li>
+		</ul>
+	</div>
 	<table class="table" layoutH="118" targetType="dialog" width="100%">
 		<thead>
 			<tr>
+				<th align="center"><input type="checkbox" class="checkboxCtrl" group="ids"/></th>
 				<th align="center" width="50">编号</th>
 				<th align="center" width="150">用户名</th>
 				<th align="center" width="200">姓名</th>
-				<th align="center" width="60">选择</th>
+				<!-- <th align="center" width="60">选择</th> -->
 			</tr>
 		</thead>
 		<tbody>
 		<logic:notEqual value="true" name="dispatchEventForm" property="recordNotFind">
    				<logic:notEmpty name="dispatchEventForm" property="recordList">
      				<logic:iterate name="dispatchEventForm" property="recordList" id="UserBean">
-      					<tr>
+      					<tr target="eventid" rel="${UserBean.id}">
+      						<td align="center">
+      						<input type="checkbox" name="ids" id="checkboxID" value="${UserBean.id}"/> 
+     							</td>
       						<td align="center">
 								<bean:write name="UserBean" property="serialNum"/>
-							</td>
-							<td align="center">
+								</td>
+								<td align="center">
 								<bean:write name="UserBean" property="loginName"/>
-							</td>
+								</td>
       						<td align="center">
+      						<input type="hidden" id="${UserBean.id}" name="test" value="${UserBean.userName }"/>
 								<bean:write name="UserBean" property="userName"/>
-							</td>
-							<td align="center">
+								</td>
+							<!-- <td align="center">
 								<a href="#">&nbsp;</a>
-								<a class="btnSelect" href="<%=path%>/dispatchEventAction.do?method=dispatch&officer=${UserBean.id}&reportID=<%=request.getParameter("reportID") %>" target="ajaxTodo" callback="dialogAjaxDone" title="确定分派给 ${UserBean.userName } 吗">选择</a>
-							</td>
+								<a class="btnSelect" href="<%=path%>/dispatchEventAction.do?method=dispatch&officer=${UserBean.id}&reportID=<%=request.getParameter("reportID") %>" target="ajaxTodo" callback="dialogAjaxDone" title="确定分派给 ${UserBean.userName } 吗?">选择</a>
+							</td> -->
 						</tr>
 					</logic:iterate>
 				</logic:notEmpty>

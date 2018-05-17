@@ -3,12 +3,15 @@
 String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
+<style>
+span.error{width:260px}
+</style>
 <div class="pageContent">
 	<form method="post" action="<%=path%>/changePwdAction.do?method=save" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone);">
 		<div class="pageFormContent" layoutH="56">
 			<p>
 				<label>旧密码：</label>
-				<input class="required" name="oldPwd" type="password" autocomplete="off" size="20"/>
+				<input class="required" name="oldPwd" type="password"  autocomplete="off" size="20"/>
 			</p>
 			<p>
 				<label>新密码：</label>

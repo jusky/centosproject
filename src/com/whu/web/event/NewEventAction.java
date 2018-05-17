@@ -44,7 +44,7 @@ public class NewEventAction extends DispatchAction {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
-		String sql = "select SERIALNUM from TB_REPORTINFO order by ID desc limit 1";
+		String sql = "select SERIALNUM from TB_REPORTINFO where ISDIGIT=1 order by ID desc limit 1";
 		String serialNum = SystemShare.GetSerialNum(sql, new String[0]);
 		request.setAttribute("SerialNum", serialNum);
 		return mapping.findForward("init");
@@ -63,31 +63,26 @@ public class NewEventAction extends DispatchAction {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 		NewEventForm newEventForm = (NewEventForm) form;
+		String userName =  (String)request.getSession().getAttribute("UserName");
 		boolean result = false;
-		
+		DBTools db = new DBTools();
 		try {
-			String isNi = request.getParameter("choose");
-			if(isNi == null)//如果为null，说明没有勾选，不是匿名
-			{
-				isNi = "0";
-			}
-			else//否则，勾选，是匿名
-			{
-				isNi = "1";
-			}
+			String choose = request.getParameter("choose");
 			String reportName = newEventForm.getReportName();
-			String reportType = "网络举报";
+			String reportType = newEventForm.getReportType();
 			//高相似度项目也认为是匿名举报
-			if(reportName.equals("信息中心"))
+			if(choose.equals("2"))
 			{
-				isNi = "1";
 				reportType = "相似度检测";
 			}
-			else if(reportName.equals("科学部转"))
+			else if(choose.equals("3"))
 			{
-				isNi = "1";
-				reportType = "科学部转";
+				reportType = "其他部门转";
 			}
+			
+			String isNi = "1";
+			if(choose.equals("0"))
+				isNi = "0";
 			String serialNum = newEventForm.getSerialNum();
 			String gdPhone = newEventForm.getGdPhone();
 			String mailAddress = newEventForm.getMailAddress();
@@ -124,6 +119,7 @@ public class NewEventAction extends DispatchAction {
 			eb.setReportID(reportID);
 			eb.setReportName(reportName);
 			eb.setSerialNum(serialNum);
+			eb.setIsDigit(isDigit(serialNum));
 			eb.setDept(dept);
 			eb.setGdPhone(gdPhone);
 			eb.setTelPhone(telPhone);
@@ -138,6 +134,7 @@ public class NewEventAction extends DispatchAction {
 			eb.setIsNI(isNi);
 			eb.setIsDelete("0");
 			eb.setSearchID(searchID);
+			eb.setRecorder(userName);
 			
 			String attachName = (String)request.getSession().getAttribute("EventAttachName");
 			if(attachName != null && !attachName.equals(""))
@@ -185,7 +182,6 @@ public class NewEventAction extends DispatchAction {
 				temp = "无";
 			}
 			eb.setBeReportName(temp);
-			DBTools db = new DBTools();
 			try {
 				//插入被举报人信息
 				db.insertBeReport(list);
@@ -227,6 +223,99 @@ public class NewEventAction extends DispatchAction {
 		out.flush();
 		out.close();
 		return null;
+	}
+	
+	/**编辑举报信息
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws IOException
+	 */
+	public ActionForward editReportInfo(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		NewEventForm newEventForm = (NewEventForm) form;
+		boolean result = false;
+		DBTools db = new DBTools();
+		try {
+			String reportName = newEventForm.getReportName();
+			String reportType = newEventForm.getReportType();
+			String serialNum = newEventForm.getSerialNum();
+			String gdPhone = newEventForm.getGdPhone();
+			String mailAddress = newEventForm.getMailAddress();
+			String telPhone = newEventForm.getTelPhone();
+			String dept = newEventForm.getDept();
+			String reportTime = newEventForm.getReportTime();
+			
+			String jbReason = newEventForm.getReportReason();
+			String jbContent = newEventForm.getReportContent();
+			String bz = newEventForm.getBZ();
+			String reportID = newEventForm.getReportID();
+			String createName = (String)request.getSession().getAttribute("UserName");
+			
+			
+			String createTime = SystemShare.GetNowTime("yyyy-MM-dd");
+			
+			String loginName = (String)request.getSession().getAttribute("LoginName");
+			
+			EventBean eb = new EventBean();
+			eb.setReportID(reportID);
+			eb.setReportName(reportName);
+			eb.setSerialNum(serialNum);
+			eb.setIsDigit(isDigit(serialNum));
+			eb.setDept(dept);
+			eb.setGdPhone(gdPhone);
+			eb.setTelPhone(telPhone);
+			eb.setMailAddress(mailAddress);
+			eb.setReportTime(reportTime);
+			eb.setReportType(reportType);
+			eb.setCreateName(createName);
+			eb.setReportReason(jbReason);
+			eb.setReportContent(jbContent);
+			eb.setBz(bz);
+			//插入举报信息
+			result = db.updateReport(eb);
+			if (result) {
+				String describe = createTime + "," + createName + "编辑举报信息";
+				result = result && db.InsertHandleProcess(reportID, createName, SystemConstant.HP_BJJB, SystemConstant.SS_RECVEVENT, SystemConstant.LCT_JB, describe);
+				
+				//写入日志文件
+				result = result && db.insertLogInfo(createName, SystemConstant.LOG_EDIT, "编辑举报信息" , request.getRemoteAddr());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			result = false;
+		}
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+		if(result)
+		{
+			json.put("statusCode", 200);
+			json.put("message", "编辑举报信息成功！");
+			json.put("callbackType", "closeCurrent");
+		}
+		else
+		{
+			json.put("statusCode", 300);
+			json.put("message", "编辑举报信息失败！");
+		}
+		out.write(json.toString());
+		out.flush();
+		out.close();
+		return null;
+	}
+	
+	private int isDigit(String str)
+	{
+		for(int i = 0;i<str.length();i++)
+		{
+			if(!Character.isDigit(str.charAt(i)))
+				return 0;
+		}
+		return 1;
 	}
 
 }

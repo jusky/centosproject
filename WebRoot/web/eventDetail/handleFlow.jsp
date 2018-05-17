@@ -17,11 +17,11 @@ function showFlowGraph()
 }
 </script>
 <div class="pageContent" layoutH="56" style="border-left:1px #B8D0D6 solid;border-right:1px #B8D0D6 solid">
-	<div class="panelBar">
+	<!-- <div class="panelBar">
 		<ul class="toolBar">
 			<li><a class="add" href="javascript:showFlowGraph();"><span>流程图</span></a></li>
 		</ul>
-	</div>
+	</div> -->
 	<table class="table" width="100%" layoutH="138">
 		<thead>
 			<tr>

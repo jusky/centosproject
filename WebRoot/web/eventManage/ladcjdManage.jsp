@@ -32,10 +32,9 @@ function showLadcDiv(aID)
 	     }
 	 }
 
-function surveyReport()
+function surveyReport(aID)
 {
-	var reportID = document.getElementById("tempReportID").value;
-	var url = "<%=path%>/eventManageAction.do?method=surveyReport&id=" + reportID;
+	var url = "<%=path%>/eventManageAction.do?method=surveyReport&id=" + aID;
 	openMaxWin(url);
 }
 function setAnonymity(cb)
@@ -60,7 +59,7 @@ function setAnonymity(cb)
 	<input type="hidden" name="orderDirection" value="${param.orderDirection}" />
 </form>
 <div id="ladcjd_box" class="ops_box ops_itemDiv">
-	<ul style="width:480px;">
+	<ul style="width:500px;">
 		<li class="ops_li">
 			<a href="<%=path%>/eventManageAction.do?method=detail&id={eventid}" class="link detail ops_more" target="dialog" mask="true" rel="detail" width="900" height="600" title="查看详情">查看详情</a>
 		</li>
@@ -82,16 +81,36 @@ function setAnonymity(cb)
 			<a class="link edit ops_more" href="<%=path%>/eventManageAction.do?method=facultyAdviceManage&id={eventid}" target="navTab" rel="addFacultyAdvice" title="添加学部意见"><span>学部意见</span></a>
 		</li>
 		<li class="ops_li">
-			<a class="link edit ops_more" href="javascript:surveyReport()" title="编辑调查报告"><span>调查报告</span></a>
+			<a class="link edit ops_more" href="<%=path%>/eventManageAction.do?method=analysisAndInvestigation&id={eventid}" target="navTab" rel="addAnalysisAndInves" title="添加分析结论"><span>分析结论</span></a>
+		</li>
+		<li class="ops_li">
+			<a class="link edit ops_more" href="<%=path%>/eventManageAction.do?method=treatmentSuggestion&id={eventid}" target="navTab" rel="addSuggestion" title="添加处理建议"><span>处理建议</span></a>
+		</li>
+		<li class="ops_li">
+			<a class="link edit ops_more" href="<%=path %>/eventManageAction.do?method=uploaddcbg&id={eventid}" target="dialog" title="上传调查报告"><span>上传调查报告</span></a>
+		</li>
+		<li class="ops_li">
+			<a class="link edit ops_more" href="<%=path%>/approveEventAction.do?method=rollOut&reportID={eventid}" target="ajaxTodo"  title="确定转出该案件吗？">转出</a>
+		</li>
+		<li class="ops_li">
+			<a class="link edit ops_more" href="<%=path%>/approveEventAction.do?method=tempNotEnd&reportID={eventid}" target="ajaxTodo"  title="确定暂不结案吗？">暂不结案</a>
+		</li>
+		<li class="ops_li">
+			<a class="link edit ops_more" href="<%=path%>/eventManageAction.do?method=revocation&id={eventid}" target="ajaxTodo"  title="确定对该案件进行撤回吗？">撤回</a>
 		</li>
 		<!-- 
 		<li class="ops_li">
+			<a class="link edit ops_more" href="javascript:surveyReport()" title="编辑调查报告"><span>调查报告</span></a>
+		</li>
+		
+		<li class="ops_li">
 			<a class="link delete ops_more" href="<%=path%>/meetManageAction.do?method=delete&id={eventid}" target="ajaxTodo" title="确定要删除吗?">删除</a>
 		</li>
-		 -->
+		 
 		 <li class="ops_li">
-			<a class="link parameter ops_more" href="<%=path%>/eventManageAction.do?method=midCloseEvent&id={eventid}" target="ajaxTodo" title="确定要直接结束该案件的调查吗?">结束</a>
+			<a class="link parameter ops_more" href="<%=path%>/eventManageAction.do?method=midCloseEvent&id={eventid}" target="ajaxTodo" title="确定要直接结束该案件的调查吗?">结案</a>
 		</li>
+		-->
 	</ul>
 </div>
 <div class="pageHeader">
@@ -130,7 +149,7 @@ function setAnonymity(cb)
 	<div class="panelBar">
 		<ul class="toolBar">
 			<li><a class="add" href="<%=path%>/dcbgManageAction.do?method=init" target="navTab" rel="allSurveyReport"><span>所有调查报告</span></a></li>
-			<li><a class="add" rel="ids" href="<%=path %>/eventManageAction.do?method=startHandle" postType="string" target="selectedTodo" title="确定要选择这些事件提交监督委员会讨论吗?"><span>提交监委会讨论</span></a></li>
+			<li><a class="add" rel="ids" href="<%=path %>/eventManageAction.do?method=startHandle" postType="string" target="selectedTodo" title="确定要将这些事件提交监督委员会讨论吗?"><span>提交监委会讨论</span></a></li>
 			<!-- 
 			<li class="line">line</li>
 			<li><a class="delete" rel="ids" href="<%=path %>/eventManageAction.do?method=delete&type=noreal" postType="string" target="selectedTodo" title="确定要删除吗?"><span>批量删除</span></a></li>
@@ -149,10 +168,8 @@ function setAnonymity(cb)
 				<th width="110" align="center">被举报人姓名</th>
 				<th align="center">举报事由</th>
 				<th width="130" align="center" orderField="a.REPORTTIME" class="asc">举报时间</th>
-				<logic:equal name="IsHead" value="1" scope="session">
-					<th width="100" align="center" orderField="a.OFFICER" <%if (request.getParameter("orderField")!=null && request.getParameter("orderField").equals("a.OFFICER")) { %> class="${param.orderDirection}" <%} %>>查办人员</th>
-				</logic:equal>
-				<th width="130" align="center">管理</th>
+				<th width="100" align="center" orderField="a.OFFICER" <%if (request.getParameter("orderField")!=null && request.getParameter("orderField").equals("a.OFFICER")) { %> class="${param.orderDirection}" <%} %>>查办人员</th>
+				<th width="150" align="center">管理</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -160,10 +177,10 @@ function setAnonymity(cb)
    <logic:notEmpty name="eventManageForm" property="recordList">
      <logic:iterate name="eventManageForm" property="recordList" id="EventBean">
       <tr target="eventid" rel="${EventBean.reportID}">
-      	<td align="center">
+      <td align="center">
       		<input type="checkbox" name="ids" value="${EventBean.reportID}" />
-      	</td>
-      	<td align="center" >
+      </td>
+      <td align="center" >
 			<bean:write name="EventBean" property="serialNum"/>
 		</td>
       	<td align="center" >
@@ -181,15 +198,20 @@ function setAnonymity(cb)
 		<td  align="center">
 			<bean:write name="EventBean" property="reportTime"/>
 		</td>
+		<td align="center">
+		<bean:write name="EventBean" property="officer"/>
+		<!-- 
 		<logic:equal name="IsHead" value="1" scope="session">
-			<td align="center">
-				<bean:write name="EventBean" property="officer"/>
 				&nbsp;&nbsp;
 				<a class="btnEdit" href='<%=path%>/dispatchEventAction.do?method=init&reportID=${EventBean.reportID}' clss="link edit" mask="true" target="dialog" rel="dispatchEvent" width="550" height="450" title="指派查办人员">重新指派</a>
-			</td>
-		</logic:equal>
+		</logic:equal> -->
+		</td>
 		<td align="center">
 			<a id="more${EventBean.reportID}" style="cursor: pointer;text-decoration: underline;" href="javascript:showLadcDiv('${EventBean.reportID}');" title="更多操作">更多操作</a>
+			<logic:notEqual name="RoleIDs" value="2"  scope="session">
+			<a href="javascript:surveyReport('${EventBean.reportID}')" title="编辑调查报告"><span>调查报告</span></a>
+			<a href="<%=path%>/eventManageAction.do?method=midCloseEvent&id={eventid}" target="ajaxTodo" title="确定要直接结束该案件的调查吗?">结案</a>
+			</logic:notEqual>
 			<!-- 
 			<logic:equal value="已立案" name="EventBean" property="status">
 				<a href="<%=path%>/eventManageAction.do?method=gyMethod&type=createGroup&id={eventid}" class="btnAssign" mask="true" target="dialog" rel="createGroup" width="1000" height="600" title="选择调查组成员">成立调查组</a>

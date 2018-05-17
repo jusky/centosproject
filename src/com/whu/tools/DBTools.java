@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
@@ -30,9 +31,12 @@ import com.whu.web.event.EventBean;
 import com.whu.web.event.JBReasonBean;
 import com.whu.web.eventbean.*;
 import com.whu.web.eventmanage.ApproveBean;
+import com.whu.web.eventmanage.CheckEventForm;
 import com.whu.web.eventmanage.GroupBean;
 import com.whu.web.eventmanage.ItemAndNum;
+import com.whu.web.expert.UnLoginedExpertBean;
 import com.whu.web.expertAndDept.DeptAdviceBean;
+import com.whu.web.expertAndDept.DeptAndExpertBean;
 import com.whu.web.expertAndDept.DeptDCBean;
 import com.whu.web.expertAndDept.ExpertFile;
 import com.whu.web.expertAndDept.ExpertIdentityBean;
@@ -416,6 +420,7 @@ public class DBTools {
 			AESCrypto aes = new AESCrypto();
 			String key = "TB_REPORTINFO";
 			while (rs != null && rs.next() && count > 0) {
+				String officers = rs.getString("OFFICER");
 				EventBean eb = new EventBean();
 				eb.setId(String.valueOf(rs.getInt("ID")));
 				eb.setReportID(rs.getString("REPORTID"));
@@ -427,7 +432,76 @@ public class DBTools {
 				eb.setSerialNum(rs.getString("SERIALNUM"));
 				
 				// query UserName use LoginName
-				eb.setOfficer(new DBTools().querySingleData("SYS_USER", "USERNAME", "LOGINNAME", rs.getString("OFFICER")));
+				String usernames=null;
+				if(officers!=null)
+				{
+					String[] officer  =officers.split(",");
+					String[] username =new String[officer.length];
+					
+					String officerTemp;
+					for(int i = 0; i < officer.length; i ++)
+					{
+						officerTemp=officer[i];
+						username[i]=new DBTools().querySingleData("SYS_USER", "USERNAME", "LOGINNAME", officerTemp);
+					}
+					usernames=StringUtils.join(username, ",");
+				}
+				eb.setOfficer(usernames);
+				//eb.setAgentOfficer(new DBTools().querySingleData("SYS_USER", "USERNAME", "LOGINNAME", rs.getString("AGENTOFFICER")));
+				list.add(eb);
+				count--;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return list;
+	}
+	
+	/**
+	 * 查询事件列表
+	 * @param rs
+	 * @param rowsPerPage
+	 * @return
+	 */
+	public ArrayList queryEventListSjsh(ResultSet rs, int rowsPerPage) {
+		ArrayList list = new ArrayList();
+		try {
+			int count = rowsPerPage;
+			AESCrypto aes = new AESCrypto();
+			String key = "TB_REPORTINFO";
+			while (rs != null && rs.next() && count > 0) {
+				EventBean eb = new EventBean();
+				String officers = rs.getString("OFFICER");
+				eb.setId(String.valueOf(rs.getInt("ID")));
+				eb.setReportID(rs.getString("REPORTID"));
+				eb.setStatus(rs.getString("CAPTION"));
+				eb.setReportName(new String(aes.createDecryptor(rs.getBytes("REPORTNAME"), key)));
+				eb.setReportTime(rs.getString("REPORTTIME"));
+				eb.setBeReportName(new String(aes.createDecryptor(rs.getBytes("BEREPORTNAME"), key)));
+				eb.setReportReason(new String(aes.createDecryptor(rs.getBytes("REPORTREASON"), key)));
+				eb.setSerialNum(rs.getString("SERIALNUM"));
+				eb.setAgentOfficer( rs.getString("AGENTOFFICER"));
+				
+				// query UserName use LoginName
+				String usernames=null;
+				if(officers!=null)
+				{
+					String[] officer  =officers.split(",");
+					String[] username =new String[officer.length];
+					String officerTemp;
+					for(int i = 0; i < officer.length; i ++)
+					{
+						officerTemp=officer[i];
+						username[i]=new DBTools().querySingleData("SYS_USER", "USERNAME", "LOGINNAME", officerTemp);
+					}
+					usernames=StringUtils.join(username, ",");
+				}
+				eb.setOfficer(usernames);
+				
 				list.add(eb);
 				count--;
 			}
@@ -1037,6 +1111,7 @@ public class DBTools {
 			int i = 0;
 			while (rs != null && rs.next() && count > 0) {
 				UserBean userBean = new UserBean();
+				userBean.setDispatchChecked(rs.getString("DISPATCHCHECKED"));
 				userBean.setId(String.valueOf(rs.getInt("ID")));
 				userBean.setUserName(rs.getString("USERNAME"));
 				userBean.setLoginName(rs.getString("LOGINNAME"));
@@ -1093,6 +1168,58 @@ public class DBTools {
 				contactBean.setContactName(rs.getString("CONNAME"));
 				contactBean.setContactAddr(rs.getString("CONADDR"));
 				list.add(contactBean);
+				count--;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return list;
+	}
+	public ArrayList queryUnLoginedExpertList(ResultSet rs, int rowsPerPage) {
+		ArrayList list = new ArrayList();
+		try {
+			int count = rowsPerPage;
+			AESCrypto aes = new AESCrypto();
+			String key = "TB_REPORTINFO";
+			while (rs != null && rs.next() && count > 0) {
+				UnLoginedExpertBean unLoginedExpertBean = new UnLoginedExpertBean();
+				unLoginedExpertBean.setId(rs.getString("ID"));
+				unLoginedExpertBean.setExpertName(rs.getString("EXPERTNAME"));
+				unLoginedExpertBean.setLoginName(rs.getString("LOGINNAME"));
+				unLoginedExpertBean.setEmailAddress(rs.getString("EMAILADDRESS"));
+				unLoginedExpertBean.setSerialNum(rs.getString("SERIALNUM"));
+				unLoginedExpertBean.setRepoerName(new String(aes.createDecryptor(rs.getBytes("REPORTNAME"), key)));
+				unLoginedExpertBean.setBeReportName(new String(aes.createDecryptor(rs.getBytes("BEREPORTNAME"), key)));
+				unLoginedExpertBean.setSendEmailTime(rs.getString("SENDEMAILTIME"));
+				list.add(unLoginedExpertBean);
+				count--;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return list;
+	}
+	public ArrayList queryDeptAndExpertList(ResultSet rs, int rowsPerPage) {
+		ArrayList list = new ArrayList();
+		try {
+			int count = rowsPerPage;
+			while (rs != null && rs.next() && count > 0) {
+				DeptAndExpertBean deptAndExpertBean = new DeptAndExpertBean();
+				deptAndExpertBean.setId(String.valueOf(rs.getInt("ID")));
+				deptAndExpertBean.setLoginName(rs.getString("LOGINNAME"));
+				deptAndExpertBean.setPassword(rs.getString("PASSWORD"));
+				deptAndExpertBean.setCreateTime(rs.getString("CREATETIME"));
+				deptAndExpertBean.setLoginTime(rs.getString("LOGINTIME"));
+				deptAndExpertBean.setEndTime(rs.getString("ENDTIME"));
+				list.add(deptAndExpertBean);
 				count--;
 			}
 		} catch (Exception e) {
@@ -1465,6 +1592,8 @@ public class DBTools {
 				expertInfo.setEmail(rs.getString("EMAIL"));
 				expertInfo.setAddress(rs.getString("ADDRESS"));
 				expertInfo.setFaculty(rs.getString("FACULTY"));
+				expertInfo.setOther1(rs.getString("OTHERONE"));
+				expertInfo.setOther2(rs.getString("OTHERTWO"));
 				list.add(expertInfo);
 				count--;
 			}
@@ -1760,7 +1889,9 @@ public class DBTools {
 				punishBean.setCaption(rs.getString("CAPTION"));
 				punishBean.setRemark(rs.getString("REMARK"));
 			}
-			sql = "select * from SYS_CLJD_RATE where CODE='" + punishBean.getCode() + "'";
+			sql = "select * from SYS_CLJD_RATE where CODE=?";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, punishBean.getCode());
 			rs = pst.executeQuery(sql);
 			while (rs !=null && rs.next()) {
 				punishBean.setYear(rs.getString("YEAR"));
@@ -1995,6 +2126,237 @@ public class DBTools {
 		}
 		return true;
 	}
+	
+	public boolean insertBeReportForCheck(ArrayList resultList) throws SQLException 
+	{
+		try {
+			BeReportBean brb = null;
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			conn.setAutoCommit(false);
+			String sql = "insert into TB_BEREPORTPE(REPORTID,BEREPORTNAME,DEPTNAME,TELPHONE,POSITION,IDNUMBER,EMAIL,RELATEDPROJECT,RELATEDPROJECTSL,FACULTY) values(?,?,?,?,?,?,?,?,?,?)";
+			pst = conn.prepareStatement(sql);
+			
+			AESCrypto aes = new AESCrypto();
+			String key = "TB_BEREPORTPE";
+			
+			for (int i = 0; i < resultList.size(); i++) {
+				brb = (BeReportBean) resultList.get(i);
+				pst.setString(1, brb.getReportID());
+				pst.setBytes(2, aes.createEncryptor(brb.getBeName(), key));
+				pst.setBytes(3, aes.createEncryptor(brb.getBeDept(), key));
+				pst.setBytes(4, aes.createEncryptor(brb.getBeTelPhone(), key));
+				pst.setString(5, brb.getBePosition());
+				pst.setBytes(6, aes.createEncryptor(brb.getIdNumber(), key));
+				pst.setBytes(7, aes.createEncryptor(brb.getEmail(), key));
+				pst.setBytes(8, aes.createEncryptor(brb.getRelateProject(), key));
+				pst.setBytes(9, aes.createEncryptor(brb.getRelateProjectsl(), key));
+				pst.setBytes(10,aes.createEncryptor(brb.getFaculty(), key));
+				pst.addBatch();
+			}
+			pst.executeBatch();
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			conn.rollback();
+			return false;
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return true;
+	}
+	//******************coding test
+	/**
+	 * 向数据库中更新被举报人信息，被举报人可以有多个，放在List集合中
+	 * @param resultList
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean updateBeReport(ArrayList resultList) throws SQLException 
+	{
+		try {
+			CheckEventForm cef = null;
+			BeReportBean brb = null;
+			ArrayList list = new ArrayList();
+			cef = (CheckEventForm)resultList.get(0);
+			deleteItemReal(cef.getReportID(),"TB_BEREPORTPE","REPORTID");
+			
+			for (int i = 0; i < resultList.size(); i++) {
+				cef = (CheckEventForm) resultList.get(i);
+				brb = new BeReportBean();
+				brb.setReportID(cef.getReportID());
+				brb.setBeName(cef.getBeReportName());
+				brb.setBeDept(cef.getInstitution());
+				brb.setBePosition(cef.getTitle());
+				brb.setBeTelPhone(cef.getTelphone());
+				brb.setEmail(cef.getEmail());
+				brb.setIdNumber(cef.getIdNumber());
+				brb.setRelateProject(cef.getRelatedProject());
+				brb.setRelateProjectsl(cef.getRelatedProjectsl());
+				brb.setFaculty(cef.getFaculty());
+				list.add(brb);
+			}
+			insertBeReportForCheck(list);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	public boolean updateBeReportFK(ArrayList resultList) throws SQLException 
+	{
+		try {
+			BeReportBean brb = null;
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			conn.setAutoCommit(false);
+			String sql = "update TB_BEREPORTPE set BEREPORTNAME=?,IDNUMBER=?,BIRTH=? where ID=?";
+			pst = conn.prepareStatement(sql);
+			
+			AESCrypto aes = new AESCrypto();
+			String key = "TB_BEREPORTPE";
+			
+			for (int i = 0; i < resultList.size(); i++) {
+				brb = (BeReportBean) resultList.get(i);
+				pst.setBytes(1, aes.createEncryptor(brb.getBeName(), key));
+				pst.setBytes(2, aes.createEncryptor(brb.getIdNumber(), key));
+				pst.setString(3, brb.getBirth());
+				pst.setString(4, brb.getID());
+				pst.addBatch();
+			}
+			pst.executeBatch();
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			conn.rollback();
+			return false;
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return true;
+	}
+	//*************coding test
+	
+	//插入初核信息
+	public boolean insertCheckInfoList(ArrayList resultList) throws SQLException 
+	{
+		try {
+			CheckEventForm cef = null;
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			conn.setAutoCommit(false);
+			String sql = "insert into TB_CHECKINFO(REPORTID,PREADVICE,BSHEAD,CHECKNAME,CHECKTIME) values(?, ?, ?, ?, ?)";
+			String checkTime = SystemShare.GetNowTime("yyyy-MM-dd");
+			pst = conn.prepareStatement(sql);
+			
+			if(resultList.size() > 0)
+			{
+				cef = (CheckEventForm) resultList.get(0);
+				pst.setString(1, cef.getReportID());
+				pst.setString(2, cef.getPreAdvice());
+				pst.setString(3, cef.getBsHead());
+				pst.setString(4, cef.getCheckName());
+				pst.setString(5, checkTime);
+				pst.addBatch();
+			}
+			pst.executeBatch();
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			conn.rollback();
+			return false;
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return true;
+	}/*
+	public boolean insertCheckInfoList(ArrayList resultList) throws SQLException 
+	{
+		try {
+			CheckEventForm cef = null;
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			conn.setAutoCommit(false);
+			String sql = "insert into TB_CHECKINFO(REPORTID,PREADVICE,BSHEAD,CHECKNAME,CHECKTIME) values(?, ?, ?, ?, ?)";
+			String checkTime = SystemShare.GetNowTime("yyyy-MM-dd");
+			pst = conn.prepareStatement(sql);
+			
+			for (int i = 0; i < resultList.size(); i++) {
+				cef = (CheckEventForm) resultList.get(i);
+				pst.setString(1, cef.getReportID());
+				pst.setString(2, cef.getPreAdvice());
+				pst.setString(3, cef.getBsHead());
+				pst.setString(4, cef.getCheckName());
+				pst.setString(5, checkTime);
+				pst.addBatch();
+			}
+			pst.executeBatch();
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			conn.rollback();
+			return false;
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return true;
+	}*/
+	//update checkInfo
+	public boolean updateCheckInfo(ArrayList resultList) throws SQLException 
+	{
+		try {
+			CheckEventForm cef = null;
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			conn.setAutoCommit(false);
+			String sql = "update TB_CHECKINFO set PREADVICE=?,BSHEAD=?,CHECKNAME=?,CHECKTIME=? where REPORTID=?";
+			String checkTime = SystemShare.GetNowTime("yyyy-MM-dd");
+			pst = conn.prepareStatement(sql);
+			
+			for (int i = 0; i < resultList.size(); i++) {
+				cef = (CheckEventForm) resultList.get(i);
+				pst.setString(1, cef.getPreAdvice());
+				pst.setString(2, cef.getBsHead());
+				pst.setString(3, cef.getCheckName());
+				pst.setString(4, checkTime);
+				pst.setString(5, cef.getReportID());
+				pst.addBatch();
+			}
+			pst.executeBatch();
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			conn.rollback();
+			return false;
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return true;
+	}/*
+	public boolean updateCheckInfo(ArrayList resultList) throws SQLException 
+	{
+		try {
+			CheckEventForm cef = null;
+			cef = (CheckEventForm)resultList.get(0);
+			deleteItemReal(cef.getReportID(),"TB_CHECKINFO","REPORTID");
+			insertCheckInfoList(resultList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}*/
+	//*****************coding test
 	/**
 	 * 关闭数据库连接
 	 */
@@ -2039,6 +2401,7 @@ public class DBTools {
 			String attachName = "";
 			String isNi = "";
 			String faculty = "";
+			String recorder = "";
 			while (rs != null && rs.next()) {
 				EventBean eb = new EventBean();
 				eb.setReportID(rs.getString("REPORTID"));
@@ -2079,12 +2442,20 @@ public class DBTools {
 				}
 				eb.setAccessory(attachName);
 				eb.setBz(rs.getString("BZ"));
+				eb.setSearchID(rs.getString("SEARCHID"));
+				eb.setIsRev(rs.getString("isRev"));
 				faculty = rs.getString("FACULTY");
 				if(faculty == null)
 				{
 					faculty = "";
 				}
 				eb.setFaculty(faculty);
+				recorder = rs.getString("RECORDER");
+				if(recorder == null)
+				{
+					recorder = "";
+				}
+				eb.setRecorder(recorder);
 				return eb;
 			}
 		} catch (Exception e) {
@@ -2153,10 +2524,16 @@ public class DBTools {
 			BeReportBean brb = null;
 			while (rs != null && rs.next()) {
 				brb = new BeReportBean();
+				brb.setID(rs.getString("ID"));
 				brb.setBeName(new String(aes.createDecryptor(rs.getBytes("BEREPORTNAME"), key)));
 				brb.setBePosition(rs.getString("POSITION"));
 				brb.setBeTelPhone(new String(aes.createDecryptor(rs.getBytes("TELPHONE"), key)));
 				brb.setBeDept(new String(aes.createDecryptor(rs.getBytes("DEPTNAME"), key)));
+				brb.setEmail(new String(aes.createDecryptor(rs.getBytes("EMAIL"), key)));
+				brb.setFaculty(new String(aes.createDecryptor(rs.getBytes("FACULTY"), key)));
+				brb.setIdNumber(new String(aes.createDecryptor(rs.getBytes("IDNUMBER"), key)));
+				brb.setRelateProject(new String(aes.createDecryptor(rs.getBytes("RELATEDPROJECT"), key)));
+				brb.setRelateProjectsl(new String(aes.createDecryptor(rs.getBytes("RELATEDPROJECTSL"), key)));
 				list.add(brb);
 			}
 		} catch (Exception e) {
@@ -2201,26 +2578,113 @@ public class DBTools {
 		return null;
 	}
 	/**
-	 * 查询审核信息
+	 * 查询核实信息
 	 * @param sql
 	 * @return
 	 */
-	public ApproveBean queryApproveInfo(String sql, String[] params) {
+	public ArrayList queryCheckInfoList2(String sql, String[] params) {
+		ArrayList list = new ArrayList();
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
 			pst = conn.prepareStatement(sql);
 			int i = 1;
-			for (String param : params) {
+			for(String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
+			while (rs != null && rs.next()) {
+				CheckBean cb = new CheckBean();
+				cb.setReportID(rs.getString("REPORTID"));
+				cb.setNibanAdvice(rs.getString("PREADVICE"));
+				cb.setNibanName(rs.getString("CHECKNAME"));
+				cb.setNibanTime(rs.getString("CHECKTIME"));
+				list.add(cb);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return list;
+	}
+	//*************coding test
+	public ArrayList queryCheckInfoList(String sql, String[] params) {
+		String Sql = "select * from TB_BEREPORTPE where REPORTID=?";
+		ArrayList listBereport = queryBeReport(Sql,params);
+		ArrayList list = new ArrayList();
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
+			CheckEventForm cef = null;
+			BeReportBean brb = null;
+			for(int  j = 0;j < listBereport.size();j++){
+				brb = (BeReportBean)listBereport.get(j);
+				cef = new CheckEventForm();
+				cef.setBeReportName(brb.getBeName());
+				cef.setTelphone(brb.getBeTelPhone());
+				cef.setTitle(brb.getBePosition());
+				cef.setInstitution(brb.getBeDept());
+				cef.setReportID(brb.getReportID());
+				cef.setIdNumber(brb.getIdNumber());
+				cef.setEmail(brb.getEmail());
+				cef.setRelatedProject(brb.getRelateProject());
+				cef.setFaculty(brb.getFaculty());
+				cef.setRelatedProjectsl(brb.getRelateProjectsl());
+			   if(rs != null && rs.next()){
+					cef.setPreAdvice(rs.getString("PREADVICE"));
+					cef.setBsHead(rs.getString("BSHEAD"));
+					cef.setCheckName(rs.getString("CHECKNAME"));
+				}
+				list.add(cef);
+			}
+			/*
+			while (rs != null && rs.next()) {
+				cef = new CheckEventForm();
+				cef.setReportID(rs.getString("REPORTID"));
+				cef.setPreAdvice(rs.getString("PREADVICE"));
+				cef.setBsHead(rs.getString("BSHEAD"));
+				cef.setCheckName(rs.getString("CHECKNAME"));
+				cef.setBeReportName(rs.getString("BEREPORTNAME"));
+				cef.setIdNumber(rs.getString("IDNUMBER"));
+				cef.setTitle(rs.getString("TITLE"));
+				cef.setInstitution(rs.getString("INSTITUTION"));
+				cef.setTelphone(rs.getString("TELPHONE"));
+				cef.setEmail(rs.getString("TELPHONE"));
+				cef.setRelatedProject(rs.getString("TELPHONE"));
+				list.add(cef);
+			}*/
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return list;
+	}
+	//*************coding test
+	public ApproveBean queryApproveInfoBean(String sql, String[] params) {
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param : params) {
 				pst.setString(i++, param);
 			}
 			rs = pst.executeQuery();
 			while (rs != null && rs.next()) {
 				ApproveBean ab = new ApproveBean();
-				ab.setReportID(rs.getString("REPORTID"));
-				ab.setIsLA(rs.getString("ISLA"));
-				ab.setLaAdvice(rs.getString("LAADVICE"));
 				ab.setApproveName(rs.getString("APPROVENAME"));
 				ab.setApproveTime(rs.getString("APPROVETIME"));
+				ab.setIsXY(rs.getString("ISXY"));
+				ab.setHeadAdvice(rs.getString("LAADVICE"));
 				return ab;
 			}
 		} catch (Exception e) {
@@ -2231,6 +2695,46 @@ public class DBTools {
 			closeConnection();
 		}
 		return null;
+	}
+	/**
+	 * 查询审核信息
+	 * @param sql
+	 * @return
+	 */
+	public ArrayList queryApproveInfo(String sql, String[] params) {
+		ArrayList list = new ArrayList();
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
+			ApproveBean ab = null;
+			while (rs != null && rs.next()) {
+				ab = new ApproveBean();
+				//ab.setReportID(rs.getString("REPORTID"));
+				//ab.setIsLA(rs.getString("ISLA"));
+				//ab.setLaAdvice(rs.getString("LAADVICE"));
+				//ab.setApproveName(rs.getString("APPROVENAME"));
+				//ab.setApproveTime(rs.getString("APPROVETIME"));
+				//ab.setIsXY(rs.getString("ISXY"));
+				//return ab;
+				ab.setHeadAdvice(rs.getString("LAADVICE"));
+				ab.setHeadName(rs.getString("APPROVENAME"));
+				ab.setApproveTime(rs.getString("APPROVETIME"));
+				ab.setIsXY(rs.getString("ISXY"));
+				list.add(ab);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return list;
 	}
 	
 	/**
@@ -2296,7 +2800,40 @@ public class DBTools {
 		}
 		return lstTree;
 	}
-	
+	public List queryAllUser(String sql, String[] params, String type) {
+		List<String> lstTree = new ArrayList<String>();
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for(String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
+			String result = "";
+			String id = "";
+			String loginName = "";
+			String userName = "";
+			
+			while (rs != null && rs.next()) {
+				id = rs.getString("ID");
+				loginName = rs.getString("LOGINNAME");
+				userName = rs.getString("USERNAME");
+				if(type.equals("2"))
+				{
+					result = "{id:" + id + ", loginName:" + loginName + ", userName:\"" + userName + "\"}";
+				}
+				lstTree.add(result);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return lstTree;
+	}
 	/**
 	 * 查询功能的树形菜单
 	 * @param sql
@@ -2383,7 +2920,7 @@ public class DBTools {
     		String time = SystemShare.GetNowTime("yyyy-MM-dd");
     		
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
-			String sql = "insert into TB_REPORTINFO(REPORTID, REPORTNAME,REPORTDEPT,REPORTDH,REPORTPHONE,REPORTMAIL,REPORTTIME,CREATETIME,REPORTTYPE,BEREPORTNAME,REPORTREASON,REPORTCONTENT,BZ,STATUS,CREATENAME,ACCESSORY,ISDELETE,ISNI,SERIALNUM,LASTTIME, SEARCHID) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			String sql = "insert into TB_REPORTINFO(REPORTID, REPORTNAME,REPORTDEPT,REPORTDH,REPORTPHONE,REPORTMAIL,REPORTTIME,CREATETIME,REPORTTYPE,BEREPORTNAME,REPORTREASON,REPORTCONTENT,BZ,STATUS,CREATENAME,ACCESSORY,ISDELETE,ISNI,SERIALNUM,ISDIGIT,LASTTIME, SEARCHID,RECORDER) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			pst = conn.prepareStatement(sql);
 			AESCrypto aes = new AESCrypto();
 			String key = "TB_REPORTINFO";
@@ -2415,11 +2952,62 @@ public class DBTools {
 			pst.setString(17, eb.getIsDelete());
 			pst.setString(18, eb.getIsNI());
 			pst.setString(19, eb.getSerialNum());
-			pst.setString(20, time);
-			pst.setString(21, eb.getSearchID());
+			pst.setInt(20, eb.getIsDigit());
+			pst.setString(21, time);
+			pst.setString(22, eb.getSearchID());
+			pst.setString(23, eb.getRecorder());
 			pst.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			return false;
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return true;
+	}
+	
+	/**更新举报信息
+	 * @param resultList
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean updateReport(EventBean eb) throws SQLException 
+	{
+		try {
+			CheckEventForm cef = null;
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			String sql = "update TB_REPORTINFO set REPORTNAME=?,REPORTDEPT=?,REPORTDH=?,REPORTPHONE=?,REPORTMAIL=?,REPORTTIME=?,REPORTTYPE=?,REPORTREASON=?,REPORTCONTENT=?,BZ=?,SERIALNUM=?,ISDIGIT=?,LASTTIME=? where REPORTID=?";
+			String lastTime = SystemShare.GetNowTime("yyyy-MM-dd");
+			pst = conn.prepareStatement(sql);
+			AESCrypto aes = new AESCrypto();
+			String key = "TB_REPORTINFO";
+			byte[] nameB = aes.createEncryptor(eb.getReportName(), key);
+			byte[]  deptB= aes.createEncryptor(eb.getDept(), key);
+			byte[] dhB = aes.createEncryptor(eb.getGdPhone(), key);
+			byte[]  telPhB= aes.createEncryptor(eb.getTelPhone(), key);
+			byte[]  mailB= aes.createEncryptor(eb.getMailAddress(), key);
+			byte[]  reasonB= aes.createEncryptor(eb.getReportReason(), key);
+			byte[]  contentB= aes.createEncryptor(eb.getReportContent(), key);
+			pst.setBytes(1, nameB);
+			pst.setBytes(2, deptB);
+			pst.setBytes(3, dhB);
+			pst.setBytes(4, telPhB);
+			pst.setBytes(5, mailB);
+			pst.setString(6, eb.getReportTime());
+			pst.setString(7, eb.getReportType());
+			pst.setBytes(8, reasonB);
+			pst.setBytes(9, contentB);
+			pst.setString(10, eb.getBz());
+			pst.setString(11, eb.getSerialNum());
+			pst.setInt(12, eb.getIsDigit());
+			pst.setString(13, lastTime);
+			pst.setString(14, eb.getReportID());
+			pst.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			conn.rollback();
 			return false;
 		}
 		finally
@@ -2743,6 +3331,8 @@ public class DBTools {
 				expertInfo.setSex(rs.getString("SEX"));
 				expertInfo.setSpecialty(rs.getString("SPECIALTY"));
 				expertInfo.setTitle(rs.getString("TITLE"));
+				expertInfo.setOther1(rs.getString("OTHERONE"));
+				expertInfo.setOther2(rs.getString("OTHERTWO"));
 				return expertInfo;
 			}
 		} catch (Exception e) {
@@ -3163,12 +3753,12 @@ public class DBTools {
 	 * @throws SQLException 
 	 */
 	public boolean saveMsgNotify(String sendName, String[] recvName,
-			String reportID, String sendTime, String msgType, String isHandle, String isNotify) throws SQLException {
+			String reportID, String sendTime, String msgType, String isHandle, String isNotify,String officer) throws SQLException {
 		try {
+			
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
 			conn.setAutoCommit(false);
-			String sql = "insert into TB_MSGNOTIFY(RECVNAME,SENDNAME,REPORTID,SENDTIME,TYPE,ISHANDLE,ISNOTIFY) values(?,?,?,?,?,?,?)";
-			
+			String sql = "insert into TB_MSGNOTIFY(RECVNAME,SENDNAME,REPORTID,SENDTIME,TYPE,ISHANDLE,ISNOTIFY,OFFICER) values(?,?,?,?,?,?,?,?)";
 			pst = conn.prepareStatement(sql);
 			for (int i = 0; i <recvName.length; i++) {
 				pst.setString(1, recvName[i]);
@@ -3178,6 +3768,7 @@ public class DBTools {
 				pst.setString(5, msgType);
 				pst.setString(6, isHandle);
 				pst.setString(7, isNotify);
+				pst.setString(8, officer);
 				pst.addBatch();
 			}
 			pst.executeBatch();
@@ -3409,7 +4000,7 @@ public class DBTools {
 				
 				//只有通过发送邮件，并且鉴定专家在线提交的鉴定结论，需要将结论“是、否、不确定”与问题进行关联！人工录入的专家鉴定鉴定意见不需要关联
 				isEmail = rs.getString("ISEMAIL");
-				if(type.equals("2"))
+				/*if(type.equals("2"))
 				{
 					jdConclusion = rs.getString("JDCONCLUSION");
 					if(conclusion != null && !conclusion.equals(""))
@@ -3433,7 +4024,7 @@ public class DBTools {
 					{
 						advice = advice.replaceAll("\n", "<br/>");
 					}
-				}
+				}*/
 				ea.setConclusion(conclusion);
 				ea.setAdvice(advice);
 				ea.setIsFK(rs.getString("ISFK"));
@@ -3550,7 +4141,7 @@ public class DBTools {
 					facultyAdvice.setFacultyName(rs.getString("FACULTYNAME"));
 				}
 				String advice = rs.getString("ADVICE");
-				if(type.equals("2"))
+				if(type.equals("2") && advice != null)
 				{
 					advice.replace("\n", "<br/>");
 				}
@@ -3666,6 +4257,176 @@ public class DBTools {
 		return list;
 	}
 	/**
+	 * 分析结论
+	 * @param sql
+	 * @return
+	 */
+	public ArrayList queryanalysisAndInvestigation(String sql, String type, String[] params) {
+		ArrayList list = new ArrayList();
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
+			AnalysandInve ai = null;
+			String attachName = "";
+			String content = "";
+			while (rs != null && rs.next()) {
+				ai = new AnalysandInve();
+				ai.setId(rs.getString("ID"));
+				ai.setWorkername(rs.getString("WORKERNAME"));
+				ai.setTime(rs.getString("TIME"));
+				content = rs.getString("CONTENT");
+				if(type.equals("2"))
+				{
+					if(content != null && !content.equals(""))
+					{
+						content = content.replaceAll("\n", "<br/>");
+					}
+				}
+				ai.setContent(content);
+				attachName = rs.getString("ATTACHNAME");
+				if(attachName != null && !attachName.equals(""))
+				{
+					attachName = SystemConstant.GetServerPath() + "/" +  "attachment" + "/" + attachName;
+					ai.setAttachname(attachName);
+				}
+				else
+				{
+					ai.setAttachname("");
+				}
+				list.add(ai);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return list;
+	}
+	/**
+	 * 处理建议
+	 * @param sql
+	 * @return
+	 */
+	public ArrayList querytreatmentSuggestion(String sql, String type, String[] params) {
+		ArrayList list = new ArrayList();
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
+			TreatmentSuggestion ts = null;
+			String attachName = "";
+			String content = "";
+			while (rs != null && rs.next()) {
+				ts = new TreatmentSuggestion();
+				ts.setId(rs.getString("ID"));
+				ts.setWorkername(rs.getString("WORKERNAME"));
+				ts.setTime(rs.getString("TIME"));
+				content = rs.getString("CONTENT");
+				if(type.equals("2"))
+				{
+					if(content != null && !content.equals(""))
+					{
+						content = content.replaceAll("\n", "<br/>");
+					}
+				}
+				ts.setContent(content);
+				attachName = rs.getString("ATTACHNAME");
+				if(attachName != null && !attachName.equals(""))
+				{
+					attachName = SystemConstant.GetServerPath() + "/" +  "attachment" + "/" + attachName;
+					ts.setAttachname(attachName);
+				}
+				else
+				{
+					ts.setAttachname("");
+				}
+				list.add(ts);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return list;
+	}
+	/**
+	 * 处理建议
+	 * @param sql
+	 * @return
+	 */
+	public ArrayList queryconOfMeet(String sql, String type, String[] params) {
+		ArrayList list = new ArrayList();
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
+			ConOfMeet cm = null;
+			String attachName = "";
+			String attachName1 = "";
+			String content = "";
+			while (rs != null && rs.next()) {
+				cm = new ConOfMeet();
+				cm.setId(rs.getString("ID"));
+				cm.setWorkername(rs.getString("WORKERNAME"));
+				cm.setTime(rs.getString("TIME"));
+				content = rs.getString("CONTENT");
+				if(type.equals("2"))
+				{
+					if(content != null && !content.equals(""))
+					{
+						content = content.replaceAll("\n", "<br/>");
+					}
+				}
+				cm.setContent(content);
+				attachName = rs.getString("ATTACHNAME");
+				if(attachName != null && !attachName.equals(""))
+				{
+					attachName = SystemConstant.GetServerPath() + "/" +  "attachment" + "/" + attachName;
+					cm.setAttachname(attachName);
+				}
+				else
+				{
+					cm.setAttachname("");
+				}
+				attachName1 = rs.getString("ATTACHNAMEF");
+				if(attachName1 != null && !attachName1.equals(""))
+				{
+					attachName1 = SystemConstant.GetServerPath() + "/" +  "attachment" + "/" + attachName1;
+					cm.setAttachname1(attachName1);
+				}
+				else
+				{
+					cm.setAttachname1("");
+				}
+				list.add(cm);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return list;
+	}
+	/**
 	 * 查看复议申请列表
 	 * @param sql
 	 * @param type
@@ -3748,6 +4509,12 @@ public class DBTools {
 				hd.setShortInfo(rs.getString("SHORTINFO"));
 				hd.setConference(rs.getString("CONFERENCE"));
 				hd.setHandleTime(rs.getString("HANDLETIME"));
+				hd.setFundNum(rs.getString("FUNDNUM"));
+				hd.setfundNumRecover(rs.getString("FUNDNUMRECOVER"));
+				hd.setApplicantQualificationsYear(rs.getString("APPLICANTQUALIFICATIONSYEAR"));
+				hd.setrepealYearStart(rs.getString("REPEALYEARSTART"));
+				hd.setrepealYearEnd(rs.getString("REPEALYEAREND"));
+				hd.setRadioChoose(rs.getString("RADIOCHOOSE"));
 				decideContent = rs.getString("DECIDECONTENT");
 				filePath = rs.getString("FILEPATH");
 				if(filePath != null && !filePath.equals(""))
@@ -4033,6 +4800,36 @@ public class DBTools {
 		return result;
 	}
 	/**
+	 * 根据提供的表名、字段名、和字段值查询指定字段的值
+	 * @param tableName 表名
+	 * @param resultCol 结果列
+	 * @param colName 判断条件的列
+	 * @param value 值
+	 * @return
+	 */
+	public int querySingleIntData(String tableName, String resultCol, String colName, String value)
+	{
+		int result = 0;
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			String sql = "select " + resultCol + " from " + tableName + " where " + colName + " =?";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, value);
+			rs = pst.executeQuery();
+			while (rs != null && rs.next()) {
+				result = rs.getInt(resultCol);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return 0;
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return result;
+	}
+	/**
 	 * 查询当前最大编号
 	 * @param sql
 	 * @return
@@ -4119,6 +4916,26 @@ public class DBTools {
 		}
 		return true;
 	}
+	
+	public boolean InsertMsgNotify(String reportID)
+	{
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			String sql = "insert into TB_MSGNOTIFY(REPORTID) values(?)";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, reportID);
+			pst.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return true;
+	}
+	
 	/**
 	 * 同时插入多条附件信息到数据库
 	 * @param list
@@ -4183,6 +5000,29 @@ public class DBTools {
 			pst.setString(5, status);
 			pst.setString(6, flowType);
 			pst.setString(7, describe);
+			pst.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return true;
+	}
+	public boolean insertAgentofficerinfo(String reportID, String userName, String agentOfficer, String isAgentOfficer)
+	{
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+    		String agentTime = SystemShare.GetNowTime("yyyy-MM-dd");
+			String sql = "insert into TB_AGENTAPPROVE(REPORTID,USERNAME,AGENTOFFICER,AGENTTIME,ISAGENTOFFICER) values(?, ?, ?, ?, ?)";
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, reportID);
+			pst.setString(2, userName);
+			pst.setString(3, agentOfficer);
+			pst.setString(4, agentTime);
+			pst.setString(5, isAgentOfficer);
 			pst.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -4619,7 +5459,8 @@ public class DBTools {
 					ArrayList attachList = new ArrayList();
 					String[] attachArr = attachNames.split(":");
 					String attachPath = "";
-					String serverPath = SystemConstant.GetServerPath() + "/" + "attachment/expert/";
+					//String serverPath = "http://" + SystemShare.GetIPAddr() + "/home/apache-tomcat-8.0.9/webapps/KXJJBDXW"+ "/" + "attachment/expert";
+					String serverPath = SystemConstant.GetServerPath() + "/" + "attachment/expert";
 					for(i = 0; i < attachArr.length; i++)
 					{
 						attachPath = serverPath + "/" + reportID + "/" + attachArr[i];
@@ -4825,7 +5666,7 @@ public class DBTools {
 			String status = "";
 			String[] attachArr;
 			ArrayList attachList;
-			String serverPath = SystemConstant.GetServerPath() + "/" + "attachment" + "/";
+			String serverPath = SystemConstant.GetServerPath() + "/" + "attachment/expert/";
 			while (rs != null && rs.next()) {
 				count ++;
 				eib = new ExpertIdentityBean();
@@ -4865,7 +5706,7 @@ public class DBTools {
 					attachArr = attachNames.split(":");
 					for(int i = 0; i < attachArr.length; i++)
 					{
-						attachPath = serverPath + "/" + reportID + "/" + attachArr[i];
+						attachPath = serverPath  + reportID + "/" + attachArr[i];
 						UrlAndName uan = new UrlAndName();
 						uan.setName(attachArr[i]);
 						uan.setUrl(attachPath);
@@ -5033,6 +5874,36 @@ public class DBTools {
 		}
 		return null;
 	}
+	public ArrayList queryJDYJSList(String sql, String[] params) {
+		JDYJSBean jb;
+		ArrayList list = new ArrayList();
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
+			while (rs != null && rs.next()) {
+				jb = new JDYJSBean();
+				jb.setId(rs.getString("ID"));
+				jb.setReportID(rs.getString("REPORTID"));
+				jb.setEventReason(Util.replaceBr(rs.getString("EVENTREASON")));
+				jb.setIdentifyContent(Util.replaceBr(rs.getString("IDENTIFYCONTENT")));
+				jb.setWtDept(rs.getString("WTDEPT"));
+				jb.setJdConclusion(Util.replaceBr(rs.getString("JDCONCLUSION")));
+				list.add(jb);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return list;
+	}
 	/**
 	 * 查询专家鉴定函信息
 	 * @param sql
@@ -5067,6 +5938,37 @@ public class DBTools {
 			closeConnection();
 		}
 		return null;
+	}
+	public ArrayList queryExpertJDHList(String sql, String[] params) {
+		ExpertJDH ejdh;
+		ArrayList result = new ArrayList();
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			pst = conn.prepareStatement(sql);
+			int paramIndex = 1;
+			for(String param: params) {
+				pst.setString(paramIndex++, param);
+			}
+			rs = pst.executeQuery();
+			while (rs != null && rs.next()) {
+				ejdh = new ExpertJDH();
+				ejdh.setId(rs.getString("ID"));
+				ejdh.setReportID(rs.getString("REPORTID"));
+				ejdh.setTitle(rs.getString("TITLE"));
+				ejdh.setShortInfo(Util.replaceBr(rs.getString("SHORTINFO")));
+				ejdh.setFkTime(rs.getString("FKTIME"));
+				ejdh.setTarget(Util.replaceBr(rs.getString("TARGET")));
+				ejdh.setJdContent(Util.replaceBr(rs.getString("JDCONTENT")));
+				result.add(ejdh);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return result;
 	}
 	/**
 	 * check is exist?
@@ -5121,7 +6023,7 @@ public class DBTools {
 				jb.setJdConclusion(rs.getString("JDCONCLUSION"));
 				jb.setConclusion(rs.getString("CONCLUSION"));
 				jb.setJdAdvice(rs.getString("ADVICE"));
-				String attachName = rs.getString("ATTACHMENT");
+				String attachName = rs.getString("ATTACHNAME");
 				if(attachName != null && !attachName.equals(""))
 				{
 					attachName = SystemConstant.GetServerPath() + "/" +  "attachment" + "/" + attachName;
@@ -5140,7 +6042,15 @@ public class DBTools {
 		{
 			closeConnection();
 		}
-		return null;
+		jb = new JDYJSBean();
+		jb.setEventReason("");
+		jb.setIdentifyContent("");
+		jb.setWtDept("");
+		jb.setJdConclusion("");
+		jb.setConclusion("");
+		jb.setJdAdvice("");
+		jb.setFilePath("");
+		return jb;
 	}
 	/**
 	 * 查询收件阅办单信息
@@ -5164,6 +6074,7 @@ public class DBTools {
 				sb.setReportID(rs.getString("REPORTID"));
 				sb.setComeName(rs.getString("COMENAME"));
 				sb.setTitle(rs.getString("TITLE"));
+				sb.setProposedOpinion(rs.getString("PROPOSEDOPINION"));
 				sb.setRecvTime(rs.getString("RECVTIME"));
 				sb.setFilePath(rs.getString("FILEPATH"));
 				return sb;
@@ -5182,8 +6093,10 @@ public class DBTools {
 	 * @param sql
 	 * @return
 	 */
-	public DeptAdviceBean queryDeptAdvice(String sql, String[] params) {
+	public DeptAdviceBean queryDeptAdvice(String sql, String[] params,String reportID) {
 		DeptAdviceBean dab;
+		String Sql = "select * from TB_BEREPORTPE where REPORTID=?";
+		ArrayList listBereport = queryBeReport(Sql,new String[]{reportID});
 		try {
 			conn = DBPools.getSimpleModel().getDataSource().getConnection();
 			pst = conn.prepareStatement(sql);
@@ -5209,6 +6122,7 @@ public class DBTools {
 				{
 					dab.setFilePath("");
 				}			
+				dab.setBeReportList(listBereport);
 				return dab;
 			}
 		} catch (Exception e) {
@@ -5218,7 +6132,14 @@ public class DBTools {
 		{
 			closeConnection();
 		}
-		return null;
+		dab = new DeptAdviceBean();
+		dab.setBeReportList(listBereport);
+		dab.setDeptAdvice("");
+		dab.setLitigantName("");
+		dab.setAttitude("");
+		dab.setLitigantTime("");
+		dab.setExpertAdvice("");
+		return dab;
 	}
 	/**
 	 * 更新事件信息
@@ -5249,6 +6170,35 @@ public class DBTools {
 			closeConnection();
 		}
 		return true;
+	}
+	
+	/**
+	 * @param sql
+	 * @param params
+	 * @return
+	 */
+	public String queryStatus(String sql, String[] params) {
+		String result = "";
+		try {
+			conn = DBPools.getSimpleModel().getDataSource().getConnection();
+			pst = conn.prepareStatement(sql);
+			int i = 1;
+			for (String param : params) {
+				pst.setString(i++, param);
+			}
+			rs = pst.executeQuery();
+			while (rs != null && rs.next()) {
+				result = rs.getString("STATUS");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return result;
+		}
+		finally
+		{
+			closeConnection();
+		}
+		return result;
 	}
 
 }

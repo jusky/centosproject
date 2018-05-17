@@ -17,7 +17,9 @@
             'auto' : false,
             'multi' : true,
             'simUploadLimit' : 2,
-            'buttonText' : 'BROWSE'
+            'buttonText' : 'BROWSE',
+            'removeCompleted':false ,
+            'onComplete' :function(event,queueId,file,response,data){if(response == "1"){alert(file.name +"上传成功！");}else{alert(file.name +"上传失败！");document.getElementById("cfile").click();}}
         });
     });
 </script>
@@ -146,11 +148,13 @@ function addFYApply()
 					</dd>
 				</dl>
 				<dl class="nowrap">
-					<dt>上传附件：</dt>
+					<dt>上传附件：
+					<br/><font color="red">请将多个附件打包压缩后再一起上传，谢谢！</font>
+					</dt>
 					<dd>
 						<input type="file" name="fyUpload" id="fyUpload" />
         					<a href="javascript:uploadFYApply('#fyUpload','fyApply')">开始上传</a>&nbsp;
-        					<a href="javascript:jQuery('#fyUpload').uploadifyClearQueue()">取消所有上传</a>
+        					<a id="cfile" href="javascript:jQuery('#fyUpload').uploadifyClearQueue()">取消所有上传</a>
     					<div id="fileQueue"></div>
 					</dd>
 				</dl>

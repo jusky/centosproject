@@ -17,7 +17,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
             'auto' : false,
             'multi' : true,
             'simUploadLimit' : 2,
-            'buttonText' : 'BROWSE'
+            'buttonText' : 'BROWSE',
+            'removeCompleted':false ,
+            'onComplete' :function(event,queueId,file,response,data){if(response == "1"){alert(file.name +"上传成功！");}else{alert(file.name +"上传失败！");document.getElementById("cfile").click();}}
         });
     });
 </script>
@@ -31,6 +33,20 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	}
 </script>
 <script type="text/javascript">
+function detailAdvice(id, litigantName, litigantTime)
+{	
+	var litigantContent = document.getElementById(id).value;
+	var temp = "talk" + id;
+	var talkRecorder = document.getElementById(temp).value;
+	document.getElementById("litigantName").value=litigantName;
+	document.getElementById("litigantTime").value=litigantTime;
+	document.getElementById("litigantContent").value=litigantContent;
+	document.getElementById("adviceid").value=id;
+	document.getElementById("talkRecorder").value=talkRecorder;
+	
+	document.getElementById("newButton").style.display="none";
+	document.getElementById("editButton").style.display="none";
+}
 function editAdvice(id, litigantName, litigantTime)
 {	
 	var litigantContent = document.getElementById(id).value;
@@ -64,9 +80,11 @@ function addAdvice()
 	<div class="pageFormContent" layoutH="56">
 	<div class="pageContent" style="border-left:1px #B8D0D6 solid;border-right:1px #B8D0D6 solid">
 		<div class="panelBar">
+		<logic:notEqual name="RoleIDs" value="2"  scope="session">
 			<ul class="toolBar">
 				<li><a class="add" href="javascript:addAdvice();" title="新增当事人陈述"><span>新增</span></a></li>
 			</ul>
+			</logic:notEqual>
 		</div>
 		<table class="table" width="100%" layoutH="430">
 			<thead>
@@ -108,9 +126,12 @@ function addAdvice()
 						</logic:notEqual>
 					</td>
 					<td align="center">
-						<a href="#">&nbsp;</a>
-						<a href="javascript:editAdvice('${LitigantState.id }', '${LitigantState.litigantName }','${LitigantState.litigantTime }');" title="编辑当事人陈述">编辑</a>
-						<a href="<%=path%>/litigantStateAction.do?method=delete&id=${LitigantState.id }" target="ajaxTodo" title="确定要删除吗?">删除</a>
+						<a href="javascript:detailAdvice('${LitigantState.id }', '${LitigantState.litigantName }','${LitigantState.litigantTime }');" title="查看当事人陈述">查看</a>					
+						<logic:notEqual name="RoleIDs" value="2"  scope="session">
+							<a href="#">&nbsp;</a>
+							<a href="javascript:editAdvice('${LitigantState.id }', '${LitigantState.litigantName }','${LitigantState.litigantTime }');" title="编辑当事人陈述">编辑</a>
+							<a href="<%=path%>/litigantStateAction.do?method=delete&id=${LitigantState.id }" target="ajaxTodo" title="确定要删除吗?">删除</a>
+						</logic:notEqual>
 					</td>
 				</tr>
 				</logic:iterate>
@@ -164,7 +185,7 @@ function addAdvice()
 					<dd>
 						<input type="file" name="stateUpload" id="stateUpload" />
         					<a href="javascript:uploadState('#stateUpload','event')">开始上传</a>&nbsp;
-        					<a href="javascript:jQuery('#stateUpload').uploadifyClearQueue()">取消所有上传</a>
+        					<a id="cfile" href="javascript:jQuery('#stateUpload').uploadifyClearQueue()">取消所有上传</a>
     					<div id="fileQueue"></div>
 					</dd>
 				</dl>
@@ -174,7 +195,9 @@ function addAdvice()
 			</div>
 			<div class="formBar">
 			<ul>
-				<li><div id="newButton" class="buttonActive" style="display:block;"><div class="buttonContent"><button type="submit">新增陈述</button></div></div></li>
+			<logic:notEqual name="RoleIDs" value="2"  scope="session">
+				<li><div id="newButton" class="buttonActive" style="display:block;"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
+				</logic:notEqual>
 				<li><div id="editButton" class="buttonActive" style="display:none;"><div class="buttonContent"><button type="submit">编辑陈述</button></div></div></li>
 				<li><div class="button"><div class="buttonContent"><button type="button" class="close">关闭</button></div></div></li>
 			</ul>

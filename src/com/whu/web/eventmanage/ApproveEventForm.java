@@ -4,7 +4,10 @@
  */
 package com.whu.web.eventmanage;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
@@ -24,10 +27,50 @@ public class ApproveEventForm extends ActionForm {
 	private String reportID;
 	//是否立案
 	private String isLA;
+	//是否需要“依托单位鉴定”、“专家鉴定”和“当事人陈述”
+	private String isXY;
 	//立案意见
 	private String laAdvice;
 	//审核人
 	private String approveName;
+	private String recordNotFind="false";
+	private List recordList=null;
+	private String operation = null;
+	private String officer;
+	
+	public String getOfficer() {
+		return officer;
+	}
+
+	public void setOfficer(String officer) {
+		this.officer = officer;
+	}
+
+
+	public String getOperation() {
+		return operation;
+	}
+
+	public void setOperation(String operation) {
+		this.operation = operation;
+	}
+	
+	public String getRecordNotFind() {
+		return recordNotFind;
+	}
+
+	public  void setRecordNotFind(String recordNotFind) {
+		this.recordNotFind = recordNotFind;
+	}
+	
+	public List getRecordList() {
+		return recordList;
+	}
+
+	public void setRecordList(List recordList) {
+		this.recordList = recordList;
+	}
+	
 	public String getReportID() {
 		return reportID;
 	}
@@ -42,6 +85,14 @@ public class ApproveEventForm extends ActionForm {
 
 	public void setIsLA(String isLA) {
 		this.isLA = isLA;
+	}
+	
+	public String getIsXY() {
+		return isXY;
+	}
+
+	public void setIsXY(String isXY) {
+		this.isXY = isXY;
 	}
 
 	public String getLaAdvice() {

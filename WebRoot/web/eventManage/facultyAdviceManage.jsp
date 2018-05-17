@@ -5,6 +5,17 @@ String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
 <script type="text/javascript">
+function detailAdvice(id, faculty, fktime)
+{		
+	document.getElementById("fktime").value=fktime;
+	document.getElementById("faculty.zzName").value=faculty.facultyName;
+	document.getElementById("facultyAdviceContent").value = $("#" + id + " div").html().trim();
+	document.getElementById("faculty.zzID").value=faculty.facultyId;
+	
+	document.getElementById("isEdit").value = "1";
+	document.getElementById("newfacultyButton").style.display="none";
+	document.getElementById("editfacultyButton").style.display="none";
+}
 function editAdvice(id, faculty, fktime)
 {		
 	document.getElementById("fktime").value=fktime;
@@ -13,8 +24,8 @@ function editAdvice(id, faculty, fktime)
 	document.getElementById("faculty.zzID").value=faculty.facultyId;
 	
 	document.getElementById("isEdit").value = "1";
-	document.getElementById("newButton").style.display="none";
-	document.getElementById("editButton").style.display="block";
+	document.getElementById("newfacultyButton").style.display="none";
+	document.getElementById("editfacultyButton").style.display="block";
 }
 function addAdvice()
 {
@@ -24,8 +35,8 @@ function addAdvice()
 	document.getElementById("facultyAdviceContent").value="";
 	
 	document.getElementById("isEdit").value = "0";
-	document.getElementById("newButton").style.display="block";
-	document.getElementById("editButton").style.display="none";
+	document.getElementById("newfacultyButton").style.display="block";
+	document.getElementById("editfacultyButton").style.display="none";
 }
 </script>
 <div class="pageContent">
@@ -36,10 +47,12 @@ function addAdvice()
 	<div class="pageFormContent" layoutH="56">
 	<div class="pageContent" style="border-left:1px #B8D0D6 solid;border-right:1px #B8D0D6 solid">
 		<div class="panelBar">
+		<logic:notEqual name="RoleIDs" value="2"  scope="session">
 			<ul class="toolBar">
 				<li><a class="add" mask="true" href="<%=path %>/facultyAdviceAction.do?method=handleUpFaculty&reportId=<%=request.getAttribute("reportId")%>" target="ajaxTodo" title='提交给 <%=request.getAttribute("facultys") %>?'><span>提交学部</span></a></li>
 				<li><a class="add" href="javascript:addAdvice();" title="录入学部意见"><span>录入学部意见</span></a></li>
 			</ul>
+			</logic:notEqual>
 		</div>
 		<table class="table" width="100%" layoutH="430">
 			<thead>
@@ -81,9 +94,12 @@ function addAdvice()
 						<bean:write name="facultyAdvice" property="fktime"/>
 					</td>
 					<td align="center">
-						<a href="#">&nbsp;</a>
-						<a href="javascript:editAdvice('facultyAdvice${facultyAdvice.id }', {'facultyId':'${facultyAdvice.facultyId }', 'facultyName':'${facultyAdvice.facultyName}'},'${facultyAdvice.fktime }');" title="编辑学部意见">编辑</a>
-						<a href="<%=path%>/facultyAdviceAction.do?method=delete&id=${facultyAdvice.id}" target="ajaxTodo" title="确定要删除吗?">删除</a>
+						<a href="javascript:detailAdvice('facultyAdvice${facultyAdvice.id }', {'facultyId':'${facultyAdvice.facultyId }', 'facultyName':'${facultyAdvice.facultyName}'},'${facultyAdvice.fktime }');" title="查看学部意见">查看</a>
+						<logic:notEqual name="RoleIDs" value="2"  scope="session">
+							<a href="#">&nbsp;</a>
+							<a href="javascript:editAdvice('facultyAdvice${facultyAdvice.id }', {'facultyId':'${facultyAdvice.facultyId }', 'facultyName':'${facultyAdvice.facultyName}'},'${facultyAdvice.fktime }');" title="编辑学部意见">编辑</a>
+							<a href="<%=path%>/facultyAdviceAction.do?method=delete&id=${facultyAdvice.id}" target="ajaxTodo" title="确定要删除吗?">删除</a>
+						</logic:notEqual>
 					</td>
 				</tr>
 				</logic:iterate>
@@ -135,8 +151,10 @@ function addAdvice()
 			</div>
 			<div class="formBar">
 			<ul>
-				<li><div id="newButton" class="buttonActive" style="display:block;"><div class="buttonContent"><button type="submit">新增</button></div></div></li>
-				<li><div id="editButton" class="buttonActive" style="display:none;"><div class="buttonContent"><button type="submit">编辑</button></div></div></li>
+			<logic:notEqual name="RoleIDs" value="2"  scope="session">
+				<li><div id="newfacultyButton" class="buttonActive" style="display:block;"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
+				</logic:notEqual>
+				<li><div id="editfacultyButton" class="buttonActive" style="display:none;"><div class="buttonContent"><button type="submit">编辑</button></div></div></li>
 				<li><div class="button"><div class="buttonContent"><button type="button" class="close">关闭</button></div></div></li>
 			</ul>
 		</div>

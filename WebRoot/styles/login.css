@@ -75,7 +75,7 @@ textarea, input {
 	font-weight: bold;
 	padding-right: 11px;
 	padding-top: 6px;
-    display:block
+   display:block
 }
 .login .formarea .user #usename {
     width:184px;
@@ -95,21 +95,18 @@ textarea, input {
 	width: 184px;
 	*margin-top:-4px
 }
-.login  .formarea  .forget img {
-	padding-left: 58px;
-	padding-top:10px;
-	float:left
-}
 .login .formarea .prove p {
 	font-size: 14px;
 	font-weight: bold;
 	float: left;
-	padding-right: 12px;
+	margin-left: -50px;
 	padding-top: 25px;
+	display:block;
+	*margin-top:-4px
 }
-.login .formarea .prove #proving {
+.login .formarea .prove #randNum {
 	height: 22px;
-	width: 90px;
+	width: 100px;
 	float: left;
 	margin-top: 20px;
 }
@@ -121,8 +118,7 @@ textarea, input {
 	float: left;
 }
 .content .buttonActive {
-	float:left;
-	padding-left: 107px;
+	float:center;
 	padding-top: 40px;
 	*margin-top:-18px;
 	
@@ -134,7 +130,7 @@ textarea, input {
     color:#f00;
     position:absolute;
     top:370px;
-    left:750px	
+    left:750px;
 }
 .login .buttonActive p {
 	color: #f00;

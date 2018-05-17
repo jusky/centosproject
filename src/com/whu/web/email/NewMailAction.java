@@ -53,7 +53,7 @@ public class NewMailAction extends DispatchAction {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 		NewMailForm newMailForm = (NewMailForm) form;
-		String loginName = (String)request.getSession().getAttribute("LoginName");
+		String loginName = (String)request.getSession().getAttribute("LoginName");//admin
 		
 		String address = request.getParameter("address");
 		if(address == null)
@@ -63,7 +63,7 @@ public class NewMailAction extends DispatchAction {
 		request.setAttribute("MailAddress", address);
 		
 		DBTools dbTools = new DBTools();
-		String sql = "select ID,ACCOUNTNAME,MAILADDRESS,ISDEFAULT from TB_MAILCONFIG where LOGINNAME='" + loginName + "' order by ISDEFAULT desc";
+		String sql = "select ID,ACCOUNTNAME,MAILADDRESS,ISDEFAULT from TB_MAILCONFIG order by ISDEFAULT desc";
 		ArrayList result = dbTools.queryMailList(sql, new String[0]);
 		if(result.size() > 0)
 		{
@@ -92,13 +92,13 @@ public class NewMailAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		NewMailForm newMailForm = (NewMailForm) form;
 		
-		String recvName = request.getParameter("org3.conName");
-		String csName = request.getParameter("org2.conName");
-		String id = newMailForm.getSendName();
-		String loginName = (String)request.getSession().getAttribute("LoginName");
+		String recvName = request.getParameter("org3.conName");//收件人
+		String csName = request.getParameter("org2.conName");//抄送人
+		String id = newMailForm.getSendName();//发件人id
+		String loginName = (String)request.getSession().getAttribute("LoginName");//
 		String accessoryPath = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";
-		String content = newMailForm.getContent();
-		String title = newMailForm.getTitle();
+		String content = newMailForm.getContent();//内容
+		String title = newMailForm.getTitle();//主题
 		
 		DBTools dbTools = new DBTools();
 		String sql = "select * from TB_MAILCONFIG where ID=?";
@@ -109,11 +109,11 @@ public class NewMailAction extends DispatchAction {
 		if(emailBean != null)
 		{
 			EmailInfo emailInfo = new EmailInfo();
-			emailInfo.setSendName(emailBean.getMailBoxAddress());
-			emailInfo.setCsName(csName);
-			emailInfo.setRecvName(recvName);
-			emailInfo.setTitle(title);
-			emailInfo.setContent(content);
+			emailInfo.setSendName(emailBean.getMailBoxAddress());//发件人
+			emailInfo.setCsName(csName);//抄送人
+			emailInfo.setRecvName(recvName);//收件人
+			emailInfo.setTitle(title);//主题
+			emailInfo.setContent(content);//内容
 			emailInfo.setAccessory(accessoryPath);
 			result = emailTools.SendEmail(emailInfo, emailBean);
 		}

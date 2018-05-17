@@ -50,7 +50,7 @@ public class JBReasonServlet extends HttpServlet {
 		String sql = "select * from SYS_JBREASON";
 		if(type!=null && type.equals("indi")) {
 			sql += " where RSORT=1";
-		};
+		}
       List<String> lstTree = dbTools.queryReasonTree(sql, "0");
         
         response.getWriter().print(JSONArray.fromObject(lstTree).toString()); 

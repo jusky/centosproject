@@ -29,14 +29,65 @@ public class HandleDecideForm extends ActionForm {
 	private String decideContent;
 	private String deptName;
 	private String shortInfo;
+	//撤销项目（基金号）
+	private String fundNum;
+	private String fundNumRecover;
+	//取消申请资格年限
+	private String applicantQualificationsYear;
+	private String repealYearStart;
+	private String repealYearEnd;
+	//通报批评or内部通报批评or书面警告or谈话提醒
+	private String radioChoose;
+	
+	public String getRadioChoose() {
+		return radioChoose;
+	}
+	public void setRadioChoose(String radioChoose) {
+		this.radioChoose = radioChoose;
+	}
+	
+	public String getApplicantQualificationsYear() {
+		return applicantQualificationsYear;
+	}
+	public void setApplicantQualificationsYear(String applicantQualificationsYear) {
+		this.applicantQualificationsYear = applicantQualificationsYear;
+	}
+	
+	public String getrepealYearStart() {
+		return repealYearStart;
+	}
+	public void setrepealYearStart(String repealYearStart) {
+		this.repealYearStart = repealYearStart;
+	}
+	
+	public String getrepealYearEnd() {
+		return repealYearEnd;
+	}
+	public void setrepealYearEnd(String repealYearEnd) {
+		this.repealYearEnd = repealYearEnd;
+	}
+	
+	public String getfundNumRecover() {
+		return fundNumRecover;
+	}
+	public void setfundNumRecover(String fundNumRecover) {
+		this.fundNumRecover = fundNumRecover;
+	}
+	
+	public String getFundNum() {
+		return fundNum;
+	}
+	public void setFundNum(String fundNum) {
+		this.fundNum = fundNum;
+	}
+
 	public String getDeptName() {
 		return deptName;
 	}
-
 	public void setDeptName(String deptName) {
 		this.deptName = deptName;
 	}
-
+	
 	public String getShortInfo() {
 		return shortInfo;
 	}

@@ -73,7 +73,7 @@ public class ConfigUserAction extends DispatchAction {
 			if (result1) {
 				String createTime = SystemShare.GetNowTime("yyyy-MM-dd");
 				sql = "insert into SYS_USER(LOGINNAME,USERNAME,PASSWORD,SEX,MAILADDRESS,BGPHONE,TELPHONE,BGSNUM,CREATETIME,ZZID,ROLEIDS,POSIDS,ISHEAD) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-				params = new String[]{loginName, userName, "123456", sex, mailAddress, bgPhone, telPhone, bgsNum, createTime, zzID, roleID, posID, isHead};
+				params = new String[]{loginName, userName, "NSFC123456", sex, mailAddress, bgPhone, telPhone, bgsNum, createTime, zzID, roleID, posID, isHead};
 			}
 		}
 		else if(operation.equals("edit"))
@@ -174,7 +174,7 @@ public class ConfigUserAction extends DispatchAction {
 				int len  = posIdArray.length;
 				StringBuilder sqlBuilder = new StringBuilder("select POSNAME from SYS_POSITION where ID in (");
 				for(int i = 0; i < len; i++) {
-					sqlBuilder.append(" ?,");
+					sqlBuilder.append(" ?");
 					if(i == len - 1) sqlBuilder.replace(sqlBuilder.length(), sqlBuilder.length(), ")");
 				}
 				sql = sqlBuilder.toString();

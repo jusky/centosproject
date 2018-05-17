@@ -41,7 +41,7 @@ String id = "1";
 %>
 <html>
 	<head>
-		<title>案件信息</title>
+		<title>案件信息22</title>
 		<script type="text/javascript" src="<%=path %>/web/dsoframer/dsoframer.js"></script>
 		<script type="text/javascript">
              var word = new word();

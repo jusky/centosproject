@@ -23,10 +23,9 @@ public class PromptDownloadFilter implements Filter {
 
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {		
-		
 		HttpServletRequest httpRequest = (HttpServletRequest)request;
 		HttpServletResponse httpResponse = (HttpServletResponse)response;
-		
+		//System.out.print("PromptDownloadFilter");
 		String fileName = httpRequest.getRequestURI().substring(httpRequest.getRequestURI().lastIndexOf("/") + 1);
 		httpResponse.setHeader("Content-Type", "application/octet-stream");
 		httpResponse.setHeader("Content-Disposition", "attachment; filename=" + fileName);

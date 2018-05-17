@@ -181,6 +181,18 @@
 					<input minlength="2" maxlength="50" name="address" type="text" size="60" value="${ExpertInfo.address }"/>
 				</dd>
 			</dl>
+			<dl class="nowrap">
+				<dt>其他1：</dt>
+				<dd>
+					<input minlength="2" maxlength="50" name="other1" type="text" size="60" value="${ExpertInfo.other1 }"/>
+				</dd>
+			</dl>
+			<dl class="nowrap">
+				<dt>其他2：</dt>
+				<dd>
+					<input minlength="2" maxlength="50" name="other2" type="text" size="60" value="${ExpertInfo.other2 }"/>
+				</dd>
+			</dl>
 		</div>
 		</logic:iterate>
 		</logic:notEmpty>

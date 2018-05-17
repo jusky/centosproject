@@ -42,8 +42,10 @@
 	</html:form>
 </div>
 <div class="pageContent">
+
 	<div class="panelBar">
 		<ul class="toolBar">
+			<li><a class="icon" href="<%=path%>/eventManageAction.do?method=exportTjResult" target="dwzExport" targetType="navTab" title="确实要导出这些记录吗?"><span>导出EXCEL</span></a></li>
 		</ul>
 	</div>
 	<table class="table" width="100%" layoutH="138">

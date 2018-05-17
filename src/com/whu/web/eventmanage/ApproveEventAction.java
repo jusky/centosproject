@@ -6,7 +6,9 @@ package com.whu.web.eventmanage;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +21,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 
+import com.whu.tools.CheckPage;
 import com.whu.tools.DBTools;
 import com.whu.tools.SystemConstant;
 import com.whu.web.common.SystemShare;
@@ -49,69 +52,105 @@ public class ApproveEventAction extends DispatchAction {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 		ApproveEventForm checkEventForm = (ApproveEventForm) form;
-		String reportID = request.getParameter("reportID");
-		String isLA = checkEventForm.getIsLA();
-		String laAdvice = checkEventForm.getLaAdvice();
-		String approveName = checkEventForm.getApproveName();
-		String approveTime = SystemShare.GetNowTime("yyyy-MM-dd");
+		DBTools db = new DBTools();
+		String reportID = request.getParameter("reportID");//20151020161248
+		String isXY="";
+		ArrayList list=new ArrayList();
+		
+		String laAdvice = checkEventForm.getLaAdvice();//同意调查。
+		String isLA = checkEventForm.getIsLA();//1
+		if(isLA.equals("1"))
+		{
+			String[] isxy = request.getParameterValues("isXY");
+			if (isxy != null) {
+				for(int i=0;i<isxy.length;i++)
+				{
+					isXY=isXY+isxy[i]+",";
+				}
+				isXY=isXY.substring(0,isXY.length()-1);//依托单位鉴定，专家鉴定
+			}
+			else isXY="无";
+		}
+		String approveName = checkEventForm.getApproveName();//管理员
+		String approveTime = SystemShare.GetNowTime("yyyy-MM-dd");//2015-10-20
+		
+		ApproveBean ab=null;
+		ab= new ApproveBean();
+		ab.setReportID(reportID);
+		ab.setLaAdvice(laAdvice);
+		ab.setIsLA(isLA);
+		ab.setIsXY(isXY);
+		ab.setApproveName(approveName);
+		ab.setApproveTime(approveTime);
+		list.add(ab);
+	//	String sql = "insert into TB_APPROVEINFO(REPORTID,ISLA,LAADVICE,APPROVENAME,APPROVETIME) values('" + reportID + "','" + isLA + "','" + laAdvice + "','" + approveName +"','" + approveTime + "')";
+		String sql = "insert into TB_APPROVEINFO(REPORTID,ISLA,LAADVICE,APPROVENAME,APPROVETIME,ISXY) values(?, ?, ?, ?, ?,?)";
+		String[] params = new String[] {reportID, isLA, laAdvice, approveName, approveTime,isXY};
+		boolean result = db.insertItem(sql, params);
 		
 		String status = "";
 		String fkInfo = "";
 		String flowStr = "";
 		String processStr = "";
 		String gyDesc = "";
+		String loginName = (String)request.getSession().getAttribute("UserName");
+		String roleID=new DBTools().querySingleData("SYS_USER", "ROLEIDS", "LOGINNAME", loginName);
 		if(isLA.equals("1"))
 		{
 			//调查中
-			status = SystemConstant.SS_SURVEYING;
-			fkInfo = SystemConstant.FK_APPROVEEVENT1;
-			processStr = SystemConstant.HP_KZDC;
-			flowStr = SystemConstant.LCT_LADC;
-			gyDesc = approveTime + "，领导审核完毕，对该举报事件开展调查！";
+			//if(!roleID.equals("6"))//非办公室人员
+			//{
+				status = SystemConstant.SS_YSH;//43(已审核)
+			//}
+			//else //办公室人员
+			//{
+			//	status = SystemConstant.SS_SURVEYING;//22(调查中)
+			//}
+			fkInfo = SystemConstant.FK_APPROVEEVENT1;//审核完毕，准备开展调查中！
+			processStr = SystemConstant.HP_KZDC;//领导审核完毕，准备开展调查
+			flowStr = SystemConstant.LCT_LADC;//准备开展调查
+			gyDesc = approveTime + "，领导审核完毕，准备受理该举报事件！";
 		}
 		else if(isLA.equals("0"))
 		{
 			//未立案
-			status = SystemConstant.SS_UNLA;
-			fkInfo = SystemConstant.FK_APPROVEEVENT2;
-			processStr = SystemConstant.HP_NOKZDC;
-			flowStr = SystemConstant.LCT_BYLA;
-			gyDesc = approveTime + "，领导审核完毕，对该举报事件不予开展调查！";
+			status = SystemConstant.SS_YSH;//41
+			fkInfo = SystemConstant.FK_APPROVEEVENT2;//经审核，准备对该事件不予调查！
+			processStr = SystemConstant.HP_NOKZDC;//领导审核完毕，准备不予开展调查
+			flowStr = SystemConstant.LCT_BYLA;//准备不予调查
+			gyDesc = approveTime + "，领导审核完毕，准备不受理该举报事件！";
 		}
-		
-		DBTools db = new DBTools();
-		
-	//	String sql = "insert into TB_APPROVEINFO(REPORTID,ISLA,LAADVICE,APPROVENAME,APPROVETIME) values('" + reportID + "','" + isLA + "','" + laAdvice + "','" + approveName +"','" + approveTime + "')";
-		String sql = "insert into TB_APPROVEINFO(REPORTID,ISLA,LAADVICE,APPROVENAME,APPROVETIME) values(?, ?, ?, ?, ?)";
-		String[] params = new String[] {reportID, isLA, laAdvice, approveName, approveTime};
-		boolean result = db.insertItem(sql, params);
 		
 		if(result)
 		{
-		//	sql = "update TB_REPORTINFO set STATUS='" + status + "',LASTTIME='" + approveTime + "' where REPORTID='"+ reportID + "'";
-			sql = "update TB_REPORTINFO set STATUS=?, LASTTIME=? where REPORTID=?";
-			params = new String[]{status, approveTime, reportID};
+			/*if(roleID.equals("6"))
+			{//将事件状态修改为“调查中”
+				sql = "update TB_REPORTINFO set STATUS=?, LASTTIME=? where REPORTID=?";
+				params = new String[]{status, approveTime, reportID};
+				result = db.insertItem(sql, params);
+				
+				//更新消息提醒状态，使得“事件审批”栏目不会再重复出现该事件
+				sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME=? and REPORTID=?";
+				params = new String[]{loginName, reportID};
+				db.insertItem(sql, params);
+				
+				//插入反馈信息到门户数据库中
+				db.InsertFKInfo(reportID, fkInfo, approveTime);
+			}*/
+			//将事件状态修改为“已审核”
+			sql = "update TB_REPORTINFO set STATUS=? where REPORTID=?";
+			params = new String[]{status, reportID};
 			result = db.insertItem(sql, params);
 			
-			//更新消息提醒状态，使得“事件审批”栏目不会再重复出现该事件
-			String loginName = (String)request.getSession().getAttribute("UserName");
-		//	sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME='" + loginName + "' and REPORTID='" + reportID + "'";
-			sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME=? and REPORTID=?";
-			params = new String[]{loginName, reportID};
-			db.insertItem(sql, params);
-			
 			//插入处理过程到数据库中
-			String describe = approveTime + "领导：" + approveName + "审批该事件,审核意见详情请查看《审核信息》一栏";
-			db.InsertHandleProcess(reportID, approveName, SystemConstant.HP_APPROVEEVENT, SystemConstant.SS_SURVEYING, SystemConstant.LCT_LDSP, describe);
+			String describe = approveTime + ",领导：" + approveName + "审批该事件,审核意见详情请查看《审核信息》一栏";
+			db.InsertHandleProcess(reportID, approveName, SystemConstant.HP_APPROVEEVENT, SystemConstant.SS_YSH, SystemConstant.LCT_LDSP, describe);
 			
 			//控制“立案调查”和“不予调查”的流程图节点的显示
-			db.InsertHandleProcess(reportID, approveName, processStr, SystemConstant.SS_SURVEYING, flowStr, gyDesc);
-			
-			//插入反馈信息到门户数据库中
-			db.InsertFKInfo(reportID, fkInfo, approveTime);
+			//db.InsertHandleProcess(reportID, approveName, processStr, SystemConstant.SS_YSH, flowStr, gyDesc);
 			
 			//写入日志文件
-			db.insertLogInfo(loginName, SystemConstant.LOG_APPROVE, "审批事件是否立案，事件编号为：" + reportID, request.getRemoteAddr());
+			db.insertLogInfo(loginName, SystemConstant.LOG_APPROVE, loginName+"审批事件是否立案，事件编号为：" + reportID, request.getRemoteAddr());
 		}
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
@@ -125,6 +164,498 @@ public class ApproveEventAction extends DispatchAction {
 		{
 			json.put("statusCode", 300);
 			json.put("message", "事件审核失败");
+		}
+		out.write(json.toString());
+		out.flush();
+		out.close();
+		return null;
+	}
+	
+	public ActionForward finalApprove(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		ApproveEventForm checkEventForm = (ApproveEventForm) form;
+		DBTools db = new DBTools();
+		String reportID = request.getParameter("reportID");//20151020161248
+		String isXY=null;
+		ArrayList list=new ArrayList();
+		
+		String laAdvice = checkEventForm.getLaAdvice();//同意调查。
+		String isLA = "";
+		if(isLA.equals("1"))
+		{
+			String[] isxy = request.getParameterValues("isXY");
+			if (isxy != null) {
+				for(int i=0;i<isxy.length;i++)
+				{
+					isXY=isXY+isxy[i]+",";
+				}
+				isXY=isXY.substring(0,isXY.length()-1);//依托单位鉴定，专家鉴定
+			}
+		}
+		String approveName = checkEventForm.getApproveName();//管理员
+		String approveTime = SystemShare.GetNowTime("yyyy-MM-dd");//2015-10-20
+		
+		ApproveBean ab=null;
+		ab= new ApproveBean();
+		ab.setReportID(reportID);
+		ab.setLaAdvice(laAdvice);
+		ab.setIsLA(isLA);
+		ab.setIsXY(isXY);
+		ab.setApproveName(approveName);
+		ab.setApproveTime(approveTime);
+		list.add(ab);
+	//	String sql = "insert into TB_APPROVEINFO(REPORTID,ISLA,LAADVICE,APPROVENAME,APPROVETIME) values('" + reportID + "','" + isLA + "','" + laAdvice + "','" + approveName +"','" + approveTime + "')";
+		String sql = "insert into TB_APPROVEINFO(REPORTID,ISLA,LAADVICE,APPROVENAME,APPROVETIME,ISXY) values(?, ?, ?, ?, ?,?)";
+		String[] params = new String[] {reportID, isLA, laAdvice, approveName, approveTime,isXY};
+		boolean result = db.insertItem(sql, params);
+		
+		String status = "";
+		String fkInfo = "";
+		String flowStr = "";
+		String processStr = "";
+		String gyDesc = "";
+		String loginName = (String)request.getSession().getAttribute("UserName");
+		String roleID=new DBTools().querySingleData("SYS_USER", "ROLEIDS", "LOGINNAME", loginName);
+		status = SystemConstant.SS_YSH;//13(已审核)
+		fkInfo=SystemConstant.FK_APPROVEEVENTFINAL;
+		processStr = SystemConstant.HP_FINALKZDC;
+		gyDesc = approveTime + "，领导终极审核完毕！";
+		/*if(isLA.equals("1"))
+		{
+			status = SystemConstant.SS_YSH;//13(已审核)
+			fkInfo = SystemConstant.FK_APPROVEEVENT1;//审核完毕，准备开展调查中！
+			processStr = SystemConstant.HP_KZDC;//领导审核完毕，准备开展调查
+			flowStr = SystemConstant.LCT_LADC;//准备开展调查
+			gyDesc = approveTime + "，领导审核完毕，准备受理该举报事件！";
+		}
+		else if(isLA.equals("0"))
+		{
+			//未立案
+			status = SystemConstant.SS_YSH;//13
+			//fkInfo = SystemConstant.FK_APPROVEEVENT2;//经审核，准备对该事件不予调查！
+			processStr = SystemConstant.HP_NOKZDC;//领导审核完毕，准备不予开展调查
+			flowStr = SystemConstant.LCT_BYLA;//准备不予调查
+			gyDesc = approveTime + "，领导审核完毕，准备不受理该举报事件！";
+		}
+		*/
+		if(result)
+		{
+			/*if(roleID.equals("6"))
+			{//将事件状态修改为“调查中”
+				sql = "update TB_REPORTINFO set STATUS=?, LASTTIME=? where REPORTID=?";
+				params = new String[]{status, approveTime, reportID};
+				result = db.insertItem(sql, params);
+				
+				//更新消息提醒状态，使得“事件审批”栏目不会再重复出现该事件
+				sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME=? and REPORTID=?";
+				params = new String[]{loginName, reportID};
+				db.insertItem(sql, params);
+				
+				//插入反馈信息到门户数据库中
+				db.InsertFKInfo(reportID, fkInfo, approveTime);
+			}*/
+			//将事件状态修改为“已审核”
+			sql = "update TB_REPORTINFO set STATUS=? where REPORTID=?";
+			params = new String[]{status, reportID};
+			result = db.insertItem(sql, params);
+			
+			//插入处理过程到数据库中
+			String describe = approveTime + ",领导：" + approveName + "审批该事件,审核意见详情请查看《审核信息》一栏";
+			db.InsertHandleProcess(reportID, approveName, SystemConstant.HP_APPROVEEVENT, SystemConstant.SS_YSH, SystemConstant.LCT_LDSP, describe);
+			
+			//控制“立案调查”和“不予调查”的流程图节点的显示
+			//db.InsertHandleProcess(reportID, approveName, processStr, SystemConstant.SS_YSH, flowStr, gyDesc);
+			
+			//写入日志文件
+			db.insertLogInfo(loginName, SystemConstant.LOG_APPROVE, loginName+"审批事件是否立案，事件编号为：" + reportID, request.getRemoteAddr());
+		}
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+		if(result)
+		{
+			json.put("statusCode", 200);
+			json.put("message", "审核成功！");
+			json.put("callbackType", "closeCurrent");
+		}
+		else
+		{
+			json.put("statusCode", 300);
+			json.put("message", "事件审核失败");
+		}
+		out.write(json.toString());
+		out.flush();
+		out.close();
+		return null;
+	}
+	
+	public ActionForward queryMsg(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");	
+		
+		ApproveEventForm approveEventForm = (ApproveEventForm)form;
+		String operation = request.getParameter("operation");
+		CheckPage pageBean = new CheckPage();
+		String sql = "";
+		String[] params = new String[0];
+		int queryPageNo = 1;
+		int rowsPerPage = 20;
+		pageBean.setRowsPerPage(rowsPerPage);
+		if (operation.equalsIgnoreCase("search")) {
+			String officer = approveEventForm.getOfficer();
+			String temp = "";
+			if(officer != null && !officer.equals(""))
+			{
+				temp += " and USERNAME like ?";
+				params = new String[]{"%" + officer + "%"};
+			}
+			sql = "select ID,USERNAME,LOGINNAME from SYS_USER where POSIDS=9 " + temp;
+			request.getSession().setAttribute("queryOfficerSql", sql);	
+			request.getSession().setAttribute("queryOfficerParams", params);
+		}
+		else if(operation.equalsIgnoreCase("changePage")){
+			sql = (String)request.getSession().getAttribute("queryOfficerSql");//select ID,LOGINNAME,USERNAME from SYS_USER where POSIDS=9
+			params = (String[])request.getSession().getAttribute("queryOfficerParams");//" "
+			if (request.getParameter("pageNum") != null && request.getParameter("pageNum") != "") {
+				queryPageNo = Integer.parseInt(request.getParameter("pageNum"));
+			}
+		}
+		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
+		pageBean.setQueryPageNo(queryPageNo);
+		DBTools db = new DBTools();
+		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
+		ArrayList result = db.queryOfficerList(rs, rowsPerPage);
+		if(result.size() > 0)
+		{
+			approveEventForm.setRecordNotFind("false");
+			approveEventForm.setRecordList(result);
+			
+			SystemShare.SplitPageFun(request, pageBean, 1);
+		}
+		else
+		{
+			approveEventForm.setRecordNotFind("true");
+			
+			SystemShare.SplitPageFun(request, pageBean, 0);
+		}
+		return mapping.findForward("dispatchagent");
+	}
+	
+	public ActionForward dispatch(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ApproveEventForm approveEventForm = (ApproveEventForm) form;
+		CheckPage pageBean = new CheckPage();
+		int queryPageNo = 1; 
+		int rowsPerPage = 20;
+		pageBean.setRowsPerPage(rowsPerPage);
+		pageBean.setQueryPageNo(queryPageNo);
+		String sql = "select ID,LOGINNAME,USERNAME from SYS_USER where ROLEIDS=6";
+		String[] params = new String[0];
+		request.getSession().setAttribute("queryOfficerSql", sql);
+		request.getSession().setAttribute("queryOfficerParams", params);
+		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
+		DBTools db = new DBTools();
+		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
+		ArrayList result = db.queryOfficerList(rs, rowsPerPage);
+		if(result.size() > 0)
+		{
+			approveEventForm.setRecordNotFind("false");
+			approveEventForm.setRecordList(result);
+			SystemShare.SplitPageFun(request, pageBean, 1);
+		}
+		else
+		{
+			approveEventForm.setRecordNotFind("true");
+			SystemShare.SplitPageFun(request, pageBean, 0);
+		}
+		return mapping.findForward("dispatchagent");
+	}
+	public ActionForward saveDispatch(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+
+		String reportID = request.getParameter("reportID");
+		String userId = request.getParameter("agentofficer");
+		
+		DBTools dbTool = new DBTools();
+		// get officer before and now associated to this serialNum;
+		String oldOfficerName = (String)request.getSession().getAttribute("UserName");
+		String newOfficerName = dbTool.querySingleData("SYS_USER", "USERNAME", "ID", userId);
+		String newOfficer = dbTool.querySingleData("SYS_USER", "LOGINNAME", "ID", userId);
+		// get status, if like 4% prevent dispatch(42未受理,40已结束,41不予调查)
+	//	String status = dbTool.querySingleData("TB_REPORTINFO", "STATUS", "REPORTID", reportID);
+		String serialNum = dbTool.querySingleData("TB_REPORTINFO", "SERIALNUM", "REPORTID", reportID);
+				
+		boolean result;
+//		if (status.charAt(0) == '4') {
+//			result = false;
+//		}
+		
+	 	String sql = "update TB_CHECKINFO set AGENTOFFICER=? where REPORTID=?";
+		//if (result) {
+		result = dbTool.insertItem(sql, new String[]{newOfficerName, reportID});
+		//}
+		sql = "update TB_MSGNOTIFY set AGENTOFFICER=? where REPORTID=?";
+		//if (result) {
+		result = dbTool.insertItem(sql, new String[]{newOfficerName, reportID});
+		
+		result = dbTool.insertAgentofficerinfo(reportID,oldOfficerName,newOfficerName,"1");
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+		if(result)
+		{
+			String userName = (String)request.getSession().getAttribute("UserName"); // operator name
+			if (oldOfficerName != null && !oldOfficerName.equals("")) {
+			dbTool.insertLogInfo(userName, SystemConstant.LOG_DISPATCHAGENT," 指派 " + newOfficerName + " 代理审批 "+ serialNum , request.getRemoteAddr());
+			} else {
+				dbTool.insertLogInfo(userName, SystemConstant.LOG_DISPATCH, "分派案件 " + serialNum + " 给： " + newOfficerName, request.getRemoteAddr());
+			}
+			//插入处理过程到数据库中
+			String describe = userName +  "指派 " + newOfficerName + " 代理审批 "+ serialNum;
+			result = dbTool.InsertHandleProcess(reportID, userName, SystemConstant.HP_DISPATCHAGENT, SystemConstant.SS_RECVEVENT, SystemConstant.LCT_DISPATCHAGENT, describe);
+			
+			json.put("statusCode", 200);
+			json.put("message", " 指派代审成功！");
+		}
+		else
+		{
+			json.put("statusCode", 300);
+			json.put("message", " 指派代审失败！");
+		
+		}
+		json.put("callbackType", "closeCurrent");
+		json.put("navTabId", "myDealEvent");
+		out.write(json.toString());
+		out.flush();
+		out.close();
+		return null;
+	}
+	public ActionForward survey(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		DBTools db = new DBTools();
+		String reportID = request.getParameter("reportID");//20151020161248
+		String approveTime = SystemShare.GetNowTime("yyyy-MM-dd");
+		
+		String status = SystemConstant.SS_SURVEYING;//22(调查中)
+		String fkInfo = SystemConstant.FK_APPROVEEVENT3;//审核完毕，开展调查中！
+		String flowStr = SystemConstant.LCT_LADC1;//开展调查
+		String processStr = SystemConstant.HP_KZDC1;//领导审核完毕，开展调查
+		String gyDesc = approveTime + "，领导审核完毕，对该举报事件开展调查！";
+		String approveName = (String)request.getSession().getAttribute("UserName");
+		
+		//将事件状态修改为“调查中”
+		String sql = "update TB_REPORTINFO set STATUS=?, LASTTIME=? where REPORTID=?";
+		String[] params = new String[]{status, approveTime, reportID};
+		boolean result = db.insertItem(sql, params);
+				
+		//更新消息提醒状态，使得“事件审批”栏目不会再重复出现该事件
+		sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME=? and REPORTID=?";
+		params = new String[]{approveName, reportID};
+		db.insertItem(sql, params);
+				
+		//插入反馈信息到门户数据库中
+		//db.InsertFKInfo(reportID, fkInfo, approveTime);
+			
+		//插入处理过程到数据库中
+		String describe = approveTime + ",办公人员" + approveName + "审批该事件,审核意见详情请查看《审核信息》一栏";
+		db.InsertHandleProcess(reportID, approveName, SystemConstant.HP_KZDC1, SystemConstant.SS_SURVEYING, SystemConstant.LCT_LDSP, describe);
+			
+		//控制“立案调查”和“不予调查”的流程图节点的显示
+		db.InsertHandleProcess(reportID, approveName, processStr, SystemConstant.SS_SURVEYING, flowStr, gyDesc);
+			
+		//写入日志文件
+		db.insertLogInfo(approveName, SystemConstant.LOG_APPROVE, approveName+"审批事件立案，事件编号为：" + reportID, request.getRemoteAddr());
+
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+		if(result)
+		{
+			json.put("statusCode", 200);
+			json.put("message", "审核成功！");
+			json.put("callbackType", "closeCurrent");
+		}
+		else
+		{
+			json.put("statusCode", 300);
+			json.put("message", "事件审核失败");
+		}
+		out.write(json.toString());
+		out.flush();
+		out.close();
+		return null;
+	}
+	public ActionForward unsurvey(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		DBTools db = new DBTools();
+		String reportID = request.getParameter("reportID");//20151020161248
+		String approveTime = SystemShare.GetNowTime("yyyy-MM-dd");//2015-10-20
+		
+		String status = SystemConstant.SS_UNLA;//41
+		String fkInfo = SystemConstant.FK_APPROVEEVENT4;//经审核，对该事件不予调查！
+		String flowStr = SystemConstant.LCT_BYLA;//不予调查
+		String processStr = SystemConstant.HP_NOKZDC;//领导审核完毕，不予开展调查
+		String gyDesc = approveTime + "，领导审核完毕，对该举报事件不受理！";
+		String approveName = (String)request.getSession().getAttribute("UserName");
+
+		//更新消息提醒状态，使得“事件审批”栏目不会再重复出现该事件
+		String sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME=? and REPORTID=?";
+		String[] params = new String[]{approveName, reportID};
+		boolean result= db.insertItem(sql, params);
+				
+		//插入反馈信息到门户数据库中
+		db.InsertFKInfo(reportID, fkInfo, approveTime);
+
+		//将事件状态修改为“不予调查”
+		sql = "update TB_REPORTINFO set STATUS=? where REPORTID=?";
+		params = new String[]{status, reportID};
+		result = db.insertItem(sql, params);
+			
+		//插入处理过程到数据库中
+		String describe = approveTime + ",办公人员" + approveName + "审批该事件,审核意见详情请查看《审核信息》一栏";
+		db.InsertHandleProcess(reportID, approveName, SystemConstant.HP_NOKZDC1, SystemConstant.SS_UNLA, SystemConstant.LCT_BYLA1, describe);
+			
+		//控制“立案调查”和“不予调查”的流程图节点的显示
+		db.InsertHandleProcess(reportID, approveName, processStr, SystemConstant.SS_UNLA, flowStr, gyDesc);
+			
+		//写入日志文件
+		db.insertLogInfo(approveName, SystemConstant.LOG_APPROVE, approveName+"审批事件不受理，事件编号为：" + reportID, request.getRemoteAddr());
+
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+		if(result)
+		{
+			json.put("statusCode", 200);
+			json.put("message", "审核成功！");
+			json.put("callbackType", "closeCurrent");
+		}
+		else
+		{
+			json.put("statusCode", 300);
+			json.put("message", "事件审核失败");
+		}
+		out.write(json.toString());
+		out.flush();
+		out.close();
+		return null;
+	}
+	public ActionForward rollOut(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		DBTools db = new DBTools();
+		String reportID = request.getParameter("reportID");//20151020161248
+		String approveTime = SystemShare.GetNowTime("yyyy-MM-dd");//2015-10-20
+		
+		String status = SystemConstant.SS_ROLLOUT;//43
+		String fkInfo = SystemConstant.FK_APPROVEEVENT5;//经审核，该事件与诚信办无关，对该事件转出！
+		String flowStr = SystemConstant.LCT_ZC;//转出
+		String processStr = SystemConstant.HP_ZC;//领导审核完毕，对该事件转出
+		String gyDesc = approveTime + "，领导审核完毕，对该事件转出！";
+		String approveName = (String)request.getSession().getAttribute("UserName");
+
+		//更新消息提醒状态，使得“事件审批”栏目不会再重复出现该事件
+		String sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME=? and REPORTID=?";
+		String[] params = new String[]{approveName, reportID};
+		boolean result= db.insertItem(sql, params);
+				
+		//插入反馈信息到门户数据库中
+		db.InsertFKInfo(reportID, fkInfo, approveTime);
+
+		//将事件状态修改为“转出”
+		sql = "update TB_REPORTINFO set STATUS=? where REPORTID=?";
+		params = new String[]{status, reportID};
+		result = db.insertItem(sql, params);
+			
+		//插入处理过程到数据库中
+		String describe = approveTime + ",办公人员" + approveName + "审批该事件,审核意见详情请查看《审核信息》一栏";
+		db.InsertHandleProcess(reportID, approveName, SystemConstant.HP_ZC, SystemConstant.SS_ROLLOUT, SystemConstant.LCT_ZC, describe);
+			
+		//控制“立案调查”和“不予调查”的流程图节点的显示
+		db.InsertHandleProcess(reportID, approveName, processStr, SystemConstant.SS_ROLLOUT, flowStr, gyDesc);
+			
+		//写入日志文件
+		db.insertLogInfo(approveName, SystemConstant.LOG_APPROVE, approveName+"审批事件转出，事件编号为：" + reportID, request.getRemoteAddr());
+
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+		if(result)
+		{
+			json.put("statusCode", 200);
+			json.put("message", "转出成功！");
+			json.put("callbackType", "closeCurrent");
+		}
+		else
+		{
+			json.put("statusCode", 300);
+			json.put("message", "事件转出失败");
+		}
+		out.write(json.toString());
+		out.flush();
+		out.close();
+		return null;
+	}
+	/**
+	 * 暂不结案
+	 */
+	public ActionForward tempNotEnd(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		DBTools db = new DBTools();
+		String reportID = request.getParameter("reportID");//20151020161248
+		String approveTime = SystemShare.GetNowTime("yyyy-MM-dd");//2015-10-20
+		
+		String status = SystemConstant.SS_TEMP_NOT_END;//52
+		String fkInfo = SystemConstant.FK_APPROVEEVENT5;//经审核，对该事件暂不结案！
+		String flowStr = SystemConstant.LCT_ZBJA;//暂不结案
+		String processStr = SystemConstant.HP_ZBJA;//领导审核完毕，对该事件暂不结案
+		String gyDesc = approveTime + "，领导审核完毕，对该事件暂不结案！";
+		String approveName = (String)request.getSession().getAttribute("UserName");
+
+		//更新消息提醒状态，使得“事件审批”栏目不会再重复出现该事件
+		String sql = "update TB_MSGNOTIFY set ISHANDLE='1' where RECVNAME=? and REPORTID=?";
+		String[] params = new String[]{approveName, reportID};
+		boolean result= db.insertItem(sql, params);
+				
+		//插入反馈信息到门户数据库中
+		db.InsertFKInfo(reportID, fkInfo, approveTime);
+
+		//将事件状态修改为“转出”
+		sql = "update TB_REPORTINFO set STATUS=? where REPORTID=?";
+		params = new String[]{status, reportID};
+		result = db.insertItem(sql, params);
+			
+		//插入处理过程到数据库中
+		String describe = approveTime + ",办公人员" + approveName + "审批该事件,审核意见详情请查看《审核信息》一栏";
+		db.InsertHandleProcess(reportID, approveName, SystemConstant.HP_ZBJA, SystemConstant.SS_TEMP_NOT_END, SystemConstant.LCT_ZBJA, describe);
+			
+		//控制“立案调查”和“不予调查”的流程图节点的显示
+		db.InsertHandleProcess(reportID, approveName, processStr, SystemConstant.SS_TEMP_NOT_END, flowStr, gyDesc);
+			
+		//写入日志文件
+		db.insertLogInfo(approveName, SystemConstant.LOG_APPROVE, approveName+"审批事件暂不结案，事件编号为：" + reportID, request.getRemoteAddr());
+
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+		if(result)
+		{
+			json.put("statusCode", 200);
+			json.put("message", "暂不结案成功！");
+			json.put("callbackType", "closeCurrent");
+		}
+		else
+		{
+			json.put("statusCode", 300);
+			json.put("message", "事件暂不结案失败");
 		}
 		out.write(json.toString());
 		out.flush();

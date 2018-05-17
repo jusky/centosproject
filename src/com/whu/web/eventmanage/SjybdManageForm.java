@@ -22,13 +22,27 @@ public class SjybdManageForm extends ActionForm {
 	/*
 	 * Generated Methods
 	 */
+	//编号
 	private String serialNum;
+	//来件单位
 	private String comeName;
+	//收件日期
 	private String recvTime;
+	//来件标题
 	private String title;
+	//拟办意见
+	private String proposedOpinion;
 	private String reportID;
 	private String recordNotFind = "false";
 	private List recordList = null;
+	
+	public String getProposedOpinion() {
+		return proposedOpinion;
+	}
+	public void setProposedOpinion(String proposedOpinion) {
+		this.proposedOpinion = proposedOpinion;
+	}
+	
 	public String getReportID() {
 		return reportID;
 	}

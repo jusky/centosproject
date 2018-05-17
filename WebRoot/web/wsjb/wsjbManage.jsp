@@ -35,6 +35,8 @@ function selectLine(cb)
 <form id="pagerForm" method="post" action='<%=path%>/wsjbManageAction.do?method=queryMsg&operation=changePage'>
 	<input type="hidden" name="pageNum" value="${pageNum}" />
 	<input type="hidden" name="pageSize" value="${pageSize}" />
+	<input type="hidden" name="orderField" value="${param.orderField}" />
+	<input type="hidden" name="orderDirection" value="${param.orderDirection}" />
 </form>
 <div class="pageHeader">
 	<html:form onsubmit="return navTabSearch(this);" action="/wsjbManageAction.do?method=queryMsg&operation=search" method="post">
@@ -87,8 +89,8 @@ function selectLine(cb)
 				<th width="100" align="center">被举报人姓名</th>
 				<th width="200" align="center">被举报人单位</th>
 				<th align="center">举报事由</th>
-				<th width="130" align="center">举报时间</th>
-				<th width="150" align="center">管理</th>
+				<th width="80" align="center" orderField="a.TIME" <%if (request.getParameter("orderField")!=null && request.getParameter("orderField").equals("a.TIME")) { %> class="${param.orderDirection}" <%} %>>举报时间</th>
+				<th width="120" align="center">管理</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -105,6 +107,7 @@ function selectLine(cb)
 		<td align="center" >
 			<bean:write name="WsjbInfo" property="reportName"/>
 		</td>
+		
 		<td align="center" >
 			<bean:write name="WsjbInfo" property="beReportName"/>
 		</td>
@@ -120,9 +123,10 @@ function selectLine(cb)
 		<td align="center" >
 			<a href="#">&nbsp;</a>
 			<a href="<%=path%>/wsjbManageAction.do?method=detail&id=${WsjbInfo.id}" target="dialog" mask="true" rel="detail" width="900" height="600" title="查看详情">查看</a>
-			<a href="<%=path %>/wsjbManageAction.do?method=recv&id=${WsjbInfo.id}" target="ajaxTodo" title="确定要受理该举报案件吗?">受理</a>
-			<a href="<%=path%>/wsjbManageAction.do?method=unrecv&id=${WsjbInfo.id}" target="ajaxTodo" title="确定不受理该举报案件吗?">不受理</a>
-			<!-- 
+			<!--  <a href="<%=path %>/wsjbManageAction.do?method=recv&id=${WsjbInfo.id}" target="ajaxTodo" title="确定要接收该举报案件吗?">接收</a>-->
+			<a href="<%=path %>/wsjbManageAction.do?method=recvNew&id=${WsjbInfo.id}"  mask="true" id="sjybdDialog" target="dialog" width="750" height="420" title="确定要接收该举报案件吗?">接收</a>
+			<!-- <a href="<%=path%>/wsjbManageAction.do?method=unrecv&id=${WsjbInfo.id}" target="ajaxTodo" title="确定不接收该举报案件吗?">不接收</a> -->
+			<!-- mask="true" rel="delete" width="500" height="150"
 			<a href="<%=path%>/wsjbManageAction.do?method=recv&id={wsjbid}" target="ajaxTodo" title="确定要接收该举报事件吗?">接收录入</a>
 			 -->
 		</td>

@@ -46,7 +46,7 @@ public class LookUpGroupAction extends DispatchAction {
 		}
 		else if(type.equals("bsld"))//报送领导
 		{
-			sql = "select a.*,b.ZZNAME from SYS_USER a,SYS_ZZINFO b where a.ZZID=b.ZZID and a.ISHEAD='1'";
+			sql = "select a.*,b.ZZNAME from SYS_USER a,SYS_ZZINFO b where a.ZZID=b.ZZID and a.ISHEAD='1' and (a.ZZID<2000 OR a.ZZID=2006)";
 		}
 		else if(type.equals("hymc"))//会议名称
 		{
@@ -169,7 +169,7 @@ public class LookUpGroupAction extends DispatchAction {
 		String[] params = new String[0];
 		String temp = "";
 		int queryPageNo = 1;
-		int rowsPerPage = 10;
+		int rowsPerPage = 50;
 		pageBean.setRowsPerPage(rowsPerPage);
 		
 		if (operation.equalsIgnoreCase("search")) {
@@ -351,5 +351,33 @@ public class LookUpGroupAction extends DispatchAction {
 			SystemShare.SplitPageFun(request, pageBean, 0);
 		}
 		return mapping.findForward(type);
+	}
+	public ActionForward sbld( ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		LookUpGroupForm lookUpGroupForm = (LookUpGroupForm)form;
+		CheckPage pageBean = new CheckPage();
+		int queryPageNo = 1;
+		int rowsPerPage = 20;
+		pageBean.setRowsPerPage(rowsPerPage);
+		pageBean.setQueryPageNo(queryPageNo);
+		String sql = "select a.*,b.ZZNAME from SYS_USER a,SYS_ZZINFO b where a.ZZID=b.ZZID and a.ISHEAD='1' and (a.ZZID<2000 OR a.ZZID=2006)";
+		String[] params = new String[0];
+		pageBean.setQuerySql(sql);
+		pageBean.setParams(params);
+		DBTools db = new DBTools();
+		ResultSet rs = db.queryRs(queryPageNo, pageBean, rowsPerPage);
+		ArrayList result = db.querySysUser(rs, rowsPerPage);
+		if(result.size() > 0)
+		{
+			lookUpGroupForm.setRecordNotFind("false");
+			lookUpGroupForm.setRecordList(result);
+			SystemShare.SplitPageFun(request, pageBean, 1);
+		}
+		else
+		{
+			lookUpGroupForm.setRecordNotFind("true");
+			SystemShare.SplitPageFun(request, pageBean, 0);
+		}
+		return mapping.findForward("sbld");
 	}
 }

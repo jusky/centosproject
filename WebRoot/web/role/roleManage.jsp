@@ -76,7 +76,7 @@
 			<a href = "<%=path%>/roleManageAction.do?method=copyRole&id={slt_uid}" target="dialog" mask="true" rel="copyRole" width="900" height="600" title="复制角色">复制角色</a>
 			 -->
 			<a href = "<%=path%>/roleManageAction.do?method=resAllocation&id=${RoleBean.id}" target="dialog" mask="true" rel="resAllocation" width="350" height="530" title="分配角色资源">资源分配</a>
-			<a href = "<%=path%>/roleManageAction.do?method=delete&uid=${RoleBean.id}"  target="ajaxTodo" title="确定要删除吗?">删除</a>
+			<!-- <a href = "<%=path%>/roleManageAction.do?method=delete&uid=${RoleBean.id}"  target="ajaxTodo" title="确定要删除吗?">删除</a> -->
 		</td>
 	</tr>
 	</logic:iterate>

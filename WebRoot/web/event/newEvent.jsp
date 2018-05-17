@@ -94,6 +94,27 @@ function setSimilar(cb)
 		deleteDefault();
 	}
 }
+function setDept(cb)
+{
+	if(cb.checked==true)
+	{
+		document.getElementById("nimingID").readOnly = true;
+		document.getElementById("niDiv").style.display="none";
+		document.getElementById("jbName").value="其他部门转";
+	//	document.getElementById("jbName").readOnly=true;
+		document.getElementById("reportReason").value = "";
+		document.getElementById("reportContent").value = "";
+		setDefault();
+		
+	}
+	else
+	{
+		document.getElementById("niDiv").style.display="block";
+		document.getElementById("jbName").value="";
+	//	document.getElementById("jbName").readOnly=false;
+		deleteDefault();
+	}
+}
 function setDefault()
 {
 	document.getElementById("dept").value="无单位";
@@ -113,7 +134,7 @@ function commit()
 }
 function showreason()
 {
-	paramers="dialogWidth:520px; dialogHeight:500px; resizable:yes; overflow:auto; status:no";
+	paramers="dialogWidth:320px; dialogHeight:400px; resizable:yes; overflow:auto; status:no";
 	url = "<%=path%>/web/event/reportReason.jsp";
 	var value1 = window.showModalDialog(url, "", paramers);
 	if(value1.names !== null)
@@ -131,11 +152,14 @@ function showreason()
             'folder' : 'uploads',//您想将文件保存到的路径
             'queueID' : 'fileQueue',//与下面的id对应
             'fileDataName'   : 'eventUpload', //和以下input的name属性一致 
-            'queueSizeLimit' : 1,
+            'queueSizeLimit' : 1,//上传队列大小
             'auto' : false,
             'multi' : true,
-            'simUploadLimit' : 2,
-            'buttonText' : 'BROWSE'
+            'simUploadLimit' : 2,//同时可上传的文件实例数
+            'buttonText' : 'BROWSE',
+            'removeCompleted':false ,
+            'onComplete' :function(event,queueId,file,response,data){alert(file.name +"上传成功！");}
+		       
         });
     });
 </script>
@@ -147,6 +171,24 @@ function showreason()
 		sendAjax(url);
 		jQuery(obj).uploadifyUpload();
 	}
+	
+	//向举报者发送邮件
+	 function sendMail()
+	 {
+	 	var address = document.getElementById("mailAddress").value;
+	 	if(address != null && address != "")
+	 	{
+	 		$("#NEsendEmailID").attr("href",'<%=path%>/newMailAction.do?method=init&address=' + address); 
+	 		//先控制页面跳转到发送邮件页面
+	 		$("#NEsendEmailID").click();
+	 		//然后关闭当前对话框
+	 		$.pdialog.closeCurrent();
+	 	}else
+	 	{
+	 		alert("请填写邮箱地址!");
+	 	}
+	 	
+	 }
 </script>
 <div class="pageContent">
 	<form method="post" class="pageForm required-validate" onsubmit="return validateCallback(this, navTabAjaxDone);" action="<%=path%>/newEventAction.do?method=save">
@@ -160,7 +202,8 @@ function showreason()
 						<input id="jbName" name="reportName" minlength="2" maxlength="15" class="required" type="text" size="20" value=""/>
 						<input type="radio" name="choose" value="0" checked onclick="setRealName(this)"/>实名举报
 						<input type="radio" id="nimingID" name="choose" value="1" onclick="setName(this);"/>匿名举报
-						<input type="radio" name="choose" value="1" onclick="setSimilar(this);"/>高相似度
+						<input type="radio" name="choose" value="2" onclick="setSimilar(this);"/>高相似度
+						<input type="radio" name="choose" value="3" onclick="setDept(this);"/>其他部门转
 					</dd>
 				</dl>
 				<dl class="nowrap">
@@ -173,7 +216,7 @@ function showreason()
 				<dl class="nowrap">
 					<dt>所属单位：</dt>
 					<dd>
-						<input id="dept" name="dept" minlength="3" maxlength="30" type="text" size="70" value=""/>
+						<input id="dept" name="dept" minlength="3" maxlength="30" class="required" type="text" size="70" value=""/>
 					</dd>
 				</dl>
 				<dl class="nowrap">
@@ -185,13 +228,15 @@ function showreason()
 				<dl class="nowrap">
 					<dt>手机号码：</dt>
 					<dd>
-						<input id="telPhone" name="telPhone" minlength="5" maxlength="15" class="phone" type="text" size="30" value=""/>
+						<input id="telPhone" name="telPhone" minlength="5" maxlength="15" class="phone required"  type="text" size="30" value=""/>
 					</dd>
 				</dl>
 				<dl class="nowrap">
 					<dt>邮箱地址：</dt>
 					<dd>
-						<input id="mailAddress" name="mailAddress" class="email" type="text" size="50" value=""/>
+						<input id="mailAddress" name="mailAddress" class="email required" type="text" size="50" value=""/>
+						<a id="NEsendEmailID" href="<%=path%>/newMailAction.do?method=init&address=2516265600@qq.com" target="navTab" rel="newEmail" style="display:none;">发送邮件</a>
+						<a href="#" onclick="javascript:sendMail()"><font color="blue">发送邮件</font></a>
 					</dd>
 				</dl>
 				</div>
@@ -201,20 +246,11 @@ function showreason()
 						<input id="reportTime" type="text" name="reportTime" class="required date" size="20" readonly/><a class="inputDateButton" href="javascript:;">选择</a>
 					</dd>
 				</dl>
-				<!--
 				<dl class="nowrap">
-					<dt>举报方式：</dt>
 					<dd>
-						<select class="combox" name="reportType">
-							<option value="书信举报">书信举报</option>
-							<option value="邮件举报">邮件举报</option>
-							<option value="网络举报">网络举报</option>
-							<option value="电话举报">电话举报</option>
-							<option value="其他方式">其他方式</option>
-						</select>
+						<input type="hidden" name="reportType" value="手工录入">
 					</dd>
 				</dl>
-				 -->
 				</div>
 			</div>
 
@@ -262,7 +298,9 @@ function showreason()
 					</dd>
 				</dl>
 				<dl class="nowrap">
-					<dt>上传附件：</dt>
+					<dt>上传附件：
+					<br/><font color="red">请将多个附件打包压缩后再一起上传，谢谢！</font>
+					</dt>
 					<dd>
 						<input type="file" name="eventUpload" id="eventUpload" />
         					<a href="javascript:uploadNewEvent('#eventUpload','event')">开始上传</a>&nbsp;
@@ -270,6 +308,7 @@ function showreason()
     					<div id="fileQueue"></div>
 					</dd>
 				</dl>
+				<dl id="imglist"></dl>
 				</div>
 			</div>
 		</div>

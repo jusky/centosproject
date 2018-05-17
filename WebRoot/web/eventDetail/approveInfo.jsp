@@ -10,33 +10,48 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
      		<logic:iterate name="eventDetailForm" property="recordList" id="ApproveInfo">
      			<fieldset>
 					<legend>初核意见</legend>
-						<dl>
-							<dt>核实人：</dt>
-							<dd>${ApproveInfo.nibanName}</dd>
-						</dl>
-						<dl>
-							<dt>提交时间：</dt>
-							<dd>${ApproveInfo.nibanTime}</dd>
-						</dl>
-						<dl class="nowrap">
-							<dt>初步核实意见：</dt>
-							<dd><textarea rows="10" cols="80" readonly>${ApproveInfo.nibanAdvice}</textarea></dd>
-						</dl>
+						<logic:notEmpty name="ApproveInfo" property="checkList">
+							<logic:iterate name="ApproveInfo" property="checkList" id="CheckBean">
+							<dl>
+								<dt>核实人：</dt>
+								<dd>${CheckBean.nibanName}</dd>
+							</dl>
+							<dl>
+								<dt>提交时间：</dt>
+								<dd>${CheckBean.nibanTime}</dd>
+							</dl>
+							<dl class="nowrap">
+								<dt>初核意见：</dt>
+								<dd><textarea rows="10" cols="80" readonly>${CheckBean.nibanAdvice}</textarea></dd>
+							</dl>
+						</logic:iterate>
+					</logic:notEmpty>
 				</fieldset>
 				<fieldset>
-					<legend>领导批示</legend>
+					<legend>领导审批</legend>
+					<logic:notEmpty name="ApproveInfo" property="approveList">
+					<logic:iterate name="ApproveInfo" property="approveList" id="ApproveBean">
 						<dl>
-							<dt>批示领导：</dt>
-							<dd>${ApproveInfo.headName}</dd>
+							<dt>审核人：</dt>
+							<dd>${ApproveBean.headName}</dd>
 						</dl>
 						<dl>
 							<dt>批示时间：</dt>
-							<dd>${ApproveInfo.headTime}</dd>
+							<dd>${ApproveBean.approveTime}</dd>
 						</dl>
+						<logic:notEmpty name="ApproveBean" property="isXY">
+						<dl>
+							<dt>调查所需：</dt>
+							<dd>${ApproveBean.isXY}</dd>
+						</dl>
+						</logic:notEmpty>
 						<dl class="nowrap">
 							<dt>领导批示：</dt>
-							<dd><textarea rows="12" cols="80" readonly>${ApproveInfo.headAdvice}</textarea></dd>
+							<dd><textarea rows="12" cols="80" readonly>${ApproveBean.headAdvice}</textarea></dd>
 						</dl>
+						<div class="divider"></div>
+					</logic:iterate>
+					</logic:notEmpty>
 				</fieldset>
 			</logic:iterate>
 		</logic:notEmpty>

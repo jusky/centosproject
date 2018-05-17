@@ -51,7 +51,67 @@ public class HandleDecideAction extends DispatchAction {
 		String handleName = handleDecideForm.getHandleName();
 		String handleTime = handleDecideForm.getHandleTime();
 		String conference = request.getParameter("org5.conference");
-		String decideContent = request.getParameter("orgd.decideContent");
+		
+		//decideContent=fundNum+applicantQualificationsYear+radioChoose
+		String decideContent ="";
+		String fundNum = handleDecideForm.getFundNum();
+		String fundNumRecover = handleDecideForm.getfundNumRecover();
+		String tempFN = "";
+		if(fundNum!=null&&fundNum!=""&&fundNumRecover!=null&&fundNumRecover!="")
+		{
+			tempFN = fundNum + "、" + fundNumRecover;
+		}else
+		{
+			tempFN = fundNum + fundNumRecover;
+		}
+		if(tempFN!=null&&!tempFN.equals(""))
+		{
+			decideContent+="撤销"+handleName+"获批基金号"+tempFN;
+			if(fundNumRecover!=null&&fundNumRecover!="")
+			{
+				decideContent+=",追回" + fundNumRecover + "已拨资金";
+			}
+			decideContent+=",";
+		}
+		String applicantQualificationsYear = handleDecideForm.getApplicantQualificationsYear();
+		String repealYearStart = handleDecideForm.getrepealYearStart();
+		String repealYearEnd = handleDecideForm.getrepealYearEnd();
+		if(applicantQualificationsYear!=null&&applicantQualificationsYear!="")
+		{
+			decideContent+="取消"+handleName+"国家自然科学基金项目申请资格"+applicantQualificationsYear+"年("+repealYearStart+"至"+repealYearEnd+"),";
+		}else
+		{
+			repealYearStart="";
+			repealYearEnd="";
+		}
+		String radioChoose = handleDecideForm.getRadioChoose();
+		System.out.println(radioChoose);
+		if(radioChoose!=null&&radioChoose!="")
+		{
+			if(radioChoose.equals("0"))
+			{
+				radioChoose="通报批评";
+				decideContent+="给予"+handleName+"通报批评。";
+			}
+			else if(radioChoose.equals("1"))
+			{
+				radioChoose="通报批评";
+				decideContent+="给予"+handleName+"内部通报批评。";
+			}
+			else if(radioChoose.equals("2"))
+			{
+				radioChoose="通报批评";
+				decideContent+="给予"+handleName+"书面警告。";
+			}
+			else if(radioChoose.equals("3"))
+			{
+				radioChoose="通报批评";
+				decideContent+="给予"+handleName+"谈话提醒。";
+			}
+		}
+		if(decideContent.length() > 0)
+			decideContent = decideContent.substring(0, decideContent.length()-1) + "。";
+		
 		String reportID = handleDecideForm.getReportID();
 		String deptName = handleDecideForm.getDeptName();
 		String shortInfo = handleDecideForm.getShortInfo();
@@ -79,13 +139,13 @@ public class HandleDecideAction extends DispatchAction {
 			editFlag = true;
 			if(attachName.equals(""))
 			{
-				sql = "update TB_HANDLEDECIDE set HANDLENAME=?, DEPTNAME=?, SHORTINFO=?, CONFERENCE=?,HANDLETIME=?,DECIDECONTENT=? where ID=?";
-				params = new String[]{handleName, deptName, shortInfo, conference, handleTime, decideContent, id};
+				sql = "update TB_HANDLEDECIDE set HANDLENAME=?, DEPTNAME=?, SHORTINFO=?, CONFERENCE=?,HANDLETIME=?,DECIDECONTENT=?,FUNDNUM=?,FUNDNUMRECOVER=?,APPLICANTQUALIFICATIONSYEAR=?,REPEALYEARSTART=?,REPEALYEAREND=?,RADIOCHOOSE=? where ID=?";
+				params = new String[]{handleName, deptName, shortInfo, conference, handleTime, decideContent,fundNum,fundNumRecover,applicantQualificationsYear,repealYearStart,repealYearEnd,radioChoose, id};
 			}
 			else
 			{
-				sql = "update TB_HANDLEDECIDE set HANDLENAME=?, DEPTNAME=?, SHORTINFO=?, CONFERENCE=?,HANDLETIME=?,DECIDECONTENT=?,ATTACHNAME=? where ID=?";
-				params = new String[]{handleName, deptName, shortInfo, conference, handleTime, decideContent, attachName, id};
+				sql = "update TB_HANDLEDECIDE set HANDLENAME=?, DEPTNAME=?, SHORTINFO=?, CONFERENCE=?,HANDLETIME=?,DECIDECONTENT=?,FUNDNUM=?,FUNDNUMRECOVER=?,APPLICANTQUALIFICATIONSYEAR=?,REPEALYEARSTART=?,REPEALYEAREND=?,RADIOCHOOSE=?,ATTACHNAME=? where ID=?";
+				params = new String[]{handleName, deptName, shortInfo, conference, handleTime, decideContent,fundNum,fundNumRecover,applicantQualificationsYear,repealYearStart,repealYearEnd,radioChoose, attachName, id};
 			}
 			
 		}
@@ -96,8 +156,9 @@ public class HandleDecideAction extends DispatchAction {
 			//生成处理决定编号
 			serialNum = SystemShare.GetSerialNum(sql, new String[0]);
 			
-			sql = "insert into TB_HANDLEDECIDE(REPORTID,SERIALNUM,HANDLENAME,DEPTNAME,SHORTINFO,CONFERENCE,HANDLETIME,DECIDECONTENT,FILEPATH,ATTACHNAME) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-			params = new String[]{reportID, serialNum, handleName, deptName, shortInfo, conference, handleTime,decideContent,"",attachName};
+			sql = "insert into TB_HANDLEDECIDE(REPORTID,SERIALNUM,HANDLENAME,DEPTNAME,SHORTINFO,CONFERENCE,HANDLETIME,DECIDECONTENT,FILEPATH,ATTACHNAME,FUNDNUM,FUNDNUMRECOVER,APPLICANTQUALIFICATIONSYEAR,REPEALYEARSTART,REPEALYEAREND,RADIOCHOOSE) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?)";
+			params = new String[]{reportID, serialNum, handleName, deptName, shortInfo, conference, handleTime,decideContent,"",attachName,fundNum,fundNumRecover,applicantQualificationsYear,repealYearStart,repealYearEnd,radioChoose};
+		
 		}
 		
 		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/";
@@ -121,7 +182,7 @@ public class HandleDecideAction extends DispatchAction {
 			//插入处理过程到数据库中
 			String describe = handleTime + "," + createName + "提交处理决定,处理决定为：" + decideContent;
 			dbTools.InsertHandleProcess(reportID, createName, SystemConstant.HP_HANDLEDECIDE, SystemConstant.SS_HANDLEDECIDE, SystemConstant.LCT_CLJD, describe);
-			dbTools.InsertFKInfo(reportID, SystemConstant.FK_HANDLEDECIDE, handleTime);
+			//dbTools.InsertFKInfo(reportID, SystemConstant.FK_HANDLEDECIDE, handleTime);
 
 			//写入日志文件
 			dbTools.insertLogInfo(createName, SystemConstant.LOG_HANDLEDECIDE, "编辑处理决定信息，事件编号为：" + reportID, request.getRemoteAddr());
@@ -156,7 +217,7 @@ public class HandleDecideAction extends DispatchAction {
 		String ids = request.getParameter("ids");
 		DBTools dbTool = new DBTools();
 		boolean result = true;
-		if(ids == null || ids == "")
+		if(ids == null || ids.equals(""))
 		{
 			String id = request.getParameter("id");
 			result = dbTool.deleteItemReal(id, "TB_HANDLEDECIDE", "ID");

@@ -59,7 +59,7 @@ public class MailConfigAction extends DispatchAction {
 				+ accountName + "','" + mailBoxType + "','" + mailBoxAddress + "','"
 				+ mailBoxPwd + "','" + smtpPC + "'," + smtpPort + ",'"
 				+ popPC + "'," + popPort + ",'" + loginName + "','0')"; */
-			sql = "Insert into TB_MAILCONFIG(ACCOUNTNAME,MAILBOXTYPE,MAILADDRESS,PWD,SMTPPC,SMTPPORT,POPPC,POPPORT,LOGINNAME,ISDEFAULT) values(?,?,?,?,?,?,?,?,?'0')";
+			sql = "Insert into TB_MAILCONFIG(ACCOUNTNAME,MAILBOXTYPE,MAILADDRESS,PWD,SMTPPC,SMTPPORT,POPPC,POPPORT,LOGINNAME,ISDEFAULT) values(?,?,?,?,?,?,?,?,?,'0')";
 			String[] params = {accountName, mailBoxType, mailBoxAddress, mailBoxPwd, smtpPC, smtpPort, popPC, popPort, loginName};
 			result = dbTools.insertItem(sql, params);
 		}

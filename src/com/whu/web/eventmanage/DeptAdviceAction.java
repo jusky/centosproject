@@ -10,9 +10,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,8 +28,11 @@ import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.upload.FormFile;
 
 import com.whu.tools.DBTools;
+import com.whu.tools.EmailTools;
 import com.whu.tools.SystemConstant;
 import com.whu.web.common.SystemShare;
+import com.whu.web.email.EmailBean;
+import com.whu.web.email.EmailInfo;
 import com.whu.web.eventbean.DeptSurveyLetter;
 import com.whu.web.eventbean.HandleDecide;
 import com.whu.web.eventbean.JDYJSBean;
@@ -61,89 +66,151 @@ public class DeptAdviceAction extends DispatchAction {
 		DeptAdviceForm deptAdviceForm = (DeptAdviceForm) form;
 		boolean result = false;
 		String loginName = (String)request.getSession().getAttribute("LoginName");
-		DBTools dbTools = new DBTools();
-	
-		String dept = deptAdviceForm.getDept();
-		String time = deptAdviceForm.getTime();		
-		if(time == null || time.equals(""))
-			time = SystemShare.GetNowTime("yyyy-MM-dd");
-		String advice = deptAdviceForm.getAdvice();
+		String userName =  (String)request.getSession().getAttribute("UserName");
+		String operatorFlag = request.getParameter("operatorFlag");
 		String reportID = deptAdviceForm.getReportID();
-		String expertAdvice = deptAdviceForm.getExpertAdvice();
-		String id = deptAdviceForm.getId();
-		String attachName = (String)request.getSession().getAttribute("EventAttachName");
-		if(attachName != null && !attachName.equals(""))
-		{
-			attachName = "dept" + reportID + "/" + attachName;
-			request.getSession().setAttribute("EventAttachName", "");
-		}
-		else
-		{
-			attachName = "";
-		}
+		String emailtime = SystemShare.GetNowTime("yyyy-MM-dd HH:mm:ss");
+		DBTools dbTools = new DBTools();
 		String sql = "";
-		String[] params = null;
-		//如果不为空，则说明是编辑
-		if(id != null && !id.equals(""))
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+	
+		if(operatorFlag.equals("sendEmail"))
 		{
-			if(attachName.equals(""))
+			String deptID = request.getParameter("deptID");
+			String deptName = request.getParameter("deptName");//依托单位
+			String deptemail = request.getParameter("deptemail");//依托单位邮箱
+			String deptcontent = request.getParameter("deptcontent");
+			String depttitle = request.getParameter("depttitle");
+			String deptAdviceID = "";
+			String accessoryPath = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";//附件
+			sql = "select * from TB_MAILCONFIG where ISDEFAULT=?";
+			EmailBean emailBean = dbTools.queryEmailConfig(sql, new String[]{"1"});
+			
+			//所有发送的附件名，以“：”分割
+			String attachNames = "";
+			EmailTools emailTools = new EmailTools();
+			if(emailBean != null)
 			{
-				sql = "update TB_DEPTADVICE set DEPT=?, TIME=?, ADVICE=?, EXPERTADVICE=?, ISFK='1' where ID=?";
-				params = new String[]{dept, time, advice, expertAdvice, id};
-			//	sql = "update TB_DEPTADVICE set DEPT='" + dept + "', TIME='" + time + "', ADVICE='"  + advice + "',EXPERTADVICE='" + expertAdvice + "',ISFK='1' where ID=" + id;
+				EmailInfo emailInfo = new EmailInfo();
+				emailInfo.setSendName(emailBean.getMailBoxAddress());
+				emailInfo.setCsName("");
+				emailInfo.setRecvName(deptemail);
+				emailInfo.setTitle(depttitle);
+				emailInfo.setContent(deptcontent);
+				emailInfo.setAccessory(accessoryPath);
+				result = emailTools.SendEmail(emailInfo, emailBean);
+				if(!result)
+				{
+					//邮件没有发送成功，则将上传的附件删除
+					SystemShare.deleteAllFiles(accessoryPath);
+					json.put("statusCode", 300);
+					json.put("message", "邮件发送失败！请检查您的网络连接是否正常，或者稍后重新发送！");
+					//json.put("callbackType", "closeCurrent");
+					json.put("navTabId", "addExpertAdvice");
+					
+					out.write(json.toString());
+					out.flush();
+					out.close();
+					return null;
+				}
+				else//邮件发送成功后，需要将附件转存到举报文件夹下，用于专家反馈页面查看所有的附件
+				{
+					String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/expert/";
+					//path1=/home/apache-tomcat-8.0.9/webapps/KXJJBDXW/temp/chenls/
+					String path1 = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";
+					String path2 = filePath + reportID;//path2 =/home/apache-tomcat-8.0.9/webapps/KXJJBDXW/attachment/expert/20151024151657
+					attachNames = SystemShare.SaveEmailAttach(path1, path2);
+					
+					sql = "insert into TB_DEPTEMAIL(DEPTADVICEID,DEPTNAME,EMAILADDRESS,TITLE,EMAILCONTENT,ATTACHMENT,REPORTID,SENDEMAILTIME) values(?, ?,?, ?, ?, ?, ?, ?)";
+					result = result &&  dbTools.insertItem(sql, new String[]{deptAdviceID, deptName, deptemail, depttitle, deptcontent, attachNames, reportID, emailtime});
+					//写入日志文件
+					dbTools.insertLogInfo(userName, SystemConstant.LOG_DEPTADVICE, "向依托单位发送邮件，事件编号为：" + reportID, request.getRemoteAddr());
+				}
+			}
+		}else if(operatorFlag.equals("newAdvice"))
+		{
+			String dept = deptAdviceForm.getDept();
+			String time = deptAdviceForm.getTime();		
+			if(time == null || time.equals(""))
+				time = SystemShare.GetNowTime("yyyy-MM-dd");
+			String advice = deptAdviceForm.getAdvice();
+			String expertAdvice = deptAdviceForm.getExpertAdvice();
+			String id = deptAdviceForm.getId();
+			String attachName = (String)request.getSession().getAttribute("EventAttachName");
+			if(attachName != null && !attachName.equals(""))
+			{
+				attachName = "dept" + reportID + "/" + attachName;
+				request.getSession().setAttribute("EventAttachName", "");
 			}
 			else
 			{
-				sql = "update TB_DEPTADVICE set DEPT=?, TIME=?, ADVICE=?, EXPERTADVICE=?, ISFK='1', ATTACHNAME=? where ID=?";
-				params =  new String[]{dept, time, advice, expertAdvice, attachName, id};
-			//	sql = "update TB_DEPTADVICE set DEPT='" + dept + "', TIME='" + time + "', ADVICE='"  + advice + "',EXPERTADVICE='" + expertAdvice + "',ISFK='1', ATTACHNAME='" + attachName + "' where ID=" + id;
+				attachName = "";
 			}
+			String[] params = null;
+			//如果不为空，则说明是编辑
+			if(id != null && !id.equals(""))
+			{
+				if(attachName.equals(""))
+				{
+					sql = "update TB_DEPTADVICE set DEPT=?, TIME=?, ADVICE=?, EXPERTADVICE=?, ISFK='1' where ID=?";
+					params = new String[]{dept, time, advice, expertAdvice, id};
+				//	sql = "update TB_DEPTADVICE set DEPT='" + dept + "', TIME='" + time + "', ADVICE='"  + advice + "',EXPERTADVICE='" + expertAdvice + "',ISFK='1' where ID=" + id;
+				}
+				else
+				{
+					sql = "update TB_DEPTADVICE set DEPT=?, TIME=?, ADVICE=?, EXPERTADVICE=?, ISFK='1', ATTACHNAME=? where ID=?";
+					params =  new String[]{dept, time, advice, expertAdvice, attachName, id};
+				//	sql = "update TB_DEPTADVICE set DEPT='" + dept + "', TIME='" + time + "', ADVICE='"  + advice + "',EXPERTADVICE='" + expertAdvice + "',ISFK='1', ATTACHNAME='" + attachName + "' where ID=" + id;
+				}
+				
+			}
+			else//如果为空，则说明是新增
+			{
+			//	sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,ADVICE,EXPERTADVICE,ISFK,ATTACHNAME,ISLETTER) values('" + reportID + "','" + dept + "','" + time + "','" + advice + "','" + expertAdvice + "','1','" + attachName + "', '0')";
+				sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,ADVICE,EXPERTADVICE,ISFK,ATTACHNAME,ISLETTER) values(?,?,?,?,?,'1',?,'0')";
+				params = new String[]{reportID, dept, time, advice, expertAdvice, attachName};
+			}
+			String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/dept/";
+			//String path1 = filePath + "temp";
+			String path1 = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";
+			String path2 = filePath + reportID;
+			//将临时文件夹中的附件转存到以警情编号为目录的文件夹下
+			//获得服务器的IP地址路径，存放在数据库中，便于下载
+			String relDirectory = "attachment/dept/" + reportID;
+			String createName = (String)request.getSession().getAttribute("UserName");
+			result = SystemShare.IOCopy(path1, path2, relDirectory, createName);
+			result = dbTools.insertItem(sql, params);
 			
-		}
-		else//如果为空，则说明是新增
-		{
-		//	sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,ADVICE,EXPERTADVICE,ISFK,ATTACHNAME,ISLETTER) values('" + reportID + "','" + dept + "','" + time + "','" + advice + "','" + expertAdvice + "','1','" + attachName + "', '0')";
-			sql = "insert into TB_DEPTADVICE(REPORTID,DEPT,TIME,ADVICE,EXPERTADVICE,ISFK,ATTACHNAME,ISLETTER) values(?,?,?,?,?,'1',?,'0')";
-			params = new String[]{reportID, dept, time, advice, expertAdvice, attachName};
-		}
-		String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/dept/";
-		//String path1 = filePath + "temp";
-		String path1 = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";
-		String path2 = filePath + reportID;
-		//将临时文件夹中的附件转存到以警情编号为目录的文件夹下
-		//获得服务器的IP地址路径，存放在数据库中，便于下载
-		String relDirectory = "attachment/dept/" + reportID;
-		String createName = (String)request.getSession().getAttribute("UserName");
-		result = SystemShare.IOCopy(path1, path2, relDirectory, createName);
-		result = dbTools.insertItem(sql, params);
-		
-		if(result)
-		{
-			String describe = time + "," + createName + "   编辑单位调查意见";
-			//插入处理过程到数据库中
-			result = dbTools.InsertHandleProcess(reportID, createName, SystemConstant.HP_DEPTADVICE, SystemConstant.SS_SURVEYING, SystemConstant.LCT_DWDC, describe);
+			if(result)
+			{
+				String describe = time + "," + createName + "   编辑单位调查意见";
+				//插入处理过程到数据库中
+				result = dbTools.InsertHandleProcess(reportID, createName, SystemConstant.HP_DEPTADVICE, SystemConstant.SS_SURVEYING, SystemConstant.LCT_DWDC, describe);
+				
+				//写入日志文件
+				dbTools.insertLogInfo(createName, SystemConstant.LOG_DEPTADVICE, "编辑依托单位意见，事件编号为：" + reportID, request.getRemoteAddr());
 			
-			//写入日志文件
-			dbTools.insertLogInfo(createName, SystemConstant.LOG_DEPTADVICE, "编辑依托单位意见，事件编号为：" + reportID, request.getRemoteAddr());
-		
-			//更新事件的最近一次操作时间
-			result = dbTools.UpdateLastTime(reportID);
+				//更新事件的最近一次操作时间
+				result = dbTools.UpdateLastTime(reportID);
+			}
 		}
-		PrintWriter out = response.getWriter();
-		JSONObject json = new JSONObject();
+		
+		
+		
 		if(result)
 		{
 			//防止高级检索功能模块执行
 			request.getSession().setAttribute("GjSearch", "false");
 			json.put("statusCode", 200);
-			json.put("message", "保存成功！");
+			json.put("message", "操作成功！");
 			//json.put("callbackType", "closeCurrent");
 			json.put("navTabId", "addDeptAdvice");
 		}
 		else
 		{
 			json.put("statusCode", 300);
-			json.put("message", "保存失败！");
+			json.put("message", "操作失败！");
 		}
 		out.write(json.toString());
 		out.flush();
@@ -157,7 +224,7 @@ public class DeptAdviceAction extends DispatchAction {
 		String ids = request.getParameter("ids");
 		DBTools dbTool = new DBTools();
 		boolean result = true;
-		if(ids == null || ids == "")
+		if(ids == null || ids.equals(""))
 		{
 			String id = request.getParameter("id");
 			result = dbTool.deleteItemReal(id, "TB_DEPTADVICE", "ID");
@@ -249,9 +316,10 @@ public class DeptAdviceAction extends DispatchAction {
 	 * @param response
 	 * @return
 	 * @throws IOException
+	 * @throws ParseException 
 	 */
 	public ActionForward saveDCH(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
+			HttpServletRequest request, HttpServletResponse response) throws IOException, ParseException {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 		DeptAdviceForm deptAdviceForm = (DeptAdviceForm)form;
@@ -265,6 +333,19 @@ public class DeptAdviceAction extends DispatchAction {
 		String surveyContent = deptAdviceForm.getSurveyContent();
 		String isEdit = request.getParameter("isEdit");
 		DBTools dbTools = new DBTools();
+		//获得当前日期
+		String createTime = SystemShare.GetNowTime("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat forma = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String year=createTime.substring(0, 4);
+		String month=createTime.substring(5, 7);
+		String day=createTime.substring(8, 10);
+		GregorianCalendar worldTime =new GregorianCalendar(Integer.parseInt(year),Integer.parseInt(month)-1,Integer.parseInt(day));
+		worldTime.add(GregorianCalendar.DATE,20);
+		Date d=worldTime.getTime();
+		String valTime_string=forma.format(d);
+		Date date = forma.parse(valTime_string);
+		String endTime = forma.format(date);
+
 		String sql = "";
 		String[] params = new String[0];
 		boolean result = false;
@@ -309,26 +390,25 @@ public class DeptAdviceAction extends DispatchAction {
 					if(flag)
 					{
 					//	sql = "insert into SYS_ED_USER(LOGINNAME, PASSWORD, DEPTNAME, ROLEIDS, ISUSE) values('" + loginName + "','" + password + "','" + deptName + "','5','1')";
-						sql = "insert into SYS_ED_USER(LOGINNAME, PASSWORD, DEPTNAME, ROLEIDS, ISUSE) values(?, ?, ?, '5', '1')";
-						params = new String[]{loginName, password, deptName};
+						sql = "insert into SYS_ED_USER(LOGINNAME, PASSWORD, DEPTNAME, ROLEIDS, ISUSE,CREATETIME,ENDTIME) values(?, ?, ?, '5', '0',?,?)";
+						params = new String[]{loginName, password, deptName,createTime,endTime};
 					}
 					else
 					{
 					//	sql = "update SYS_ED_USER set PASSWORD='" + password + "' where LOGINNAME='" + loginName + "'";
-						sql = "update SYS_ED_USER set PASSWORD=? where LOGINNAME=?";
-						params = new String[]{password, loginName};
+						sql = "update SYS_ED_USER set PASSWORD=?,ISUSE='0',LOGINTIME='',CREATETIME=?,ENDTIME=? where LOGINNAME=?";
+						params = new String[]{password, createTime,endTime,loginName};
 					}
 					//System.out.println(sql);
 					result = dbTools.insertItem(sql, params);
 					//向单位反馈记录表中 插入一条记录
-			//		sql = "insert into TB_ED_ADVICE(REPORTID,LOGINNAME,EVENTTITLE,FKTIME,ISSUBMIT,ATTACHMENT,ADVICEID) values('" + reportID + "','" + loginName + "','" + title + "','" + fkTime + "','0','','" + deptAdviceID + "')";
+			    //sql = "insert into TB_ED_ADVICE(REPORTID,LOGINNAME,EVENTTITLE,FKTIME,ISSUBMIT,ATTACHMENT,ADVICEID) values('" + reportID + "','" + loginName + "','" + title + "','" + fkTime + "','0','','" + deptAdviceID + "')";
 					sql = "insert into TB_ED_ADVICE(REPORTID,LOGINNAME,EVENTTITLE,FKTIME,ISSUBMIT,ATTACHMENT,ADVICEID) values(?,?,?,?,'0','',?)";
 					params = new String[]{reportID, loginName, title, fkTime, deptAdviceID};
 					result = dbTools.insertItem(sql, params);
 				}
 			}
-			//获得当前日期
-			String createTime = SystemShare.GetNowTime("yyyy-MM-dd");
+			
 			String createName = (String)request.getSession().getAttribute("UserName");
 			String describe = createTime + "," + createName + "   编辑单位调查意见";
 			//插入处理过程到数据库中

@@ -10,7 +10,7 @@
     $(document).ready(function() {
         $("#emailAttach").uploadify({
             'uploader' : '<%=path%>/dwz/uploadify/scripts/uploadify.swf',
-            'script' : '<%=path%>/servlet/UploadServlet?type=email',//后台处理的请求
+            'script' : '<%=path%>/servlet/UploadServlet?type=email',
             'cancelImg' : '<%=path%>/dwz/uploadify/img/cancel.png',
             'folder' : 'uploads',//您想将文件保存到的路径
             'queueID' : 'fileQueue',//与下面的id对应
@@ -19,7 +19,9 @@
             'auto' : false,
             'multi' : true,
             'simUploadLimit' : 2,
-            'buttonText' : 'BROWSE'
+            'buttonText' : 'BROWSE',
+             'removeCompleted':false ,
+            'onComplete' :function(event,queueId,file,response,data){alert(file.name +"上传成功！");}
         });
     });
 </script>
@@ -73,10 +75,12 @@
 				</dd>
 			</dl>
 			<dl class="nowrap">
-				<dt>附件：</dt>
+				<dt>附件：
+				<br/><font color="red">请将多个附件打包压缩后再一起上传，谢谢！</font>
+				</dt>
 				<dd>
-    				<input type="file" name="emailAttach" id="emailAttach" />
-        			<a href="javascript:uploadNewEvent('#emailAttach','email')"">开始上传</a>&nbsp;
+    				<input type="file" name="emailAttach" id="emailAttach"/>
+        			<a href="javascript:uploadNewEvent('#emailAttach','email')">开始上传</a>&nbsp;
         			<a href="javascript:jQuery('#emailAttach').uploadifyClearQueue()">取消所有上传</a>
     				<div id="fileQueue"></div>
 				</dd>

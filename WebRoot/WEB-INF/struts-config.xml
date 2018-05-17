@@ -29,6 +29,9 @@
     <form-bean name="zzConfigForm" type="com.whu.web.zuzhi.ZzConfigForm" />
     <form-bean name="zzDetailForm" type="com.whu.web.zuzhi.ZzDetailForm" />
     <form-bean name="deptAdviceForm" type="com.whu.web.eventmanage.DeptAdviceForm" />
+    <form-bean name="AnalysandInveForm" type="com.whu.web.eventmanage.AnalysandInveForm" />
+    <form-bean name="TreatmentSuggestForm" type="com.whu.web.eventmanage.TreatmentSuggestForm" />
+    <form-bean name="ConclusionOfMeetForm" type="com.whu.web.eventmanage.ConclusionOfMeetForm" />
     <form-bean name="expertAdviceForm" type="com.whu.web.eventmanage.ExpertAdviceForm" />
     <form-bean name="litigantStateForm" type="com.whu.web.eventmanage.LitigantStateForm" />
     <form-bean name="handleDecideForm" type="com.whu.web.eventmanage.HandleDecideForm" />
@@ -51,7 +54,7 @@
     <form-bean name="sjybdManageForm" type="com.whu.web.eventmanage.SjybdManageForm" />
     <form-bean name="eventFKForm" type="com.whu.web.eventmanage.EventFKForm" />
     <form-bean name="wyManageForm" type="com.whu.web.user.WyManageForm" />
-    <form-bean name="addressBookForm" type="com.whu.web.email.AddressBookForm" />
+    <form-bean name="addressBookForm" type="com.whu.web.email.AddressBookForm" /> 
     <form-bean name="configInstituteForm" type="com.whu.web.credit.ConfigInstituteForm" />
     <form-bean name="instituteManageForm" type="com.whu.web.credit.InstituteManageForm" />
     <form-bean name="individualManageForm" type="com.whu.web.credit.IndividualManageForm" />
@@ -67,13 +70,31 @@
     <form-bean name="facultyFKForm" type="com.whu.web.faculty.FacultyFKForm" />
     <form-bean name="deptFKManageForm" type="com.whu.web.expertAndDept.DeptFKManageForm" />
     <form-bean name="expertFKManageForm" type="com.whu.web.expertAndDept.ExpertFKManageForm" />
+    <form-bean name="unLoginedExpertForm" type="com.whu.web.expert.UnLoginedExpertForm" />
+    <form-bean name="deptAndExpertForm" type="com.whu.web.expertAndDept.DeptAndExpertForm" />
   </form-beans>
   
   <global-exceptions />
   <global-forwards />
   <action-mappings >
   <action
-      input="/login.jsp" parameter="method" name="loginForm" path="/loginAction" scope="request" type="com.whu.web.login.LoginAction">
+      attribute="deptAndExpertForm"
+      name="deptAndExpertForm"
+      parameter="method"
+      path="/deptAndExpertAction"
+      scope="request"
+      type="com.whu.web.expertAndDept.DeptAndExpertAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="init" path="/web/expertAndDept/expertAndDept.jsp" />
+      <forward name="delayTime" path="/web/expertAndDept/delayTime.jsp" />
+    </action>
+  <action
+      input="/login.jsp" 
+      parameter="method" 
+      name="loginForm" 
+      path="/loginAction" 
+      scope="request" 
+      type="com.whu.web.login.LoginAction">
       <forward name="success" path="/web/index.jsp" />
       <forward name="init" path="/web/login.jsp" />
     </action>
@@ -247,6 +268,7 @@
       <forward name="init" path="/web/eventManage/approveEvent.jsp" />
       <forward name="success" path="/web/result/ajaxDone.html" />
       <forward name="fail" path="/web/result/ajaxError.html" />
+      <forward name="dispatchagent" path="/web/eventManage/dispatchagent.jsp" />  
     </action>
     <action
       attribute="wsjbManageForm"
@@ -258,6 +280,9 @@
       <set-property property="cancellable" value="true" />
       <forward name="init" path="/web/wsjb/wsjbManage.jsp" />
       <forward name="detail" path="/web/wsjb/wsjbDetail.jsp" />
+      <forward name="createybd" path="/web/wsjb/createYBD.jsp" />
+      <forward name="recvfailed" path="/web/wsjb/recvFailed.jsp" />
+      <forward name="printEvent_recv" path="/web/wsjb/print.jsp" />
     </action>
     <action
       attribute="eventManageForm"
@@ -275,9 +300,13 @@
       <forward name="reportInfo" path="/web/eventDetail/eventDetail.jsp" />
       <forward name="check" path="/web/eventManage/checkEvent.jsp" />
       <forward name="approve" path="/web/eventManage/approveEvent.jsp" />
+      <forward name="finalApprove" path="/web/eventManage/finalApprove.jsp" />
       <forward name="addBZ" path="/web/eventManage/addBZ.jsp" />
       <forward name="createGroup" path="/web/eventManage/createGroup.jsp" />
       <forward name="deptAdviceManage" path="/web/eventManage/deptAdviceManage.jsp" />
+      <forward name="analysisAndInvestigation" path="/web/eventManage/analysisAndInvestigation.jsp"></forward>
+      <forward name="treatmentSuggestion" path="/web/eventManage/treatmentSuggestion.jsp" />
+      <forward name="conclusionOfMeet" path="/web/eventManage/conclusionOfMeet.jsp" />
       <forward name="expertAdviceManage" path="/web/eventManage/expertAdviceManage.jsp" />
       <forward name="litigantStateManage" path="/web/eventManage/litigantStateManage.jsp" />
       <forward name="handleDecideManage" path="/web/eventManage/handleDecideManage.jsp" />
@@ -288,6 +317,7 @@
       <forward name="createSJYBD" path="/web/dsoframer/createSJYBD.jsp" />
       <forward name="editInfo" path="/web/eventManage/editEvent.jsp" />
       <forward name="facultyAdviceManage" path="/web/eventManage/facultyAdviceManage.jsp"/>
+      <forward name="uploaddcbg" path="/web/eventManage/uploaddcbg.jsp"/>
     </action>
     <action
       attribute="lookUpGroupForm"
@@ -306,8 +336,10 @@
       <forward name="pos" path="/web/gangwei/gyPosList.jsp" />
       <forward name="contact" path="/web/email/contactList.jsp" />
       <forward name="expert" path="/web/eventManage/expertList.jsp" />
-      <forward name="cljdlook" path="/web/event/cljdDicList.jsp" />
+      <forward name="cljdlook" path="/web/event/cljd.jsp" />
+      <!-- <forward name="cljdlook" path="/web/event/cljdDicList.jsp" /> -->
       <forward name="wylook" path="/web/user/wyList.jsp" />
+      <forward name="sbld" path="/web/eventManage/sbld.jsp" />
     </action>
     <action
       attribute="userManageForm"
@@ -347,8 +379,11 @@
       <forward name="handleDecide" path="/web/eventDetail/handleDecide.jsp" />
       <forward name="handleFlow" path="/web/eventDetail/handleFlow.jsp" />
       <forward name="flowGraph" path="/web/handleFlow/flowGraph.jsp" />
-      <forward name="printEvent" path="/web/dsoframer/printEvent.jsp" />
+      <forward name="printEvent" path="/web/dsoframer/printEvent1.jsp" />
       <forward name="facultyAdvice" path="/web/eventDetail/facultyAdvice.jsp"/>
+      <forward name="analysInve" path="/web/eventDetail/analysInve.jsp" />
+      <forward name="treatSuggest" path="/web/eventDetail/treatSuggest.jsp"/>
+      <forward name="conofmeet" path="/web/eventDetail/conofmeet.jsp"/>
     </action>
     <action
       attribute="zzConfigForm"
@@ -384,6 +419,33 @@
       <forward name="createDCH" path="/web/eventManage/deptDCH.jsp"/>
     </action>
     <action
+      attribute="AnalysandInveForm"
+      name="AnalysandInveForm"
+      parameter="method"
+      path="/AnalysandInveAction"
+      scope="request"
+      type="com.whu.web.eventmanage.AnalysandInveAction">
+      <set-property property="cancellable" value="true" />
+    </action>
+    <action
+      attribute="TreatmentSuggestForm"
+      name="TreatmentSuggestForm"
+      parameter="method"
+      path="/TreatmentSuggestAction"
+      scope="request"
+      type="com.whu.web.eventmanage.TreatmentSuggestAction">
+      <set-property property="cancellable" value="true" />
+    </action>
+    <action
+      attribute="ConclusionOfMeetForm"
+      name="ConclusionOfMeetForm"
+      parameter="method"
+      path="/ConclusionOfMeetAction"
+      scope="request"
+      type="com.whu.web.eventmanage.ConclusionOfMeetAction">
+      <set-property property="cancellable" value="true" />
+    </action>
+    <action
       attribute="expertAdviceForm"
       name="expertAdviceForm"
       parameter="method"
@@ -397,7 +459,7 @@
       <forward name="expertJDYJS" path="/web/dsoframer/expertJDYJS.jsp"/>
       <forward name="showEmail" path="/web/eventManage/showEmail.jsp" />
       <forward name="createJDYJS" path="/web/eventManage/createJDYJS.jsp" />
-       <forward name="expertAdviceManage" path="/web/eventManage/expertAdviceManage.jsp" />
+      <forward name="expertAdviceManage" path="/web/eventManage/expertAdviceManage.jsp" />
     </action>
     <action
       attribute="litigantStateForm"
@@ -622,6 +684,17 @@
       <set-property property="cancellable" value="true" />
       <forward name="init" path="/web/email/addrManage.jsp" />
       <forward name="configADDR" path="/web/email/configADDR.jsp" />
+    </action>
+    <action
+      attribute="unLoginedExpertForm"
+      name="unLoginedExpertForm"
+      parameter="method"
+      path="/unLoginedExpertAction"
+      scope="request"
+      type="com.whu.web.expert.UnLoginedExpertAction">
+      <set-property property="cancellable" value="true" />
+      <forward name="unLoginedExpert" path="/web/eventManage/unLoginedExpert.jsp" />
+      
     </action>
     <action
       attribute="instituteManageForm"

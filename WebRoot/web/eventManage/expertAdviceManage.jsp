@@ -1,4 +1,4 @@
-<%@ page language="java" import="java.util.*,java.net.*" pageEncoding="UTF-8"%> 
+<%@ page language="java" import="java.util.*,java.net.*" pageEncoding="UTF-8" %> 
 <%@ page import="java.io.*" %> 
 <%@ page import="com.whu.tools.SystemConstant" %>
 <%@ include file="/commons/taglibs.jsp"%>
@@ -21,8 +21,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
             'multi' : true,
             'simUploadLimit' : 2,
              'fileDesc': "请选择office/pdf/压缩包文件",
-    		'fileExt': '*.doc;*.docx;*.xls;*.xlsx;*.pdf;*.rar;*.zip', 
-            'buttonText' : 'BROWSE'
+    	   	'fileExt': '*.doc;*.docx;*.xls;*.xlsx;*.pdf;*.rar;*.zip', 
+            'buttonText' : 'BROWSE',
+            'removeCompleted':false ,
+            'onComplete' :function(event,queueId,file,response,data){if(response == "1"){alert(file.name +"上传成功！");}else{alert(file.name +"上传失败！");document.getElementById("cfile").click();}}
         });
         $("#emailUpload").uploadify({
             'uploader' : '<%=path%>/dwz/uploadify/scripts/uploadify.swf',
@@ -35,13 +37,32 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
             'auto' : false,
             'multi' : true,
             'simUploadLimit' : 2,
-             'fileDesc': "请选择office/pdf/压缩包文件",
-    		'fileExt': '*.doc;*.docx;*.xls;*.xlsx;*.pdf;*.rar;*.zip', 
-            'buttonText' : 'BROWSE'
+            'fileDesc': "请选择office/pdf/压缩包文件",
+    		   'fileExt': '*.doc;*.docx;*.xls;*.xlsx;*.pdf;*.rar;*.zip', 
+            'buttonText' : 'BROWSE',
+            'removeCompleted':false ,
+            'onComplete' :function(event,queueId,file,response,data){if(response == "1"){alert(file.name +"上传成功！");}else{alert(file.name +"上传失败！");document.getElementById("dfile").click();}}
         });
     });
 </script>
 <script type="text/javascript">
+function detailAdvice(id, expertName, time, conclusion)
+{
+	showAdvicePanel();
+	
+	var advice = document.getElementById(id).value;
+	var temp = "conclu" + id;
+	var conclusion = document.getElementById(temp).value;
+	document.getElementById("expertName").value=expertName;
+	document.getElementById("time").value=time;
+	document.getElementById("conclusion").value=conclusion;
+	document.getElementById("advice").value=advice;
+	document.getElementById("adviceid").value=id;
+	
+	document.getElementById("sendButton").style.display="none";
+	document.getElementById("newButtonExpert").style.display="none";
+	document.getElementById("editButtonExpert").style.display="none";
+}
 function editAdvice(id, expertName, time, conclusion)
 {
 	showAdvicePanel();
@@ -56,8 +77,8 @@ function editAdvice(id, expertName, time, conclusion)
 	document.getElementById("adviceid").value=id;
 	
 	document.getElementById("sendButton").style.display="none";
-	document.getElementById("newButton").style.display="none";
-	document.getElementById("editButton").style.display="block";
+	document.getElementById("newButtonExpert").style.display="none";
+	document.getElementById("editButtonExpert").style.display="block";
 }
 function addAdvice()
 {
@@ -69,16 +90,16 @@ function addAdvice()
 	document.getElementById("advice").value="";
 	document.getElementById("adviceid").value="";
 	document.getElementById("sendButton").style.display="none";
-	document.getElementById("newButton").style.display="block";
-	document.getElementById("editButton").style.display="none";
-	//document.getElementById("newButton").className="buttonActive";
-	//document.getElementById("editButton").className="buttonDisabled";
+	document.getElementById("newButtonExpert").style.display="block";
+	document.getElementById("editButtonExpert").style.display="none";
+	//document.getElementById("newButtonExpert").className="buttonActive";
+	//document.getElementById("editButtonExpert").className="buttonDisabled";
 }
 function sendEmail()
 {
 	document.getElementById("sendButton").style.display="block";
-	document.getElementById("newButton").style.display="none";
-	document.getElementById("editButton").style.display="none";
+	document.getElementById("newButtonExpert").style.display="none";
+	document.getElementById("editButtonExpert").style.display="none";
 	showEmailPanel();
 }
 function showEmailPanel()
@@ -115,6 +136,8 @@ function createAccount()
 	var password = generateMixed(8);
 	document.getElementById("loginName").value = loginName;
 	document.getElementById("password").value = password;
+	//document.getElementById("loginAccountNumber").value=loginName;
+	//document.getElementById("loginPassword").innerHTML=loginPassword;
 }
 //js生成随机数    n表示生成几位的随机数
 var jschars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
@@ -137,13 +160,14 @@ function generateMixed(n) {
 	}
 </script>
 <div class="pageContent">
-	<form method="post" id="form1" action="<%=path%>/expertAdviceAction.do?method=save" class="pageForm required-validate" onsubmit="return validateCallback(this, navTabAjaxDone);">
+	<form method="post" id="form1" action="<%=path%>/expertAdviceAction.do?method=save" class="pageForm required-validate" onsubmit="return validateCallback(this, navTabAjaxDone);" enctype="multipart/form-data">
 	<input type="hidden" id="reportID" name="reportID" value="<%=request.getAttribute("reportID") %>"/>
 	<input type="hidden" id="adviceid" name="id" value=""/>
 	<input type="hidden" id="operatorFlag" name="operatorFlag" value="sendEmail"/>
 	<div class="pageFormContent" layoutH="56">
 	<div class="pageContent" style="border-left:1px #B8D0D6 solid;border-right:1px #B8D0D6 solid">
 		<div class="panelBar">
+		<logic:notEqual name="RoleIDs" value="2"  scope="session">
 			<ul class="toolBar">
 				<li><a class="add" mask="true" href="<%=path %>/expertAdviceAction.do?method=createExpertJDH" target="dialog" rel="createJDH" width="900" height="600"  title="专家鉴定函"><span>专家鉴定函</span></a></li>
 				<!-- 
@@ -153,6 +177,7 @@ function generateMixed(n) {
 				<li><a class="add" href="javascript:sendEmail();" title="向专家发送邮件"><span>发送邮件</span></a></li>
 				<li><a class="add" href="javascript:addAdvice();" title="新增专家鉴定意见"><span>人工录入</span></a></li>
 			</ul>
+			</logic:notEqual>
 		</div>
 		<table class="table" width="100%" layoutH="400">
 			<thead>
@@ -199,12 +224,16 @@ function generateMixed(n) {
 						</logic:notEqual>
 					</td>
 					<td align="center">
+						<a href="javascript:detailAdvice('${ExpertAdvice.id }', '${ExpertAdvice.expertName }','${ExpertAdvice.time }','${ExpertAdvice.conclusion }');" title="查看专家鉴定意见">查看意见</a>	
 						<a href="#">&nbsp;</a>
 						<logic:equal value="1" name="ExpertAdvice" property="isEmail">
 							<a href="<%=path %>/expertAdviceAction.do?method=showEmail&id=${ExpertAdvice.id}" mask="true" rel="showEmail" target="dialog" width="1000" height="600" title="查看邮件信息">查看邮件</a>
 						</logic:equal>
-						<a href="javascript:editAdvice('${ExpertAdvice.id }', '${ExpertAdvice.expertName }','${ExpertAdvice.time }','${ExpertAdvice.conclusion }');" title="编辑专家鉴定意见">编辑意见</a>
-						<a href="<%=path%>/expertAdviceAction.do?method=delete&id=${ExpertAdvice.id}" target="ajaxTodo" title="确定要删除吗?">删除</a>
+						<!-- <a href="javascript:editAdvice('${ExpertAdvice.id }', '${ExpertAdvice.expertName }','${ExpertAdvice.time }','${ExpertAdvice.conclusion }');" title="编辑专家鉴定意见">编辑意见</a> -->
+						<logic:notEqual name="RoleIDs" value="2"  scope="session">
+												
+							<a href="<%=path%>/expertAdviceAction.do?method=delete&id=${ExpertAdvice.id}" target="ajaxTodo" title="确定要删除吗?">删除</a>
+						</logic:notEqual>
 					</td>
 				</tr>
 				</logic:iterate>
@@ -254,16 +283,19 @@ function generateMixed(n) {
 					</dd>
 				</dl>
 				<dl class="nowrap">
-					<dt>上传附件：</dt>
+					<dt>上传附件：
+					<br/><font color="red">请将多个附件打包压缩后再一起上传，谢谢！</font>
+					</dt>
 					<dd>
 						<input type="file" name="expertUpload" id="expertUpload" />
         					<a href="javascript:uploadExpert('#expertUpload','event')">开始上传</a>&nbsp;
-        					<a href="javascript:jQuery('#expertUpload').uploadifyClearQueue()">取消所有上传</a>
+        					<a id="cfile" href="javascript:jQuery('#expertUpload').uploadifyClearQueue()">取消所有上传</a>
     					<div id="fileQueue"></div>
 					</dd>
 				</dl>
 				</div>
 			</div>
+			
 			<div class="panel" id="emailPanel" style="display:block;">
 				<h1>发送电子邮件</h1>
 				<div style="background:#ffffff;">
@@ -289,14 +321,17 @@ function generateMixed(n) {
 					</dd>
 				</dl>
 				<dl class="nowrap">
-					<dt>上传附件：</dt>
+					<dt>上传附件：
+					<br/><font color="red">请将多个附件打包压缩后再一起上传，谢谢！</font>
+					</dt>
 					<dd>
-						<input type="file" name="emailUpload" id="emailUpload" />
+						<input type="file" name="emailUpload" id="emailUpload"/>
         					<a href="javascript:uploadExpert('#emailUpload','email')">开始上传</a>&nbsp;
-        					<a href="javascript:jQuery('#emailUpload').uploadifyClearQueue()">取消所有上传</a>
+        					<a id="dfile" href="javascript:jQuery('#emailUpload').uploadifyClearQueue()">取消所有上传</a>
     					<div id="fileQueue1"></div>
 					</dd>
 				</dl>
+				
 				<dl class="nowrap">
 					<dt>登陆账号：</dt>
 					<dd>
@@ -315,7 +350,7 @@ function generateMixed(n) {
 						</p>
 						<blockquote style="MARGIN-RIGHT: 0px" dir="ltr">
 							<p>
-								我是XXX，
+								我是国家自然科学基金委科研诚信建设办公室<%=request.getSession().getAttribute("UserName") %>，
 							</p>
 							<p>
 								请您协助鉴定！专家鉴定函和鉴定意见书见附件！
@@ -340,23 +375,26 @@ function generateMixed(n) {
 							敬礼
 						</p>
 						<p dir="ltr" align="right">
-							国家自然科学基金委员会监督委员会
+							科学基金科研诚信管理平台
 						</p>
 						<p dir="ltr" align="right">
-							XXXX年XX月XX日
+							<%=request.getAttribute("year") %>年<%=request.getAttribute("month") %>月<%=request.getAttribute("day") %>日
 						</p>
 						</textarea>
 					</dd>
 				</dl>
 				</div>
 			</div>
+			
 			</div>
 		</div>
 		<div class="formBar">
 			<ul>
+				<logic:notEqual name="RoleIDs" value="2"  scope="session">
 				<li><div id="sendButton" class="buttonActive"  style="display:block;"><div class="buttonContent"><button type="submit">发送邮件</button></div></div></li>
-				<li><div id="newButton" class="buttonActive" style="display:none;"><div class="buttonContent"><button type="submit">新增意见</button></div></div></li>
-				<li><div id="editButton" class="buttonActive" style="display:none;"><div class="buttonContent"><button type="submit">编辑意见</button></div></div></li>
+				</logic:notEqual>
+				<li><div id="newButtonExpert" class="buttonActive" style="display:none;"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
+				<li><div id="editButtonExpert" class="buttonActive" style="display:none;"><div class="buttonContent"><button type="submit">编辑意见</button></div></div></li>
 				<li><div class="button"><div class="buttonContent"><button type="button" class="close">关闭</button></div></div></li>
 			</ul>
 		</div>

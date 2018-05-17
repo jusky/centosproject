@@ -28,7 +28,6 @@ public class UserLoginedFilter implements Filter {
 	
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
 			throws IOException, ServletException {
-		
 		HttpServletRequest req = (HttpServletRequest)request;
 		
 		if (isAllowed(req.getRequestURI().substring(req.getContextPath().length()), (String)req.getSession().getAttribute("LoginName"))) {
@@ -40,6 +39,7 @@ public class UserLoginedFilter implements Filter {
 			PrintWriter out = response.getWriter();
 			JSONObject ret = new JSONObject();
 			ret.put("statusCode", "301");
+			//System.out.print("会话超时，请重新登录。");
 			ret.put("message", "会话超时，请重新登录。");
 			out.print(ret.toString());
 			out.flush();

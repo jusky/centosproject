@@ -109,13 +109,13 @@ public class AESCrypto {
 				cipherByte = c.doFinal(buff);
 			}
 		} catch (java.security.InvalidKeyException ex) {
-			//ex.printStackTrace();
+//			ex.printStackTrace();
 			return SystemConstant.UNDECRPTOR;
 		}catch(javax.crypto.BadPaddingException ex){
-			//ex.printStackTrace();
+//			ex.printStackTrace();
 			return SystemConstant.UNDECRPTOR;
 		}catch(javax.crypto.IllegalBlockSizeException ex){
-			//ex.printStackTrace();
+//			ex.printStackTrace();
 			return SystemConstant.UNDECRPTOR;
 		}
 		return cipherByte;

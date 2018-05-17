@@ -12,7 +12,6 @@
 		var sum = $("#weightSum").html();
 		if(sum != 1 || sum != 1.00) {
 			$("#weightSum").focus();
-			console.log(1);
 			$("#weightSumAlert").show();
 			setTimeout(function(){$("#weightSumAlert").hide()}, 5000);
 		} else {

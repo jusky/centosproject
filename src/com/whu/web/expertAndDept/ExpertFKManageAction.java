@@ -129,7 +129,7 @@ public class ExpertFKManageAction extends DispatchAction {
 		String reportID = request.getParameter("reportID");
 		String adviceID = request.getParameter("adviceID");
 		DBTools dbTools = new DBTools();
-		String sql = "select a.*,b.CONCLUSION,b.ADVICE from TB_JDYJSINFO a,TB_EXPERTADVICE b where a.REPORTID=? and b.ID=? and a.REPORTID=b.REPORTID";
+		String sql = "select a.*,b.CONCLUSION,b.ADVICE,b.ATTACHNAME from TB_JDYJSINFO a,TB_EXPERTADVICE b where a.REPORTID=? and b.ID=? and a.REPORTID=b.REPORTID";
 		JDYJSBean jb = dbTools.queryExpertFK(sql, new String[]{reportID, adviceID});
 		int count = 0;
 		if(jb != null)
@@ -164,8 +164,7 @@ public class ExpertFKManageAction extends DispatchAction {
 				}
 				jb.setJdConclusionList(tempList);
 			}
-		}	
-		
+		}
 		request.setAttribute("jdID", id);
 		request.setAttribute("reportID", reportID);
 		request.setAttribute("adviceID", adviceID);
@@ -173,6 +172,7 @@ public class ExpertFKManageAction extends DispatchAction {
 		ArrayList resultList = new ArrayList();
 		resultList.add(jb);
 		expertFKForm.setRecordList(resultList);
+		
 		
 		// if submit, cannot edit separate in expertAdviceFk.jsp
 		String loginName = (String)request.getSession().getAttribute("LoginName");

@@ -252,7 +252,7 @@ public class DcbgManageAction extends DispatchAction {
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		
-		if(ids == null || ids == "")
+		if(ids == null || ids.equals(""))
 		{
 			result = false;
 		}

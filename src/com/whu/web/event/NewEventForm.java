@@ -22,6 +22,8 @@ public class NewEventForm extends ActionForm {
 	/*
 	 * Generated Methods
 	 */
+	//举报ID
+	private String reportID;
 	//举报人姓名
 	private String reportName;
 	//编号
@@ -44,6 +46,8 @@ public class NewEventForm extends ActionForm {
 	private String reportReason;
 	//举报内容
 	private String reportContent;
+	//BZ
+	private String BZ;
 	public String getGdPhone() {
 		return gdPhone;
 	}
@@ -130,6 +134,21 @@ public class NewEventForm extends ActionForm {
 
 	public void setReportName(String reportName) {
 		this.reportName = reportName;
+	}
+	public String getReportID() {
+		return reportID;
+	}
+
+	public void setReportID(String reportID) {
+		this.reportID = reportID;
+	}
+
+	public String getBZ() {
+		return BZ;
+	}
+
+	public void setBZ(String bZ) {
+		BZ = bZ;
 	}
 
 	/** 

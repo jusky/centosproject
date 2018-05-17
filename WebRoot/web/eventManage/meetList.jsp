@@ -33,7 +33,7 @@
 				<th align="center">会议名称</th>
 				<th align="center" width="150">时间</th>
 				<th align="center" width="200">地点</th>
-				<th align="center" width="100">选择</th>
+				<th align="center" width="100">管理</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -58,7 +58,7 @@
 							</td>
 							<td align="center">
 								<a href="#">&nbsp;</a>
-								<a class="btnSelect" href="javascript:$.bringBack({conference:'${MeetInfo.meetName }'})" title="查找带回">选择</a>
+								<a href="javascript:$.bringBack({conference:'${MeetInfo.meetName }'})" title="查找带回">选择</a>
 							</td>
 						</tr>
 					</logic:iterate>

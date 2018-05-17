@@ -12,6 +12,7 @@ public class EventBean {
 	private String reportName;
 	//编号
 	private String serialNum;
+	private int isDigit;
 	//办公电话
 	private String gdPhone;
 	//邮箱地址
@@ -50,10 +51,21 @@ public class EventBean {
 	private String searchID;
 	//所属学部
 	private String faculty;
-	
 	//查办人员
 	private String officer;
+	//代审人员
+	private String agentOfficer;
+	//撤回
+	private String isRev="0";
+	//查办人员
+	private String recorder;
 	
+	public String getRecorder() {
+		return recorder;
+	}
+	public void setRecorder(String recorder) {
+		this.recorder = recorder;
+	}
 	public String getAccessory() {
 		return accessory;
 	}
@@ -121,6 +133,7 @@ public class EventBean {
 	public void setSerialNum(String serialNum) {
 		this.serialNum = serialNum;
 	}
+	
 	public String getGdPhone() {
 		return gdPhone;
 	}
@@ -199,5 +212,23 @@ public class EventBean {
 	}
 	public void setOfficer( String officer) {
 		this.officer = officer;
+	}
+	public String getAgentOfficer() {
+		return agentOfficer;
+	}
+	public void setAgentOfficer( String officer) {
+		this.agentOfficer = officer;
+	}
+	public int getIsDigit() {
+		return isDigit;
+	}
+	public void setIsDigit(int isDigit) {
+		this.isDigit = isDigit;
+	}
+	public String getIsRev() {
+		return isRev;
+	}
+	public void setIsRev(String isRev) {
+		this.isRev = isRev;
 	}
 }

@@ -68,7 +68,7 @@
 				<th align="center">日志内容</th>
 				<th width="100" align="center">时间</th>
 				<th width="150" align="center" orderField="IPADDR" <%if (request.getParameter("orderField")!=null && request.getParameter("orderField").equals("IPADDR")) { %> class="${param.orderDirection}" <%} %>>IP地址</th>
-				<th width="100" align="center">管理</th>
+				<!-- <th width="100" align="center">管理</th>  -->
 			</tr>
 		</thead>
 		<tbody>
@@ -94,10 +94,12 @@
 		<td align="center" >
 			<bean:write name="LogBean" property="ipAddr"/>
 		</td>
+		<!-- 
 		<td  align="center" >
 		<a href="#">&nbsp;</a>
 			<a href="<%=path%>/logManageAction.do?method=delete&id=${LogBean.id}" target="ajaxTodo" title="确定要删除吗?">删除</a>
 		</td>
+		 -->
 	</tr>
 	</logic:iterate>
 	</logic:notEmpty>

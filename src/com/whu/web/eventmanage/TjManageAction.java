@@ -148,7 +148,7 @@ public class TjManageAction extends DispatchAction {
 		String status = request.getParameter("status");
 		request.getSession().setAttribute("TjStatus", status);
 		String sql = "";
-		sql = "select a.ID,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM from TB_REPORTINFO a, SYS_DATA_DIC b where  a.STATUS=b.CODE and b.CODENAME=? and ISDELETE=? and a.STATUS=? order by REPORTTIME desc";
+		sql = "select a.ID,a.OFFICER,a.REPORTID,b.CAPTION,a.REPORTNAME,a.REPORTTIME,a.BEREPORTNAME,a.REPORTREASON,a.SERIALNUM from TB_REPORTINFO a, SYS_DATA_DIC b where  a.STATUS=b.CODE and b.CODENAME=? and ISDELETE=? and a.STATUS=? order by REPORTTIME desc";
 
 		String[] params = new String[]{SystemConstant.sjzt, "0", status};
 		
@@ -172,7 +172,6 @@ public class TjManageAction extends DispatchAction {
 		{
 			tjManageForm.setRecordNotFind("false");
 			tjManageForm.setRecordList(result);
-			
 			SystemShare.SplitPageFun(request, pageBean, 1);
 		}
 		else

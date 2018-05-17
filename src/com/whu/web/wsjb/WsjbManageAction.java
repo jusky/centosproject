@@ -10,13 +10,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,6 +40,7 @@ import com.whu.tools.crypto.AESCrypto;
 import com.whu.web.common.SystemShare;
 import com.whu.web.event.BeReportBean;
 import com.whu.web.event.EventBean;
+import com.whu.web.eventbean.SjybdBean;
 import com.whu.web.log.LogBean;
 
 /** 
@@ -50,6 +54,7 @@ public class WsjbManageAction extends DispatchAction {
 	/*
 	 * Generated Methods
 	 */
+	private static List<String> orderFields =  Arrays.asList(new String[]{"SERIALNUM","a.STATUS","a.REPORTTIME","a.TIME"});
 
 	/**
 	 * 初始化网上举报信息列表
@@ -61,11 +66,8 @@ public class WsjbManageAction extends DispatchAction {
 		int queryPageNo = 1;// 
 		int rowsPerPage = 20;// 
 		pageBean.setRowsPerPage(rowsPerPage);
-		if (request.getParameter("queryPageNo") != null && request.getParameter("queryPageNo") != "") {
-			queryPageNo = Integer.parseInt(request.getParameter("queryPageNo"));
-		}
 		pageBean.setQueryPageNo(queryPageNo);
-		String sql = "select a.ID,a.REPORTID,a.REPORTNAME,a.BEREPORTNAME,a.BEDEPT,a.JBSY2,a.TIME from TB_REPORTINFO a where a.ISRECV = '0' order by ID desc";
+		String sql = "select a.ID,a.REPORTID,a.REPORTNAME,a.BEREPORTNAME,a.BEDEPT,a.JBSY2,a.TIME,a.REPORTIP from TB_REPORTINFO a where a.ISRECV = '0' order by ID desc";
 		String[] params = new String[0];
 		request.getSession().setAttribute("queryWsjbSql", sql);
 		request.getSession().setAttribute("queryWsjbParams", params);
@@ -78,7 +80,6 @@ public class WsjbManageAction extends DispatchAction {
 		{
 			wsjbManageForm.setRecordNotFind("false");
 			wsjbManageForm.setRecordList(result);
-			
 			SystemShare.SplitPageFun(request, pageBean, 1);
 		}
 		else
@@ -104,6 +105,9 @@ public class WsjbManageAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");	
 		WsjbManageForm wsjbManageForm = (WsjbManageForm) form;
 		String operation = request.getParameter("operation");
+		//排序控制
+		String orderField = request.getParameter("orderField");//排序的字段(数据库字段名称)
+		String orderDirection = request.getParameter("orderDirection");//排序的方向，desc,asc
 
 		CheckPage pageBean = new CheckPage();
 		String sql = "";
@@ -153,7 +157,7 @@ public class WsjbManageAction extends DispatchAction {
 				paramList.add(jbEndTime);
 			}
 			params = paramList.toArray(new String[0]);
-			sql = "select a.ID,a.REPORTID,a.REPORTNAME,a.BEREPORTNAME,a.BEDEPT,a.JBSY2,a.TIME from TB_REPORTINFO a where a.ISRECV = '0' " + temp + "  order by ID desc";
+			sql = "select a.ID,a.REPORTID,a.REPORTNAME,a.BEREPORTNAME,a.BEDEPT,a.JBSY2,a.TIME,a.REPORTIP from TB_REPORTINFO a where a.ISRECV = '0' " + temp + "  order by ID desc";
 			request.getSession().setAttribute("queryWsjbSql", sql);
 			request.getSession().setAttribute("queryWsjbParams", params);
 		}
@@ -161,6 +165,11 @@ public class WsjbManageAction extends DispatchAction {
 		else if(operation.equalsIgnoreCase("changePage")){
 			sql = (String)request.getSession().getAttribute("queryWsjbSql");
 			params = (String[])request.getSession().getAttribute("queryWsjbParams");
+			if(orderField != null && orderFields.contains(orderField) && orderDirection != null && orderDirection.matches("asc|desc"))
+			{
+				sql = sql.substring(0, sql.indexOf("order"));
+				sql += " order by " + orderField + " " + orderDirection;
+			}
 			if (request.getParameter("pageNum") != null && request.getParameter("pageNum") != "") {
 				queryPageNo = Integer.parseInt(request.getParameter("pageNum"));
 			}
@@ -201,7 +210,7 @@ public class WsjbManageAction extends DispatchAction {
 		String ids = request.getParameter("ids");
 		WsjbDBTools dbTool = new WsjbDBTools();
 		boolean result = true;
-		if(ids == null || ids == "")
+		if(ids == null || ids.equals(""))
 		{
 			String id = request.getParameter("id");
 			result = dbTool.deleteItem(id, "TB_REPORTINFO");
@@ -243,7 +252,8 @@ public class WsjbManageAction extends DispatchAction {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 		String id = request.getParameter("id");
-		boolean result = GyMethod(id,  SystemConstant.SS_UNRECVEVENT, request);
+		RESULTSET rs = GyMethod(id,  SystemConstant.SS_UNRECVEVENT, request);
+		boolean result = rs.getFlag();
 
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
@@ -270,13 +280,25 @@ public class WsjbManageAction extends DispatchAction {
 	 * @param request
 	 * @return
 	 */
-	public boolean GyMethod(String id, String status, HttpServletRequest request)
+	public  RESULTSET GyMethod(String id, String status, HttpServletRequest request)
 	{
+		RESULTSET rs = new RESULTSET();
 		String createName = (String)request.getSession().getAttribute("UserName");
 		boolean result = false;
+		String sql = "";
 		WsjbDBTools dbTool = new WsjbDBTools();
 		WsjbInfo wsjbInfo = dbTool.QueryWsjbInfo(id);
-		
+		sql = "select * from TB_BEREPORTPE where REPORTID=?";
+		BeReportBean brb = null;
+		DBTools db = new DBTools(); 
+		ArrayList beReportList = dbTool.queryBeReport(sql,new String[]{wsjbInfo.getReportID()});
+		try {
+			//插入被举报人信息
+			result = db.insertBeReport(beReportList);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		/*
 		DBTools db = new DBTools(); 
 		ArrayList list = new ArrayList();
 		BeReportBean brb = new BeReportBean();
@@ -292,17 +314,19 @@ public class WsjbManageAction extends DispatchAction {
 		} catch (SQLException e) {
 			
 			e.printStackTrace();
-		}
+		}*/
 		String createTime = SystemShare.GetNowTime("yyyy-MM-dd");
 		
 		EventBean eb = new EventBean();
 		eb.setReportID(wsjbInfo.getReportID());
-		String sql = "";
 		//受理的案件自动分配编号，不受理的案件不分配编号
 		if(status.equals(SystemConstant.SS_RECVEVENT))
 		{
-			sql = "select SERIALNUM from TB_REPORTINFO where STATUS<>? order by ID desc limit 1";
+			//sql = "select SERIALNUM from TB_REPORTINFO where STATUS<>? and ISDIGIT=1 order by ID desc limit 1";
+			sql = "select SERIALNUM from TB_REPORTINFO where STATUS<>? and ISDIGIT=1 order by SERIALNUM desc limit 1";
 			eb.setSerialNum(SystemShare.GetSerialNum(sql, new String[]{SystemConstant.SS_UNRECVEVENT}));
+			eb.setIsDigit(1);
+			rs.setSerialNum(eb.getSerialNum());
 		}
 		else
 		{
@@ -351,6 +375,9 @@ public class WsjbManageAction extends DispatchAction {
 		
 		if(result)
 		{
+			LogBean lb = new LogBean();
+			if(status.equals(SystemConstant.SS_RECVEVENT))
+			{
 			String describe = wsjbInfo.getTime() + "," + wsjbInfo.getReportName() + "在监督委员会门户网站在线举报" + wsjbInfo.getBeReportName() + ",举报事由为：" + wsjbInfo.getJbsy2();
 			db.InsertHandleProcess(wsjbInfo.getReportID(), wsjbInfo.getReportName(), SystemConstant.HP_REPORT, SystemConstant.SS_RECVEVENT, SystemConstant.LCT_JB, describe);
 			
@@ -366,16 +393,39 @@ public class WsjbManageAction extends DispatchAction {
 			String[] params = new String[]{wsjbInfo.getSearchID(), SystemConstant.FK_RECVEVENT, createTime};
 			result = dbTool.UpdateItem(sqlStr, params);
 			dbTool.closeConnection();
-
-			LogBean lb = new LogBean();
+			
 			lb.setOperator(createName);
 			lb.setLogType(SystemConstant.LOG_RECV);
 			lb.setIpAddr(request.getRemoteAddr());
 			lb.setDetail("接收网上举报事件，事件编号为：" + wsjbInfo.getReportID());
 			result = db.insertLogInfo(lb);
+			}
+			else
+			{
+				String describe = wsjbInfo.getTime() + "," + wsjbInfo.getReportName() + "在监督委员会门户网站在线举报" + wsjbInfo.getBeReportName() + ",举报事由为：" + wsjbInfo.getJbsy2();
+				db.InsertHandleProcess(wsjbInfo.getReportID(), wsjbInfo.getReportName(), SystemConstant.HP_REPORT, SystemConstant.SS_UNRECVEVENT, SystemConstant.LCT_JB, describe);
+				
+				describe = createTime + "," + createName + "不接受录入在线举报," + wsjbInfo.getReportName() + "举报" + wsjbInfo.getBeReportName();
+				//插入处理过程到数据库中
+				db.InsertHandleProcess(wsjbInfo.getReportID(), createName, SystemConstant.HP_UNRECVEVENT, SystemConstant.SS_UNRECVEVENT, SystemConstant.LCT_UNSLJB, describe);
+				
+				//更新前台数据库中事件的接收状态
+				sql = "update TB_REPORTINFO set ISRECV='1' where ID=?";
+				result = dbTool.UpdateItem(sql, new String[]{id});
+				//更新反馈内容
+				String sqlStr = "insert into TB_FKINFO(SEARCHID, FKCONTENT,FKTIME) values(?, ?, ?)" ;
+				String[] params = new String[]{wsjbInfo.getSearchID(), SystemConstant.FK_UNRECVEVENT, createTime};
+				result = dbTool.UpdateItem(sqlStr, params);
+				dbTool.closeConnection();
+				lb.setOperator(createName);
+				lb.setLogType(SystemConstant.LOG_UNRECV);
+				lb.setIpAddr(request.getRemoteAddr());
+				lb.setDetail("不接收该网上举报事件。");
+				result = db.insertLogInfo(lb);
+			}
 		}
-		
-		return result;
+		rs.setFlag(result);
+		return rs;
 	}
 	/**
 	 * 接收网上举报信息到管理平台
@@ -391,7 +441,10 @@ public class WsjbManageAction extends DispatchAction {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 		String id = request.getParameter("id");
-		boolean result = GyMethod(id,  SystemConstant.SS_RECVEVENT, request);
+		RESULTSET rs = GyMethod(id,  SystemConstant.SS_RECVEVENT, request);
+		boolean result = rs.getFlag();
+		
+		request.getSession().setAttribute("yuebandanID", id);
 
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
@@ -408,8 +461,61 @@ public class WsjbManageAction extends DispatchAction {
 		out.write(json.toString());
 		out.flush();
 		out.close();
-		
 		return null;
+		
+//		if(result)
+//		{
+//			return mapping.findForward("recvsucceed");
+//		}elsel
+//		{
+//			return mapping.findForward("recvfailed");
+//		}
+	}
+	
+	public ActionForward recvNew(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		WsjbManageForm wsjbManageForm = (WsjbManageForm)form;
+		String reportID = request.getParameter("id");
+		WsjbDBTools dbTool = new WsjbDBTools();
+		WsjbInfo wsjbInfo = dbTool.QueryWsjbInfo(reportID);
+		String maxSerialNum = "";
+		
+		
+		//recv case
+		RESULTSET rs = GyMethod(reportID,  SystemConstant.SS_RECVEVENT, request);
+		boolean flag = rs.getFlag();
+		
+		if(flag)
+		{
+			maxSerialNum = rs.getSerialNum();
+		}
+		else
+		{
+			return mapping.findForward("recvfailed");
+		}
+		
+		
+		
+		
+		
+		//create YBD
+		String sql = "select * from TB_SJYBDINFO where REPORTID=?";
+		DBTools dbTools = new DBTools();
+		SjybdBean sb = dbTools.querySJYBD(sql, new String[]{wsjbInfo.getReportID()});
+		ArrayList result = new ArrayList();
+		if(sb==null)//生成阅办单信息还未保存，从TB_REPORTINFO提取相关信息保存到TB_SJYBDINFO
+		{
+			sb = new SjybdBean();
+			sb.setReportID(wsjbInfo.getReportID());
+			sb.setSerialNum(maxSerialNum);
+			sb.setRecvTime(wsjbInfo.getTime());
+			sb.setComeName(wsjbInfo.getReportName());
+		}
+		result.add(sb);
+		wsjbManageForm.setRecordList(result);
+		return mapping.findForward("createybd");
 	}
 	/**
 	 * 查看网上举报详细信息
@@ -424,13 +530,19 @@ public class WsjbManageAction extends DispatchAction {
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
-		
 		WsjbManageForm wsjbManageForm = (WsjbManageForm) form;
-		
 		String id = request.getParameter("id");
 		WsjbDBTools dbTool = new WsjbDBTools();
 		WsjbInfo wsjbInfo = dbTool.QueryWsjbInfo(id);
 		
+		/*****coding test*******/
+		String sql = "select * from TB_BEREPORTPE where REPORTID=?";
+		ArrayList beReportList = dbTool.queryBeReport(sql, new String[]{wsjbInfo.getReportID()});
+		if(beReportList != null && beReportList.size() > 0)
+		{
+			wsjbInfo.setBeReportList(beReportList);
+		}
+		/*****coding test*******/
 		ArrayList list = new ArrayList();
 		list.add(wsjbInfo);
 		wsjbManageForm.setRecordNotFind("false");
@@ -482,5 +594,97 @@ public class WsjbManageAction extends DispatchAction {
 		}
 		return null;
 	}
-
+	
+	/**
+	 * 编辑
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionForward edit(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		WsjbManageForm wsjbManageForm = (WsjbManageForm) form;
+		String id = wsjbManageForm.getId();
+		String wsjbreportReason = wsjbManageForm.getWsjbreportReason();
+		WsjbDBTools dbTool = new WsjbDBTools();
+		boolean result = true;
+		String sql = "update TB_REPORTINFO set JBSY2=? where ID=?";
+		result = dbTool.UpdateItem(sql, new String[]{wsjbreportReason,id});
+		PrintWriter out = response.getWriter();
+		JSONObject json = new JSONObject();
+		if(result)
+		{
+			json.put("statusCode", 200);
+			json.put("message", "编辑成功！");
+			json.put("navTabId", "wsjb");
+		}
+		else
+		{
+			json.put("statusCode", 300);
+			json.put("message", "编辑失败！");
+		}
+		out.write(json.toString());
+		out.flush();
+		out.close();
+		
+		return null;
+	}
+	
+	/**
+	 * 打印事件详情
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	public ActionForward print(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+		response.setContentType("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		String id = request.getParameter("id");
+		
+		WsjbDBTools dbTool = new WsjbDBTools();
+		WsjbInfo wsjbInfo = dbTool.QueryWsjbInfo(id);
+		
+		String sql = "select * from TB_BEREPORTPE where REPORTID=?";
+		ArrayList beReportList = dbTool.queryBeReport(sql, new String[]{wsjbInfo.getReportID()});
+		if(beReportList != null && beReportList.size() > 0)
+		{
+			wsjbInfo.setBeReportList(beReportList);
+		}
+		
+		String templatePath = "web/template/sjxq" + String.valueOf(beReportList.size()) + ".doc";
+		
+		request.setAttribute("WsjbInfo", wsjbInfo);
+		request.setAttribute("ReportID", id);
+		request.setAttribute("ServerPath", SystemConstant.GetServerPath());
+		request.setAttribute("templatePath", templatePath);
+		
+		
+		return mapping.findForward("printEvent_recv");
+	}
+	
+	private class RESULTSET{
+		private boolean flag = false;
+		private String serialNum = "";
+		public boolean getFlag() {
+			return flag;
+		}
+		public void setFlag(boolean flag) {
+			this.flag = flag;
+		}
+		public String getSerialNum() {
+			return serialNum;
+		}
+		public void setSerialNum(String serialNum) {
+			this.serialNum = serialNum;
+		}
+	}
 }

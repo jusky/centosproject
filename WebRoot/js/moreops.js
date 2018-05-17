@@ -19,7 +19,7 @@
 document.body.onclick = function(e){
      e = e || window.event;
       var target = e.target || e.srcElement;
-     if(target.id == "ladcjd_box" || target.id == "cljd_box"  || target.id == "sljd_box"  || target.id == "meet_box" || target.id == "mail_box"|| target.id == "all_box") {
+     if(target.id == "ladcjd_box" || target.id == "cljd_box"  || target.id == "sljd_box"  || target.id == "meet_box" || target.id == "mail_box"|| target.id == "all_box"|| target.id == "sjsh_box") {
          return;
      } else {
     	 var obj = document.getElementById("ladcjd_box");
@@ -48,6 +48,11 @@ document.body.onclick = function(e){
     		 obj.style.display = "none";
     	 }
     	 obj = document.getElementById("all_box");
+    	 if(obj != null)
+    	 {
+    		 obj.style.display = "none";
+    	 }
+    	 obj = document.getElementById("sjsh_box");
     	 if(obj != null)
     	 {
     		 obj.style.display = "none";

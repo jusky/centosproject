@@ -144,7 +144,7 @@
 		<filter-class>com.whu.tools.filter.UserLoginedFilter</filter-class>
 		<init-param>
 			<param-name>allow</param-name>
-			<param-value>/|/(login|login_dialog)\.jsp|/error.html|/servlet/LoginServlet|/(Charts|dwz|images|js|scripts|styles)/.*</param-value>
+			<param-value>/|/(login|login_dialog)\.jsp|/web/image.jsp|/error.html|/servlet/LoginServlet|/(Charts|dwz|images|js|scripts|styles)/.*|/attachment/(dept|expert)/.*|/attachment/.*|</param-value>
 		</init-param>
 		<init-param>
 			<param-name>protect</param-name>
@@ -198,21 +198,22 @@
     <filter>
     	<filter-name>PromptDownload</filter-name>
     	<filter-class>com.whu.tools.filter.PromptDownloadFilter</filter-class>
+    	
     </filter>
     
     
 	<filter-mapping>
    	<filter-name>SetCharacterEncoding</filter-name>
       <url-pattern>/*</url-pattern>
-   </filter-mapping>
+   </filter-mapping> <!-- 
    <filter-mapping>
   		<filter-name>SecurityWrapper</filter-name>
   		<url-pattern>/*</url-pattern>
   	</filter-mapping> 
    <filter-mapping>
    	<filter-name>ClickjackFilterSameOrigin</filter-name>
-   	<url-pattern>/*</url-pattern>
-   </filter-mapping>
+   	<url-pattern>/*</url-pattern> 
+   </filter-mapping>   -->
    <filter-mapping>
    	<filter-name>Dept And Expert</filter-name>
    	<url-pattern>/*</url-pattern>   	

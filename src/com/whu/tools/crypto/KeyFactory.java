@@ -11,6 +11,8 @@ import java.util.Hashtable;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
+import org.apache.tomcat.jni.OS;
+
 import com.whu.tools.SystemConstant;
 
 public class KeyFactory {
@@ -62,7 +64,7 @@ public class KeyFactory {
 	}
 	
 	public boolean outputObject(String path) {
-        FileOutputStream os;
+		FileOutputStream os;
         try {
         	KeyGenerator keygen1 = KeyGenerator.getInstance("AES");
         	SecretKey aeskey1;
@@ -81,6 +83,7 @@ public class KeyFactory {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }finally{
         }
         return true;
     }

@@ -121,10 +121,19 @@ public class FacultyAdviceAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		
 		String reportId = request.getParameter("reportId");
-		
+		String officer=(String)request.getSession().getAttribute("OFFICER");
 		DBTools dbTools = new DBTools();
 		String facultys = dbTools.querySingleData("TB_REPORTINFO", "FACULTY", "REPORTID", reportId);
 		String[] facultyArray = facultys.split(",");
+		String facultysIDs="";
+		String temp;
+		for(int i=0;i<facultyArray.length;i++)
+		{
+			temp=dbTools.querySingleData("SYS_ZZINFO", "ZZID", "ZZNAME", facultyArray[i]);
+			facultysIDs+=temp+",";
+		}
+		String facultysID=facultysIDs.substring(0, facultysIDs.length()-1);
+		String[] facultyIDArray = facultysID.split(",");
 		boolean result = false;
 		
 		String surveyReport = dbTools.querySingleData("TB_SURVEYREPORT", "FILENAME", "REPORTID", reportId);
@@ -138,7 +147,7 @@ public class FacultyAdviceAction extends DispatchAction {
 		String isNotify = "1";
 		
 		if(!surveyReport.equals("") && isHandled.equals("")) {
-			result = dbTools.insertFacultyAdvice(reportId, facultyArray);
+			result = dbTools.insertFacultyAdvice(reportId, facultyIDArray);
 		}
 		String createName = (String)request.getSession().getAttribute("UserName");
 		String facultyUsers = dbTools.queryUserByZZName(facultys);
@@ -146,7 +155,7 @@ public class FacultyAdviceAction extends DispatchAction {
 		{
 			try {
 				// 工作提醒
-				result = dbTools.saveMsgNotify(createName, facultyUsers.split(","), reportId, sendTime, msgType, isHandle, isNotify);
+				result = dbTools.saveMsgNotify(createName, facultyUsers.split(","), reportId, sendTime, msgType, isHandle, isNotify,officer);
 				//写入日志文件
 				dbTools.insertLogInfo(createName, SystemConstant.LOG_HANDLEUPFACULTY, "提交学部,事件编号为：" + reportId, request.getRemoteAddr());
 			
@@ -156,8 +165,6 @@ public class FacultyAdviceAction extends DispatchAction {
 				e.printStackTrace();
 			}
 		}
-		
-
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if (result) {

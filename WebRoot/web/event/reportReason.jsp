@@ -61,11 +61,19 @@
 	function selectOK()
 	{
 		var nodes = zTree.getCheckedNodes(true);
+		var tempparent;
 		for (var i = 0; i < nodes.length; i++) {
 			if(nodes[i].parentTId != null)
 			{
 				selectIds += nodes[i].id + ",";
-				selectNames += nodes[i].name + ",";
+				selectNames += nodes[i].name +"("+tempparent+"),";
+			}
+			else {
+				tempparent=nodes[i].name;
+				if(i==nodes.length-1)
+					selectNames += nodes[i].name+",";
+				else if(nodes[i+1].parentTId == null)
+				selectNames += nodes[i].name+",";
 			}
 		}
 		if(selectNames != "")

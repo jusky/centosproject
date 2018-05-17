@@ -12,6 +12,31 @@ public class CheckBean {
 	private String checkName;
 	//核实时间
 	private String checkTime;
+	//拟办意见
+	private String nibanAdvice;
+	//拟办人
+	private String nibanName;
+	//拟办时间
+	private String nibanTime;
+	
+	public String getNibanAdvice() {
+		return nibanAdvice;
+	}
+	public void setNibanAdvice(String nibanAdvice) {
+		this.nibanAdvice = nibanAdvice;
+	}
+	public String getNibanName() {
+		return nibanName;
+	}
+	public void setNibanName(String nibanName) {
+		this.nibanName = nibanName;
+	}
+	public String getNibanTime() {
+		return nibanTime;
+	}
+	public void setNibanTime(String nibanTime) {
+		this.nibanTime = nibanTime;
+	}
 	public String getCheckTime() {
 		return checkTime;
 	}

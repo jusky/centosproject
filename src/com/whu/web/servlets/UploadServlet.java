@@ -23,6 +23,8 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
 
 import com.whu.tools.DBTools;
+import com.whu.tools.VerifyFileType;
+import com.whu.tools.Util;
 import com.whu.tools.SystemConstant;
 import com.whu.web.common.DocConverter;
 import com.whu.web.common.SystemShare;
@@ -56,9 +58,10 @@ public class UploadServlet extends HttpServlet {
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		String flag = "1";
+		VerifyFileType vf = new VerifyFileType();
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
-		
 		String type = request.getParameter("type");
 		String loginName = (String)request.getSession().getAttribute("LoginName");
 		
@@ -115,7 +118,7 @@ public class UploadServlet extends HttpServlet {
         while(it.hasNext()){
             FileItem item =  (FileItem) it.next();     
             if(!item.isFormField()){  
-            	imageName = item.getName();
+            	imageName = item.getName();//文件名
             	  //获取上传文件的扩展名  
                 String extName=imageName.substring(imageName.lastIndexOf(".")+1);
             	if(type.equals("adviceFK"))
@@ -126,8 +129,12 @@ public class UploadServlet extends HttpServlet {
                 BufferedInputStream in = new BufferedInputStream(item.getInputStream());     
                 BufferedOutputStream out = new BufferedOutputStream(        
                         new FileOutputStream(new File(tempDirPath+"/"+imageName)));  
-                Streams.copy(in, out, true);
-                
+                Streams.copy(in, out, true);System.out.println(dirPath+imageName);
+                //flag = vf.check(dirPath+imageName);
+//                if(flag.equals("0")){
+//                	Util util = new Util();
+//                	util.deleteFile(dirPath+imageName);
+//                }
                 try
                 {
 		                String lastFileName= dirPath + imageName;
@@ -193,7 +200,8 @@ public class UploadServlet extends HttpServlet {
 		                */
                 }
                 catch (Exception e) {
-					e.printStackTrace();
+                	flag = "0";
+						e.printStackTrace();
 				}
             }  
         }  
@@ -204,7 +212,7 @@ public class UploadServlet extends HttpServlet {
         } catch (IOException e) {  
             e.printStackTrace();  
         }  
-        out.write("1");  
+        out.write(flag);
         out.close();  
 	}
 	

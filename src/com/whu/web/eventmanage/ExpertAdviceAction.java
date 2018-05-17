@@ -10,10 +10,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +29,8 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.upload.FormFile;
 
+import com.whu.tools.CheckPage;
+import com.whu.tools.Util;
 import com.whu.tools.DBTools;
 import com.whu.tools.EmailTools;
 import com.whu.tools.SystemConstant;
@@ -48,7 +53,7 @@ public class ExpertAdviceAction extends DispatchAction {
 	 * Generated Methods
 	 */
 	public ActionForward save(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
+			HttpServletRequest request, HttpServletResponse response) throws IOException, ParseException {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 		ExpertAdviceForm expertAdviceForm = (ExpertAdviceForm)form;
@@ -62,11 +67,11 @@ public class ExpertAdviceAction extends DispatchAction {
 		if(operatorFlag.equals("sendEmail"))//发送邮件
 		{
 			String expertID = request.getParameter("org9.expertID");
-			String expertName = request.getParameter("org9.expertName");
-			String email = request.getParameter("org9.email");
+			String expertName = request.getParameter("org9.expertName");//专家姓名
+			String email = request.getParameter("org9.email");//专家邮箱
 			String content = request.getParameter("content");
 
-			String accessoryPath = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";
+			String accessoryPath = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";//附件
 			String title = expertAdviceForm.getTitle();
 			//String serialNum = expertAdviceForm.getSerialNum();
 			String accountName = expertAdviceForm.getLoginName();
@@ -75,8 +80,8 @@ public class ExpertAdviceAction extends DispatchAction {
 			DBTools dbTools = new DBTools();
 			String tempsql="select * from SYS_ED_USER where LOGINNAME=?";
 			String[] tempparams = new String[]{loginName};
-			String sql = "select * from TB_MAILCONFIG where LOGINNAME=? and ISDEFAULT=?";
-			String[] params = new String[]{loginName, "1"};
+			String sql = "select * from TB_MAILCONFIG where ISDEFAULT=?";
+			String[] params = new String[]{"1"};
 			EmailBean emailBean = dbTools.queryEmailConfig(sql, params);
 			
 			//所有发送的附件名，以“：”分割
@@ -110,15 +115,26 @@ public class ExpertAdviceAction extends DispatchAction {
 				else//邮件发送成功后，需要将附件转存到举报文件夹下，用于专家反馈页面查看所有的附件
 				{
 					String filePath = request.getSession().getServletContext().getRealPath("/")+"/attachment/expert/";
+					//path1=/home/apache-tomcat-8.0.9/webapps/KXJJBDXW/temp/chenls/
 					String path1 = request.getSession().getServletContext().getRealPath("/") + "/temp/" + loginName + "/";
-					String path2 = filePath + reportID;
+					String path2 = filePath + reportID;//path2 =/home/apache-tomcat-8.0.9/webapps/KXJJBDXW/attachment/expert/20151024151657
 					attachNames = SystemShare.SaveEmailAttach(path1, path2);
 				}
 			}
 			if(!expertName.equals(""))
 			{
 					
-		    		String time = SystemShare.GetNowTime("yyyy-MM-dd");
+		    		String time = SystemShare.GetNowTime("yyyy-MM-dd HH:mm:ss");
+		    		SimpleDateFormat forma = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		    		String year=time.substring(0, 4);
+		    		String month=time.substring(5, 7);
+		    		String day=time.substring(8, 10);
+		    		GregorianCalendar worldTime =new GregorianCalendar(Integer.parseInt(year),Integer.parseInt(month)-1,Integer.parseInt(day));
+		    		worldTime.add(GregorianCalendar.DATE,20);
+		    		Date d=worldTime.getTime();
+		    		String valTime_string=forma.format(d);
+		    		Date date = forma.parse(valTime_string);
+		    		String endTime = forma.format(date);
 		    		//插入到专家鉴定表中
 					sql = "insert into TB_EXPERTADVICE(REPORTID,EXPERTNAME,TIME,ISFK,ISEMAIL) values(?, ?, ?, ?, ?)";
 					params = new String[]{reportID, expertName, time, "0", "1"};
@@ -128,8 +144,9 @@ public class ExpertAdviceAction extends DispatchAction {
 					if(result)
 					{
 						String expertAdviceID = dbTools.queryLastInsertID("TB_EXPERTADVICE");
-						sql = "insert into TB_EXPERTEMAIL(EXPERTADVICEID,EXPERTNAME,EMAILADDRESS,TITLE,ATTACHMENT,EMAILCONTENT,LOGINNAME,PASSWORD) values('" + expertAdviceID + "','" + expertName + "','" + email + "','" + title + "','" + attachNames + "','" + content + "','" + accountName + "','" + password + "')";
-						params = new String[]{expertAdviceID, expertName, email, title, attachNames, content, accountName, password};
+					//	sql = "insert into TB_EXPERTEMAIL(EXPERTADVICEID,EXPERTNAME,EMAILADDRESS,TITLE,ATTACHMENT,EMAILCONTENT,LOGINNAME,PASSWORD) values('" + expertAdviceID + "','" + expertName + "','" + email + "','" + title + "','" + attachNames + "','" + content + "','" + accountName + "','" + password + "')";
+						sql = "insert into TB_EXPERTEMAIL(EXPERTADVICEID,EXPERTNAME,EMAILADDRESS,TITLE,ATTACHMENT,EMAILCONTENT,LOGINNAME,PASSWORD,REPORTID,SENDEMAILTIME) values(?, ?,?, ?, ?, ?, ?, ?, ?,?)";
+						params = new String[]{expertAdviceID, expertName, email, title, attachNames, content, accountName, password,reportID,time};
 						result = dbTools.insertItem(sql, params);
 						if(accountName != null && !accountName.equals(""))
 						{
@@ -138,19 +155,19 @@ public class ExpertAdviceAction extends DispatchAction {
 							boolean flag=dbTools.queryISEXIST(tempsql, tempparams);
 							if(flag)
 							{
-								sql="insert into SYS_ED_USER(LOGINNAME, PASSWORD, EXPERTID, ROLEIDS, ISUSE) values(?, ?, ?, ?, ?)";
-								params = new String[]{accountName, password, expertID, "4", "1"};
+								sql="insert into SYS_ED_USER(LOGINNAME, PASSWORD, EXPERTID, ROLEIDS, ISUSE,CREATETIME,ENDTIME) values(?, ?, ?, ?, ?,?,?)";
+								params = new String[]{accountName, password, expertID, "4", "0",time,endTime};
 							}
 							else
 							{
-								sql="update SYS_ED_USER set PASSWORD=? where LOGINNAME=?";
-								params = new String[]{password, loginName};
+								sql="update SYS_ED_USER set PASSWORD=?,ISUSE='0',LOGINTIME='',CREATETIME=?,ENDTIME=? where LOGINNAME=?";
+								params = new String[]{password,time,endTime, accountName};
 							}
 							
 							result = dbTools.insertItem(sql, params);
 							//向专家反馈记录表中 插入一条记录
 							sql = "insert into TB_ED_ADVICE(REPORTID,LOGINNAME,EVENTTITLE,FKTIME,ISSUBMIT,ATTACHMENT,ADVICEID) values(?, ?, ?, ?, ?, ?, ?)";
-							params = new String[]{reportID, loginName, title, "", "0", attachNames, expertAdviceID};
+							params = new String[]{reportID, accountName, title, "", "0", attachNames, expertAdviceID};
 							result = dbTools.insertItem(sql, params);
 						}
 						//写入日志文件
@@ -254,7 +271,7 @@ public class ExpertAdviceAction extends DispatchAction {
 		String ids = request.getParameter("ids");
 		DBTools dbTool = new DBTools();
 		boolean result = true;
-		if(ids == null || ids == "")
+		if(ids == null || ids.equals(""))
 		{
 			String id = request.getParameter("id");
 			result = dbTool.deleteItemReal(id, "TB_EXPERTADVICE", "ID");
@@ -354,9 +371,9 @@ public class ExpertAdviceAction extends DispatchAction {
 		String reportID = (String)request.getSession().getAttribute("expertReportID");
 		String sql = "select * from TB_EXPERTJDH where REPORTID=?";
 		DBTools dbTools = new DBTools();
-		ExpertJDH ejdh = dbTools.queryExpertJDH(sql, new String[]{reportID});
-		ArrayList result = new ArrayList();
-		if(ejdh==null)
+		ExpertJDH ejdh = null;
+		ArrayList result = dbTools.queryExpertJDHList(sql, new String[]{reportID});
+		if(result.size()==0)
 		{
 			ejdh = new ExpertJDH();
 			ejdh.setId("");
@@ -366,8 +383,9 @@ public class ExpertAdviceAction extends DispatchAction {
 			ejdh.setFkTime("");
 			ejdh.setTarget("");
 			ejdh.setJdContent("");
+			result.add(ejdh);
 		}
-		result.add(ejdh);
+		request.setAttribute("JDHlist", result);
 		expertAdviceForm.setRecordList(result);
 		return mapping.findForward("createJDH");
 	}
@@ -385,6 +403,7 @@ public class ExpertAdviceAction extends DispatchAction {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
 		ExpertAdviceForm expertAdviceForm = (ExpertAdviceForm)form;
+		String jdhid = request.getParameter("jdhID");
 		String reportID = expertAdviceForm.getReportID();
 		String title = expertAdviceForm.getTitle();
 		String shortInfo = expertAdviceForm.getShortInfo();
@@ -392,10 +411,10 @@ public class ExpertAdviceAction extends DispatchAction {
 		String target = expertAdviceForm.getTarget();
 		String jdContent = expertAdviceForm.getJdContent();
 		DBTools dbTools = new DBTools();
-		String tempsql="select * from TB_EXPERTJDH where REPORTID=?";
+		String tempsql="select * from TB_EXPERTJDH where REPORTID=? and ID=?";
 		String sql="";
 		String[] params = null;
-		ExpertJDH ejdh = dbTools.queryExpertJDH(tempsql, new String[]{reportID});
+		ExpertJDH ejdh = dbTools.queryExpertJDH(tempsql, new String[]{reportID,jdhid});
 		if(ejdh==null)
 		{
 			sql = "insert into TB_EXPERTJDH(REPORTID,TITLE,SHORTINFO,FKTIME,TARGET,JDCONTENT) values(?, ?, ?, ?, ?, ?)";
@@ -403,8 +422,8 @@ public class ExpertAdviceAction extends DispatchAction {
 		}
 		else
 		{
-			sql = "update TB_EXPERTJDH set TITLE=?, SHORTINFO=?, FKTIME=?, TARGET=?, JDCONTENT=? where REPORTID=?";
-			params = new String[]{title, shortInfo, fkTime, target, jdContent, reportID};
+			sql = "update TB_EXPERTJDH set TITLE=?, SHORTINFO=?, FKTIME=?, TARGET=?, JDCONTENT=? where REPORTID=? and ID=?";
+			params = new String[]{title, shortInfo, fkTime, target, jdContent, reportID,jdhid};
 		}
 		//String sql = "if not exists(select ID from TB_EXPERTJDH where REPORTID='" + reportID + "') insert into TB_EXPERTJDH(REPORTID,TITLE,SHORTINFO,FKTIME,TARGET,JDCONTENT) values('" + reportID + "','" + title + "','" + shortInfo + "','" + fkTime + "','" + target + "','" + jdContent + "') else update TB_EXPERTJDH set TITLE='" + title + "', SHORTINFO='" + shortInfo + "',FKTIME='" + fkTime + "',TARGET='" + target + "',JDCONTENT='" + jdContent + "' where REPORTID='" + reportID + "'";
 		boolean result = dbTools.insertItem(sql, params);
@@ -455,7 +474,8 @@ public class ExpertAdviceAction extends DispatchAction {
 			String tempFilePath = filePath + jdhPath;
 			if((new File(tempFilePath)).exists())//如果存在，则得到路径
 			{
-				templatePath = SystemConstant.GetServerPath() + "/attachment/" +  jdhPath;
+				//templatePath = SystemConstant.GetServerPath() + "/attachment/" +  jdhPath;
+				templatePath = "attachment/" +  jdhPath;
 				request.setAttribute("IsEdit", "1");
 			}
 			else//不存在，则继续使用模板，例如：人工删除或系统出错
@@ -471,7 +491,8 @@ public class ExpertAdviceAction extends DispatchAction {
 		if(!isEdit)
 		{
 			request.setAttribute("IsEdit", "0");
-			templatePath = SystemConstant.GetServerPath() + "/web/template/zjjdh.doc";
+			//templatePath = SystemConstant.GetServerPath() + "/web/template/zjjdh.doc";
+			templatePath = "web/template/zjjdh.doc";
 			String sql = "select * from TB_EXPERTJDH where REPORTID=?";
 			ejdh = dbTools.queryExpertJDH(sql, new String[]{id});
 			
@@ -532,7 +553,8 @@ public class ExpertAdviceAction extends DispatchAction {
 			String tempFilePath = filePath + jdyjsPath;
 			if((new File(tempFilePath)).exists())//如果存在，则得到路径
 			{
-				templatePath = SystemConstant.GetServerPath() + "/attachment/" +  jdyjsPath;
+				//templatePath = SystemConstant.GetServerPath() + "/attachment/" +  jdyjsPath;
+				templatePath = "attachment/" +  jdyjsPath;
 				request.setAttribute("IsEdit", "1");
 			}
 			else//不存在，则继续使用模板，例如：人工删除或系统出错
@@ -544,11 +566,12 @@ public class ExpertAdviceAction extends DispatchAction {
 		else//如果是新增，则调出模板发送到客户端
 		{
 			isEdit = false;
-		}
+		}System.out.println("jdyjs:" + isEdit);
 		if(!isEdit)
 		{
 			request.setAttribute("IsEdit", "0");
-			templatePath = SystemConstant.GetServerPath() + "/web/template/jdyjs.doc";
+			//templatePath = SystemConstant.GetServerPath() + "/web/template/jdyjs.doc";
+			templatePath = "web/template/jdyjs.doc";
 			String sql = "select * from TB_JDYJSINFO where REPORTID=?";
 			JDYJSBean jb = dbTools.queryJDYJS(sql, new String[]{id});
 			if(jb == null)
@@ -556,7 +579,7 @@ public class ExpertAdviceAction extends DispatchAction {
 				jb = new JDYJSBean();
 				jb.setEventReason("");
 				jb.setIdentifyContent("");
-				jb.setWtDept("国家自然科学基金委员会监督委员会");
+				jb.setWtDept("科学基金科研诚信管理平台");
 				jb.setJdConclusion("");
 			}
 			request.setAttribute("JDYJSBean", jb);
@@ -613,19 +636,20 @@ public class ExpertAdviceAction extends DispatchAction {
 		String reportID = (String)request.getSession().getAttribute("expertReportID");
 		String sql = "select * from TB_JDYJSINFO where REPORTID=?";
 		DBTools dbTools = new DBTools();
-		JDYJSBean jb = dbTools.queryJDYJS(sql, new String[]{reportID});
-		ArrayList result = new ArrayList();
-		if(jb==null)
+		JDYJSBean jb = null;
+		ArrayList result = dbTools.queryJDYJSList(sql, new String[]{reportID});
+		if(result.size()==0)
 		{
 			jb = new JDYJSBean();
 			jb.setId("");
 			jb.setReportID(reportID);
 			jb.setEventReason("");
 			jb.setIdentifyContent("");
-			jb.setWtDept("国家自然科学基金委员会监督委员会");
+			jb.setWtDept("科学基金科研诚信管理平台");
 			jb.setJdConclusion("");
+			result.add(jb);
 		}
-		result.add(jb);
+		request.setAttribute("JDYJSlist", result);
 		expertAdviceForm.setRecordList(result);
 		return mapping.findForward("createJDYJS");
 	}
@@ -644,6 +668,7 @@ public class ExpertAdviceAction extends DispatchAction {
 		request.setCharacterEncoding("utf-8");
 		ExpertAdviceForm expertAdviceForm = (ExpertAdviceForm)form;
 		//String reportID = (String)request.getSession().getAttribute("expertReportID");
+		String jdyjsid = request.getParameter("yjsID");
 		String reportID = expertAdviceForm.getReportID();
 		String eventReason = expertAdviceForm.getEventReason();
 		String identifyContent = expertAdviceForm.getIdentifyContent();
@@ -651,8 +676,8 @@ public class ExpertAdviceAction extends DispatchAction {
 		String jdConclusion = expertAdviceForm.getJdConclusion();
 		DBTools dbTools = new DBTools();
 		//String sql = "if not exists(select ID from TB_JDYJSINFO where REPORTID='" + reportID + "') insert into TB_JDYJSINFO(REPORTID,EVENTREASON,IDENTIFYCONTENT,WTDEPT,JDCONCLUSION) values('" + reportID + "','" + eventReason + "','" + identifyContent + "','" + wtDept + "','" + jdConclusion + "') else update TB_JDYJSINFO set EVENTREASON='" + eventReason + "', IDENTIFYCONTENT='" + identifyContent + "',WTDEPT='" + wtDept + "',JDCONCLUSION='" + jdConclusion + "' where REPORTID='" + reportID + "'";
-		String tempsql="select * from TB_JDYJSINFO where REPORTID=?";
-		String[] tempparams = new String[]{reportID};
+		String tempsql="select * from TB_JDYJSINFO where REPORTID=? and ID=?";
+		String[] tempparams = new String[]{reportID,jdyjsid};
 		String sql="";
 		String[] params = new String[0];
 		JDYJSBean jb = dbTools.queryJDYJS(tempsql, tempparams);
@@ -663,8 +688,8 @@ public class ExpertAdviceAction extends DispatchAction {
 		}
 		else
 		{
-			sql = "update TB_JDYJSINFO set EVENTREASON=?, IDENTIFYCONTENT=?, WTDEPT=?, JDCONCLUSION=? where REPORTID=?";
-			params = new String[]{eventReason, identifyContent, wtDept, jdConclusion};
+			sql = "update TB_JDYJSINFO set EVENTREASON=?, IDENTIFYCONTENT=?, WTDEPT=?, JDCONCLUSION=? where REPORTID=? and ID=?";
+			params = new String[]{eventReason, identifyContent, wtDept, jdConclusion,reportID,jdyjsid};
 		}
 		boolean result = dbTools.insertItem(sql, params);
 		PrintWriter out = response.getWriter();
@@ -686,4 +711,5 @@ public class ExpertAdviceAction extends DispatchAction {
 		out.close();
 		return null;
 	}
+	
 }

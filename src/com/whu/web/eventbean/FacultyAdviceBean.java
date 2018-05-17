@@ -14,7 +14,7 @@ public class FacultyAdviceBean {
 	private String filePath;
 	private String facultyId;
 	private String facultyName;
-	
+
 	public String getId() {
 		return id;
 	}

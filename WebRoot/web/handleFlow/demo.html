@@ -664,7 +664,7 @@ body {
 				nodes : jNodes,
 				lines : jLines
 			};
-			return JSON.encode(json);
+			return JSON.stringify(json);
 		};
 		this.jsonTo = function(json) {
 			this.id = json.id;
@@ -2039,6 +2039,7 @@ body {
 			this.property = json.property;
 		}
 	}
+	/*
 	JSON = new function() {
 		this.decode = function() {
 			var filter, result, self, tmp;
@@ -2215,6 +2216,358 @@ body {
 			rc = /^(true|false|null|\[.*\]|\{.*\}|".*"|\d+|\d+\.\d+)$/
 		}
 	};
+	*/
+	if (typeof JSON !== 'object') {
+    JSON = {};
+}
+
+(function () {
+    'use strict';
+    
+    var rx_one = /^[\],:{}\s]*$/,
+        rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,
+        rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
+        rx_four = /(?:^|:|,)(?:\s*\[)+/g,
+        rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+        rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+
+    function f(n) {
+        // Format integers to have at least two digits.
+        return n < 10 
+            ? '0' + n 
+            : n;
+    }
+    
+    function this_value() {
+        return this.valueOf();
+    }
+
+    if (typeof Date.prototype.toJSON !== 'function') {
+
+        Date.prototype.toJSON = function () {
+
+            return isFinite(this.valueOf())
+                ? this.getUTCFullYear() + '-' +
+                        f(this.getUTCMonth() + 1) + '-' +
+                        f(this.getUTCDate()) + 'T' +
+                        f(this.getUTCHours()) + ':' +
+                        f(this.getUTCMinutes()) + ':' +
+                        f(this.getUTCSeconds()) + 'Z'
+                : null;
+        };
+
+        Boolean.prototype.toJSON = this_value;
+        Number.prototype.toJSON = this_value;
+        String.prototype.toJSON = this_value;
+    }
+
+    var gap,
+        indent,
+        meta,
+        rep;
+
+
+    function quote(string) {
+
+// If the string contains no control characters, no quote characters, and no
+// backslash characters, then we can safely slap some quotes around it.
+// Otherwise we must also replace the offending characters with safe escape
+// sequences.
+
+        rx_escapable.lastIndex = 0;
+        return rx_escapable.test(string) 
+            ? '"' + string.replace(rx_escapable, function (a) {
+                var c = meta[a];
+                return typeof c === 'string'
+                    ? c
+                    : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+            }) + '"' 
+            : '"' + string + '"';
+    }
+
+
+    function str(key, holder) {
+
+// Produce a string from holder[key].
+
+        var i,          // The loop counter.
+            k,          // The member key.
+            v,          // The member value.
+            length,
+            mind = gap,
+            partial,
+            value = holder[key];
+
+// If the value has a toJSON method, call it to obtain a replacement value.
+
+        if (value && typeof value === 'object' &&
+                typeof value.toJSON === 'function') {
+            value = value.toJSON(key);
+        }
+
+// If we were called with a replacer function, then call the replacer to
+// obtain a replacement value.
+
+        if (typeof rep === 'function') {
+            value = rep.call(holder, key, value);
+        }
+
+// What happens next depends on the value's type.
+
+        switch (typeof value) {
+        case 'string':
+            return quote(value);
+
+        case 'number':
+
+// JSON numbers must be finite. Encode non-finite numbers as null.
+
+            return isFinite(value) 
+                ? String(value) 
+                : 'null';
+
+        case 'boolean':
+        case 'null':
+
+// If the value is a boolean or null, convert it to a string. Note:
+// typeof null does not produce 'null'. The case is included here in
+// the remote chance that this gets fixed someday.
+
+            return String(value);
+
+// If the type is 'object', we might be dealing with an object or an array or
+// null.
+
+        case 'object':
+
+// Due to a specification blunder in ECMAScript, typeof null is 'object',
+// so watch out for that case.
+
+            if (!value) {
+                return 'null';
+            }
+
+// Make an array to hold the partial results of stringifying this object value.
+
+            gap += indent;
+            partial = [];
+
+// Is the value an array?
+
+            if (Object.prototype.toString.apply(value) === '[object Array]') {
+
+// The value is an array. Stringify every element. Use null as a placeholder
+// for non-JSON values.
+
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                    partial[i] = str(i, value) || 'null';
+                }
+
+// Join all of the elements together, separated with commas, and wrap them in
+// brackets.
+
+                v = partial.length === 0
+                    ? '[]'
+                    : gap
+                        ? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']'
+                        : '[' + partial.join(',') + ']';
+                gap = mind;
+                return v;
+            }
+
+// If the replacer is an array, use it to select the members to be stringified.
+
+            if (rep && typeof rep === 'object') {
+                length = rep.length;
+                for (i = 0; i < length; i += 1) {
+                    if (typeof rep[i] === 'string') {
+                        k = rep[i];
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (
+                                gap 
+                                    ? ': ' 
+                                    : ':'
+                            ) + v);
+                        }
+                    }
+                }
+            } else {
+
+// Otherwise, iterate through all of the keys in the object.
+
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (
+                                gap 
+                                    ? ': ' 
+                                    : ':'
+                            ) + v);
+                        }
+                    }
+                }
+            }
+
+// Join all of the member texts together, separated with commas,
+// and wrap them in braces.
+
+            v = partial.length === 0
+                ? '{}'
+                : gap
+                    ? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}'
+                    : '{' + partial.join(',') + '}';
+            gap = mind;
+            return v;
+        }
+    }
+
+// If the JSON object does not yet have a stringify method, give it one.
+
+    if (typeof JSON.stringify !== 'function') {
+        meta = {    // table of character substitutions
+            '\b': '\\b',
+            '\t': '\\t',
+            '\n': '\\n',
+            '\f': '\\f',
+            '\r': '\\r',
+            '"': '\\"',
+            '\\': '\\\\'
+        };
+        JSON.stringify = function (value, replacer, space) {
+
+// The stringify method takes a value and an optional replacer, and an optional
+// space parameter, and returns a JSON text. The replacer can be a function
+// that can replace values, or an array of strings that will select the keys.
+// A default replacer method can be provided. Use of the space parameter can
+// produce text that is more easily readable.
+
+            var i;
+            gap = '';
+            indent = '';
+
+// If the space parameter is a number, make an indent string containing that
+// many spaces.
+
+            if (typeof space === 'number') {
+                for (i = 0; i < space; i += 1) {
+                    indent += ' ';
+                }
+
+// If the space parameter is a string, it will be used as the indent string.
+
+            } else if (typeof space === 'string') {
+                indent = space;
+            }
+
+// If there is a replacer, it must be a function or an array.
+// Otherwise, throw an error.
+
+            rep = replacer;
+            if (replacer && typeof replacer !== 'function' &&
+                    (typeof replacer !== 'object' ||
+                    typeof replacer.length !== 'number')) {
+                throw new Error('JSON.stringify');
+            }
+
+// Make a fake root object containing our value under the key of ''.
+// Return the result of stringifying the value.
+
+            return str('', {'': value});
+        };
+    }
+
+
+// If the JSON object does not yet have a parse method, give it one.
+
+    if (typeof JSON.parse !== 'function') {
+        JSON.parse = function (text, reviver) {
+
+// The parse method takes a text and an optional reviver function, and returns
+// a JavaScript value if the text is a valid JSON text.
+
+            var j;
+
+            function walk(holder, key) {
+
+// The walk method is used to recursively walk the resulting structure so
+// that modifications can be made.
+
+                var k, v, value = holder[key];
+                if (value && typeof value === 'object') {
+                    for (k in value) {
+                        if (Object.prototype.hasOwnProperty.call(value, k)) {
+                            v = walk(value, k);
+                            if (v !== undefined) {
+                                value[k] = v;
+                            } else {
+                                delete value[k];
+                            }
+                        }
+                    }
+                }
+                return reviver.call(holder, key, value);
+            }
+
+
+// Parsing happens in four stages. In the first stage, we replace certain
+// Unicode characters with escape sequences. JavaScript handles many characters
+// incorrectly, either silently deleting them, or treating them as line endings.
+
+            text = String(text);
+            rx_dangerous.lastIndex = 0;
+            if (rx_dangerous.test(text)) {
+                text = text.replace(rx_dangerous, function (a) {
+                    return '\\u' +
+                            ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+                });
+            }
+
+// In the second stage, we run the text against regular expressions that look
+// for non-JSON patterns. We are especially concerned with '()' and 'new'
+// because they can cause invocation, and '=' because it can cause mutation.
+// But just to be safe, we want to reject all unexpected forms.
+
+// We split the second stage into 4 regexp operations in order to work around
+// crippling inefficiencies in IE's and Safari's regexp engines. First we
+// replace the JSON backslash pairs with '@' (a non-JSON character). Second, we
+// replace all simple value tokens with ']' characters. Third, we delete all
+// open brackets that follow a colon or comma or that begin the text. Finally,
+// we look to see that the remaining characters are only whitespace or ']' or
+// ',' or ':' or '{' or '}'. If that is so, then the text is safe for eval.
+
+            if (
+                rx_one.test(
+                    text
+                        .replace(rx_two, '@')
+                        .replace(rx_three, ']')
+                        .replace(rx_four, '')
+                )
+            ) {
+
+// In the third stage we use the eval function to compile the text into a
+// JavaScript structure. The '{' operator is subject to a syntactic ambiguity
+// in JavaScript: it can begin a block or an object literal. We wrap the text
+// in parens to eliminate the ambiguity.
+
+                j = eval('(' + text + ')');
+
+// In the optional fourth stage, we recursively walk the new structure, passing
+// each name/value pair to a reviver function for possible transformation.
+
+                return typeof reviver === 'function'
+                    ? walk({'': j}, '')
+                    : j;
+            }
+
+// If the text is not JSON parseable, then a SyntaxError is thrown.
+
+            throw new SyntaxError('JSON.parse');
+        };
+    }
+}());
 	function NodeOval() {
 		this.id = 'node_';
 		this.name = 'New Node';
@@ -3179,7 +3532,7 @@ body {
 	w.init();
 
 	var jsonStr = '{"id":null,"name":null,"count":85,"nodes":[{"id":"node_38","name":"node_38","type":"start","shape":"oval","number":38,"left":12,"top":88,"width":20,"height":20,"property":null},{"id":"node_39","name":"node_39","type":"end","shape":"oval","number":39,"left":781,"top":567,"width":20,"height":20,"property":null},{"id":"node_40","name":"监委会受理举报","type":"node","shape":"img","number":40,"left":178,"top":78,"width":75,"height":70,"property":[{"id":"n_p_id","text":"span","value":"node_40"},{"id":"n_p_name","text":"input","value":"监委会受理举报"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]},{"id":"node_42","name":"领导审批","type":"node","shape":"img","number":42,"left":438,"top":77,"width":75,"height":70,"property":[{"id":"n_p_id","text":"span","value":"node_42"},{"id":"n_p_name","text":"input","value":"领导审批"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]},{"id":"node_43","name":"不予立案","type":"node","shape":"rect","number":43,"left":740,"top":194,"width":100,"height":40,"property":[{"id":"n_p_id","text":"span","value":"node_43"},{"id":"n_p_name","text":"input","value":"不予立案"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]},{"id":"node_44","name":"委托依托单位调查","type":"node","shape":"rect","number":44,"left":285,"top":269,"width":100,"height":40,"property":[{"id":"n_p_id","text":"span","value":"node_44"},{"id":"n_p_name","text":"input","value":"委托依托单位调查"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]},{"id":"node_45","name":"专家鉴定","type":"node","shape":"rect","number":45,"left":428,"top":270,"width":100,"height":40,"property":[{"id":"n_p_id","text":"span","value":"node_45"},{"id":"n_p_name","text":"input","value":"专家鉴定"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]},{"id":"node_46","name":"个人\/单位举报","type":"node","shape":"img","number":46,"left":67,"top":79,"width":75,"height":70,"property":[{"id":"n_p_id","text":"span","value":"node_46"},{"id":"n_p_name","text":"input","value":"个人\/单位举报"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]},{"id":"node_47","name":"初步调查核实","type":"node","shape":"rect","number":47,"left":291,"top":75,"width":100,"height":40,"property":[{"id":"n_p_id","text":"span","value":"node_47"},{"id":"n_p_name","text":"input","value":"初步调查核实"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]},{"id":"node_49","name":"当事人陈述","type":"node","shape":"rect","number":49,"left":572,"top":267,"width":100,"height":40,"property":[{"id":"n_p_id","text":"span","value":"node_49"},{"id":"n_p_name","text":"input","value":"当事人陈述"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]},{"id":"node_50","name":"调查报告","type":"node","shape":"rect","number":50,"left":429,"top":356,"width":100,"height":40,"property":[{"id":"n_p_id","text":"span","value":"node_50"},{"id":"n_p_name","text":"input","value":"调查报告"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]},{"id":"node_51","name":"全委会讨论","type":"node","shape":"img","number":51,"left":441,"top":441,"width":75,"height":70,"property":[{"id":"n_p_id","text":"span","value":"node_51"},{"id":"n_p_name","text":"input","value":"全委会讨论"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]},{"id":"node_52","name":"处理决定","type":"node","shape":"rect","number":52,"left":428,"top":554,"width":100,"height":40,"property":[{"id":"n_p_id","text":"span","value":"node_52"},{"id":"n_p_name","text":"input","value":"处理决定"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]},{"id":"node_53","name":"委内相关部门","type":"node","shape":"img","number":53,"left":628,"top":509,"width":75,"height":70,"property":[{"id":"n_p_id","text":"span","value":"node_53"},{"id":"n_p_name","text":"input","value":"委内相关部门"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]},{"id":"node_54","name":"依托单位\/个人","type":"node","shape":"img","number":54,"left":628,"top":603,"width":75,"height":70,"property":[{"id":"n_p_id","text":"span","value":"node_54"},{"id":"n_p_name","text":"input","value":"依托单位\/个人"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]},{"id":"node_63","name":"立案调查","type":"node","shape":"rect","number":63,"left":425,"top":187,"width":100,"height":40,"property":[{"id":"n_p_id","text":"span","value":"node_63"},{"id":"n_p_name","text":"input","value":"立案调查"},{"id":"n_p_desc","text":"textarea","value":""},{"id":"n_p_group","text":"input","value":""},{"id":"n_p_role","text":"input","value":""},{"id":"n_p_node","text":"input","value":""},{"id":"n_p_dgroup","text":"input","value":""},{"id":"n_p_dnode","text":"input","value":""},{"id":"n_p_dcur","text":"select","value":""},{"id":"n_p_num","text":"input","value":""},{"id":"n_p_other","text":"input","value":""},{"id":"n_p_in","text":"input","value":""},{"id":"n_p_out","text":"input","value":""},{"id":"n_p_time","text":"input","value":""},{"id":"n_p_timetype","text":"input","value":""},{"id":"n_p_timeedit","text":"input","value":""},{"id":"n_p_timesend","text":"input","value":""},{"id":"n_p_call1","text":"input","value":""},{"id":"n_p_call2","text":"input","value":""},{"id":"n_p_call3","text":"input","value":""},{"id":"n_p_call4","text":"input","value":""},{"id":"n_p_call5","text":"input","value":""}]}],"lines":[{"id":"line_56","name":"line_56","type":"line","shape":"line","number":56,"from":"node_38","to":"node_46","fromx":32,"fromy":98,"tox":87,"toy":96.5,"polydot":[],"property":null},{"id":"line_57","name":"line_57","type":"line","shape":"line","number":57,"from":"node_46","to":"node_40","fromx":122,"fromy":96.5,"tox":198,"toy":95.5,"polydot":[],"property":null},{"id":"line_58","name":"line_58","type":"line","shape":"line","number":58,"from":"node_40","to":"node_47","fromx":233,"fromy":95.5,"tox":291,"toy":95,"polydot":[],"property":null},{"id":"line_59","name":"line_59","type":"line","shape":"line","number":59,"from":"node_47","to":"node_42","fromx":391,"fromy":95,"tox":458,"toy":94.5,"polydot":[],"property":null},{"id":"line_64","name":"line_64","type":"line","shape":"polyline","number":64,"from":"node_63","to":"node_44","fromx":425,"fromy":207,"tox":335,"toy":269,"polydot":[{"x":335,"y":207}],"property":null},{"id":"line_66","name":"line_66","type":"line","shape":"polyline","number":66,"from":"node_63","to":"node_49","fromx":525,"fromy":207,"tox":622,"toy":267,"polydot":[{"x":622,"y":207}],"property":null},{"id":"line_67","name":"line_67","type":"line","shape":"line","number":67,"from":"node_63","to":"node_45","fromx":475,"fromy":227,"tox":478,"toy":270,"polydot":[],"property":null},{"id":"line_68","name":"line_68","type":"line","shape":"line","number":68,"from":"node_42","to":"node_63","fromx":475.5,"fromy":147,"tox":475,"toy":187,"polydot":[],"property":null},{"id":"line_69","name":"line_69","type":"line","shape":"line","number":69,"from":"node_45","to":"node_50","fromx":478,"fromy":310,"tox":479,"toy":356,"polydot":[],"property":null},{"id":"line_72","name":"line_72","type":"line","shape":"line","number":72,"from":"node_49","to":"node_50","fromx":572,"fromy":307,"tox":529,"toy":356,"polydot":[],"property":null},{"id":"line_73","name":"line_73","type":"line","shape":"line","number":73,"from":"node_44","to":"node_50","fromx":385,"fromy":309,"tox":429,"toy":356,"polydot":[],"property":null},{"id":"line_74","name":"line_74","type":"line","shape":"line","number":74,"from":"node_50","to":"node_51","fromx":479,"fromy":396,"tox":478.5,"toy":441,"polydot":[],"property":null},{"id":"line_75","name":"line_75","type":"line","shape":"line","number":75,"from":"node_51","to":"node_52","fromx":478.5,"fromy":511,"tox":478,"toy":554,"polydot":[],"property":null},{"id":"line_79","name":"line_79","type":"line","shape":"line","number":79,"from":"node_52","to":"node_53","fromx":528,"fromy":554,"tox":648,"toy":526.5,"polydot":[],"property":null},{"id":"line_80","name":"line_80","type":"line","shape":"line","number":80,"from":"node_52","to":"node_54","fromx":528,"fromy":594,"tox":648,"toy":620.5,"polydot":[],"property":null},{"id":"line_81","name":"line_81","type":"line","shape":"line","number":81,"from":"node_53","to":"node_39","fromx":683,"fromy":526.5,"tox":781,"toy":577,"polydot":[],"property":null},{"id":"line_82","name":"line_82","type":"line","shape":"line","number":82,"from":"node_54","to":"node_39","fromx":683,"fromy":620.5,"tox":781,"toy":577,"polydot":[],"property":null},{"id":"line_84","name":"line_84","type":"line","shape":"line","number":84,"from":"node_43","to":"node_39","fromx":790,"fromy":234,"tox":791,"toy":567,"polydot":[],"property":null},{"id":"line_85","name":"line_85","type":"line","shape":"polyline","number":85,"from":"node_42","to":"node_43","fromx":493,"fromy":94.5,"tox":790,"toy":194,"polydot":[{"x":790,"y":94.5}],"property":null}]}';
-	var j = JSON.decode(jsonStr);
+	var j = JSON.parse(jsonStr);
 	g.jsonTo(j);
 </script>
 	</body>

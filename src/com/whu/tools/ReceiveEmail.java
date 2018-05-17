@@ -169,7 +169,7 @@ public class ReceiveEmail {
         if(nameindex != -1){
             conname = true;
         }
-        System.out.println("CONTENTTYPE:"+contentType);
+        //System.out.println("CONTENTTYPE:"+contentType);
         if(part.isMimeType("text/plain")&&!conname){
             bodytext.append((String)part.getContent());
         }else if(part.isMimeType("text/html")&&!conname){

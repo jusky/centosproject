@@ -101,7 +101,7 @@ public class SurveyReportAction extends DispatchAction {
 			String describe = time + "," + createName + "编辑调查报告";
 			//插入处理过程到数据库中
 			dbTools.InsertHandleProcess(reportID, createName, SystemConstant.HP_SURVEYREPORT, SystemConstant.SS_SURVEYING, SystemConstant.LCT_DCBG, describe);
-			dbTools.InsertFKInfo(reportID, SystemConstant.FK_HANDLING, time);
+			//dbTools.InsertFKInfo(reportID, SystemConstant.FK_HANDLING, time);
 		}
 		
 		PrintWriter out = response.getWriter();
@@ -166,7 +166,7 @@ public class SurveyReportAction extends DispatchAction {
 			String describe = time + "," + userName + "编辑调查报告";
 			//插入处理过程到数据库中
 			dbTools.InsertHandleProcess(reportID, userName, SystemConstant.HP_SURVEYREPORT, SystemConstant.SS_SURVEYING, SystemConstant.LCT_DCBG, describe);
-			dbTools.InsertFKInfo(reportID, SystemConstant.FK_HANDLING, time);
+			//dbTools.InsertFKInfo(reportID, SystemConstant.FK_HANDLING, time);
 		}
 		dbTools.insertLogInfo(userName, SystemConstant.LOG_SURVEYREPORT, "编辑调查报告，事件编号为：" + reportID, request.getRemoteAddr());
 		

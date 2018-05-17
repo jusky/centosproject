@@ -163,6 +163,7 @@
 				<label class="radioButton"><input name="status" type="radio" value="22"/>调查中</label>
 				<label class="radioButton"><input name="status" type="radio" value="30"/>处理讨论中</label>
 				<label class="radioButton"><input name="status" type="radio" value="41"/>不予调查</label>
+				<label class="radioButton"><input name="status" type="radio" value="43"/>转出</label>
 			</div>
 			<div class="unit">
 				<label>&nbsp;</label>
@@ -170,6 +171,9 @@
 				<label class="radioButton"><input name="status" type="radio" value="31"/>已处理</label>
 				<label class="radioButton"><input name="status" type="radio" value="32"/>异议申请</label>
 				<label class="radioButton"><input name="status" type="radio" value="40"/>已结束</label>
+				<label class="radioButton"><input name="status" type="radio" value="50"/>不予立案</label>
+				<label class="radioButton"><input name="status" type="radio" value="51"/>暂不立案</label>
+				<label class="radioButton"><input name="status" type="radio" value="52"/>暂不结案</label>
 			</div>
 			<div class="divider">divider</div>
 			<div class="unit">

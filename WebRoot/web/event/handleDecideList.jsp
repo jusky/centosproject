@@ -114,7 +114,9 @@ function showDetail(id)
 			<logic:equal name="HandleDecide" property="filePath" value="">
 				<a href="javascript:alert('没有查询到处理决定文件，请重新编辑！')">下载</a>
 			</logic:equal>
+			<logic:notEqual name="RoleIDs" value="2"  scope="session">
 			<a href = "<%=path%>/cljdManageAction.do?method=delete&id={decideid}" target="ajaxTodo" title="确定要删除该处理决定吗?注意：删除后将无法恢复！">删除</a>
+			</logic:notEqual>
 		</td>
 	</tr>
 	</logic:iterate>

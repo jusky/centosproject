@@ -42,6 +42,15 @@ public class EventManageForm extends ActionForm {
 	private String bz;
 	//调查结果，用于中途结束案件的调查
 	private String surveyResult;
+	private String isEdit = "false";
+	public String getIsEdit() {
+		return isEdit;
+	}
+
+	public void setIsEdit(String isEdit) {
+		this.isEdit = isEdit;
+	}
+
 	public String getReportContent() {
 		return reportContent;
 	}

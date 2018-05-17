@@ -6,16 +6,19 @@ package com.whu.web.eventmanage;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.io.PrintWriter;
-import net.sf.json.JSONArray;
+
 import net.sf.json.JSONObject;
+
 import java.sql.ResultSet;
 
 import com.whu.tools.DBTools;
@@ -46,11 +49,10 @@ public class DispatchEventAction extends DispatchAction {
 		int queryPageNo = 1;
 		int rowsPerPage = 20;
 		pageBean.setRowsPerPage(rowsPerPage);
-		if (request.getParameter("queryPageNo") != null) {
-			queryPageNo = Integer.parseInt(request.getParameter("queryPageNo"));
-		}
+	
+		
 		pageBean.setQueryPageNo(queryPageNo);
-		String sql = "select ID,LOGINNAME,USERNAME from SYS_USER where POSIDS=9";
+		String sql = "select ID,LOGINNAME,USERNAME,DISPATCHCHECKED from SYS_USER where POSIDS='9'";
 		String[] params = new String[0];
 		request.getSession().setAttribute("queryOfficerSql", sql);
 		request.getSession().setAttribute("queryOfficerParams", params);
@@ -132,15 +134,43 @@ public class DispatchEventAction extends DispatchAction {
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
-
-		String reportID = request.getParameter("reportID");
-		String userId = request.getParameter("officer");
+		String reportID = request.getParameter("reportID");//
+		String userIds = request.getParameter("ids");//6,11
 		
+		String[] userId = userIds.split(",");
+		String[] newOfficerUserName =new String[userId.length];
+		String[] newOfficerLoginName=new String[userId.length];
+		
+		String userID;
+		String T_R_Officer;
 		DBTools dbTool = new DBTools();
 		// get officer before and now associated to this serialNum;
-		String oldOfficerName = dbTool.querySingleData("SYS_USER", "USERNAME", "LOGINNAME", dbTool.querySingleData("TB_REPORTINFO", "OFFICER", "REPORTID", reportID));
-		String newOfficerName = dbTool.querySingleData("SYS_USER", "USERNAME", "ID", userId);
-		String newOfficer = dbTool.querySingleData("SYS_USER", "LOGINNAME", "ID", userId);
+		String Tb_ReportInfo_Officers=dbTool.querySingleData("TB_REPORTINFO", "OFFICER", "REPORTID", reportID);
+		String[] Tb_ReportInfo_Officer =new String[0];
+		if(Tb_ReportInfo_Officers!=null)
+		{
+			Tb_ReportInfo_Officer = Tb_ReportInfo_Officers.split(",");
+		}
+		String[] oldOfficerUserName=new String[Tb_ReportInfo_Officer.length];
+		if(Tb_ReportInfo_Officers!=null)
+		{
+			for(int j = 0; j < Tb_ReportInfo_Officer.length; j ++)
+			{
+				T_R_Officer=Tb_ReportInfo_Officer[j];
+				oldOfficerUserName[j] = dbTool.querySingleData("SYS_USER", "USERNAME", "LOGINNAME", T_R_Officer);
+			}
+		}
+		
+		for(int i = 0; i < userId.length; i ++)
+		{
+			userID=userId[i];
+			newOfficerUserName[i] = dbTool.querySingleData("SYS_USER", "USERNAME", "ID", userID);
+			newOfficerLoginName[i] = dbTool.querySingleData("SYS_USER", "LOGINNAME", "ID", userID);
+		}
+		
+		String newOfficerUserNames=StringUtils.join(newOfficerUserName, ",");
+		String newOfficerLoginNames=StringUtils.join(newOfficerLoginName, ",");
+		request.getSession().setAttribute("OFFICER",newOfficerUserNames);
 		// get status, if like 4% prevent dispatch
 		String status = dbTool.querySingleData("TB_REPORTINFO", "STATUS", "REPORTID", reportID);
 		String serialNum = dbTool.querySingleData("TB_REPORTINFO", "SERIALNUM", "REPORTID", reportID);
@@ -150,21 +180,24 @@ public class DispatchEventAction extends DispatchAction {
 			result = false;
 		}
 		
-		String sql = "update TB_REPORTINFO set OFFICER=? where REPORTID=?";
-		
 		if (result) {
-			result = dbTool.insertItem(sql, new String[]{newOfficer, reportID});
+			String sql = "update TB_REPORTINFO set OFFICER=? where REPORTID=?";
+			result = dbTool.insertItem(sql, new String[]{newOfficerLoginNames, reportID});
 		}
+		
 		PrintWriter out = response.getWriter();
 		JSONObject json = new JSONObject();
 		if(result)
 		{
 			String userName = (String)request.getSession().getAttribute("UserName"); // operator name
-			if (oldOfficerName != null && !oldOfficerName.equals("")) {
-				dbTool.insertLogInfo(userName, SystemConstant.LOG_DISPATCH, "从 " + oldOfficerName + " 分派案件 " + serialNum + " 给： " + newOfficerName, request.getRemoteAddr());
+			if (oldOfficerUserName != null && !oldOfficerUserName.equals("")) {
+				dbTool.insertLogInfo(userName, SystemConstant.LOG_DISPATCH, "从 " + Tb_ReportInfo_Officers + " 分派案件 " + serialNum + " 给： " + newOfficerUserName, request.getRemoteAddr());
 			} else {
-				dbTool.insertLogInfo(userName, SystemConstant.LOG_DISPATCH, "分派案件 " + serialNum + " 给： " + newOfficerName, request.getRemoteAddr());
+				dbTool.insertLogInfo(userName, SystemConstant.LOG_DISPATCH, "分派案件 " + serialNum + " 给： " + newOfficerUserNames, request.getRemoteAddr());
 			}
+			//插入处理过程到数据库中
+			String describe = userName + "分派案件 " + serialNum + " 给： " +  newOfficerUserNames;
+			result = dbTool.InsertHandleProcess(reportID, userName, SystemConstant.HP_DISPACH, SystemConstant.SS_SURVEYING, SystemConstant.LCT_DISPATCH, describe);
 			
 			json.put("statusCode", 200);
 			json.put("message", " 指派成功！");

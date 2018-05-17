@@ -53,7 +53,7 @@ public class LoginAction extends DispatchAction {
 				if(i == len - 1) sqlBuilder.replace(sqlBuilder.length() - 1, sqlBuilder.length(), ")");
 			}
 			sql = sqlBuilder.toString();
-			moduleList = dbTools.queryModuleFormRole(sql, roleArray);
+			moduleList = dbTools.queryModuleFormRole(sql, roleArray);//根据角色编号，查询对应的功能模块
 		}
 		
 		//取出多个角色重叠的功能模块
@@ -84,9 +84,9 @@ public class LoginAction extends DispatchAction {
 		
 		//查询待办事项列表
 		String userName = (String)request.getSession().getAttribute("UserName");
-		sql = "select * from TB_MSGNOTIFY where RECVNAME=? and ISHANDLE='0' limit 5";
+		sql = "select * from TB_MSGNOTIFY where (RECVNAME=? or AGENTOFFICER=?) and ISHANDLE='0' limit 5";
 		ArrayList dbsxList = new ArrayList();
-		dbsxList = dbTools.queryMsgNotify(sql, "1", new String[]{userName});
+		dbsxList = dbTools.queryMsgNotify(sql, "1", new String[]{userName,userName});
 		loginForm.setDbsxList(dbsxList);
 		
 		return mapping.findForward("success");
@@ -128,9 +128,7 @@ public class LoginAction extends DispatchAction {
 		ModuleBean mb = new ModuleBean();
 		String id = "";
 		for(int i = 0; i < moduleList.size(); i++)
-		{
-			
-				
+		{	
 			id = (String) moduleList.get(i);
 			if(id.equals("1000000"))
 			{
@@ -144,10 +142,6 @@ public class LoginAction extends DispatchAction {
 			{
 				mb.setSjlr("1");
 			}
-			else if(id.equals("1000300"))
-			{
-				mb.setSjsp("1");
-			}
 			else if(id.equals("1000400"))
 			{
 				mb.setSjgl("1");
@@ -158,17 +152,21 @@ public class LoginAction extends DispatchAction {
 			}
 			else if(id.equals("1000402"))
 			{
-				mb.setLadcjd("1");
+				mb.setSjsp("1");
 			}
 			else if(id.equals("1000403"))
 			{
-				mb.setCljd("1");
+				mb.setLadcjd("1");
 			}
 			else if(id.equals("1000404"))
 			{
-				mb.setQbsj("1");
+				mb.setCljd("1");
 			}
 			else if(id.equals("1000405"))
+			{
+				mb.setQbsj("1");
+			}
+			else if(id.equals("1000406"))
 			{
 				mb.setYscsj("1");
 			}
@@ -288,6 +286,11 @@ public class LoginAction extends DispatchAction {
 			}
 			else if(id.equals("7000100"))
 				mb.setXbyj("1");
+			else if(id.equals("1000800"))
+				mb.setWdlzj("1");
+			else if(id.equals("1000900"))
+				mb.setEd("1");
+			
 		}
 		return mb;
 	}

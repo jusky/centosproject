@@ -30,6 +30,22 @@ public class ExpertInfo {
 	private String address;
 	//所属学部
 	private String faculty;
+	//其他1
+	private String other1;
+	//其他2
+	private String other2;
+	public String getOther1() {
+		return other1;
+	}
+	public void setOther1(String other1) {
+		this.other1 = other1;
+	}
+	public String getOther2() {
+		return other2;
+	}
+	public void setOther2(String other2) {
+		this.other2 = other2;
+	}
 	public String getSerialNum() {
 		return serialNum;
 	}

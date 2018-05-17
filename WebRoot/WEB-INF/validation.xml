@@ -24,7 +24,7 @@
 					<arg0 key="deptadvice.input.dept"/>
 				</field>
 				
-				<field property="attitude" depends="minlength,maxlength">
+				<!-- <field property="attitude" depends="minlength,maxlength">
 					<arg0 key="deptadvice.input.attitude"/>
 					<arg1 name="minlength" key="${var:minlength}" resource="false"/>
 					<var>
@@ -36,7 +36,7 @@
 						<var-name>maxlength</var-name>
 						<var-value>2500</var-value>
 					</var>
-				</field>
+				</field> -->
 				
 				<field property="talkRecorder" depends="minlength,maxlength">
 					<arg0 key="deptadvice.input.talkRecorder"/>
@@ -125,7 +125,7 @@
 		      </field>
 		</form>
 	
-		<form name="deptFKForm">
+		  <form name="deptFKForm">
 			<field property="deptAdvice" depends="required,minlength,maxlength">
 				<arg0 key="deptadvice.input.deptAdvice" />
 				<arg1 name="minlength" key="${var:minlength}" resource="false"/>
@@ -139,7 +139,7 @@
 					<var-value>2500</var-value>
 				</var>
 			</field>
-			<field property="litigantName" depends="required,minlength,maxlength">
+			<!-- <field property="litigantName" depends="required,minlength,maxlength">
 				<arg0 key="deptadvice.input.litigantName" />
 				<arg1 name="minlength" key="${var:minlength}" resource="false"/>
 				<var>
@@ -151,7 +151,7 @@
 					<var-name>maxlength</var-name>
 					<var-value>40</var-value>
 				</var>
-			</field>
+			</field> 
 			<field property="attitude" depends="required,minlength,maxlength">
 				<arg0 key="deptdvice.input.attitude"/>
 				<arg1 name="minlength" key="${var:minlength}" resource="false"/>
@@ -164,7 +164,7 @@
 					<var-name>maxlength</var-name>
 					<var-value>2500</var-value>
 				</var>
-			</field>
+			</field>-->
 			<field property="expertAdvice" depends="maxlength">
 				<arg0 key="deptadvice.input.expertAdvice"/>
 				<arg1 name="maxlength" key="${var:maxlength}" resource="false"/>

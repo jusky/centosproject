@@ -78,6 +78,6 @@
 	<div class="pages">
 		<span>每页50  条, 共 <%=request.getAttribute("totalRows") %> 条, 共 <%=request.getAttribute("pageCount") %> 页</span>
 	</div>
-	<div class="pagination" targetType="dialog" totalCount=" <%=request.getAttribute("totalRows") %>" numPerPage="10" pageNumShown="10" currentPage="<%=request.getAttribute("pageNum") %>"></div>
+	<div class="pagination" targetType="dialog" totalCount=" <%=request.getAttribute("totalRows") %>" numPerPage="50" pageNumShown="10" currentPage="<%=request.getAttribute("pageNum") %>"></div>
 </div>
 </div>

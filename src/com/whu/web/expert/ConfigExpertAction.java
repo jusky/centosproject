@@ -56,7 +56,9 @@ public class ConfigExpertAction extends DispatchAction {
 		String faculty = configExpertForm.getFaculty();
 		String phone = configExpertForm.getPhone();
 		String email = configExpertForm.getEmail();
-		String address = configExpertForm.getAddress();		
+		String address = configExpertForm.getAddress();
+		String other1 = configExpertForm.getOther1();
+		String other2 = configExpertForm.getOther2();
 		DBTools dbTool = new DBTools();
 		String mark="expert";
 		String sql = "";
@@ -65,16 +67,16 @@ public class ConfigExpertAction extends DispatchAction {
 		String[] addrParams = new String[0];
 		if(operation.equals("new"))
 		{
-			sql = "insert into SYS_EXPERTINFO(NAME,SEX,AGE,TITLE,ISPHD,DEPT,SPECIALTY,RESEARCH,PHONE,EMAIL,ADDRESS,FACULTY) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-			params = new String[]{expertName, sex, age, title, isPHD, dept, specialty, research, phone, email, address, faculty};
+			sql = "insert into SYS_EXPERTINFO(NAME,SEX,AGE,TITLE,ISPHD,DEPT,SPECIALTY,RESEARCH,PHONE,EMAIL,ADDRESS,FACULTY,OTHERONE,OTHERTWO) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
+			params = new String[]{expertName, sex, age, title, isPHD, dept, specialty, research, phone, email, address, faculty,other1,other2};
 			sqlAddr="insert into TB_CONTACT(LOGINNAME,CONNAME,CONADDR) values(?, ?, ?)";
 			addrParams = new String[]{mark, expertName, email};
 		}
 		else if(operation.equals("edit"))
 		{
 			String id = configExpertForm.getId();
-			sql = "update SYS_EXPERTINFO set NAME=?,SEX=?,AGE=?, TITLE=?, ISPHD=?,DEPT=?,SPECIALTY=?,RESEARCH=?,PHONE=?,EMAIL=?,ADDRESS=?,FACULTY=? where ID=?";
-			params = new String[]{expertName, sex, age, title, isPHD, dept, specialty, research, phone, email, address, faculty, id};
+			sql = "update SYS_EXPERTINFO set NAME=?,SEX=?,AGE=?, TITLE=?, ISPHD=?,DEPT=?,SPECIALTY=?,RESEARCH=?,PHONE=?,EMAIL=?,ADDRESS=?,FACULTY=? ,OTHERONE=?,OTHERTWO=? where ID=?";
+			params = new String[]{expertName, sex, age, title, isPHD, dept, specialty, research, phone, email, address, faculty,other1,other2, id};
 			sqlAddr="update TB_CONTACT set LOGINNAME=?,CONNAME=?,CONADDR=? where ID=?";
 			addrParams = new String[]{mark, expertName, email, addrID};
 		}
