@@ -129,6 +129,7 @@ function selectLine(cb)
 			<!-- mask="true" rel="delete" width="500" height="150"
 			<a href="<%=path%>/wsjbManageAction.do?method=recv&id={wsjbid}" target="ajaxTodo" title="确定要接收该举报事件吗?">接收录入</a>
 			 -->
+			<a href="<%=path %>/wsjbManageAction.do?method=caseMerge&id=${WsjbInfo.id}" mask="true" target="dialog" width="550" height="130" title="确定要并入案件吗?">并案</a>
 		</td>
 	</tr>
 	</logic:iterate>

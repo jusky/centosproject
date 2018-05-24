@@ -671,6 +671,35 @@ public class WsjbManageAction extends DispatchAction {
 		return mapping.findForward("printEvent_recv");
 	}
 	
+	/**
+	 * 案件合并
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionForward caseMerge(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws Exception{
+		return mapping.findForward("caseMerge");
+	}
+	
+	/**
+	 * 合并
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionForward merge(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		return null;
+	}
+	
 	private class RESULTSET{
 		private boolean flag = false;
 		private String serialNum = "";

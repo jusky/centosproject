@@ -283,6 +283,7 @@
       <forward name="createybd" path="/web/wsjb/createYBD.jsp" />
       <forward name="recvfailed" path="/web/wsjb/recvFailed.jsp" />
       <forward name="printEvent_recv" path="/web/wsjb/print.jsp" />
+      <forward name="caseMerge" path="/web/wsjb/caseMerge.jsp"></forward>
     </action>
     <action
       attribute="eventManageForm"

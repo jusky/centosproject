@@ -151,7 +151,7 @@
   <StrutsActivity path="/web/eventDetail/handleDecide.jsp" location="1850,2650" dimension="238,48" />
   <StrutsActivity path="/web/handleFlow/flowGraph.jsp" location="3950,750" dimension="216,53" />
   <StrutsActivity path="/web/eventDetail/deptAdvice.jsp" location="2150,2650" dimension="226,48" />
-  <StrutsActivity path="/web/dsoframer/printEvent.jsp" location="3050,3150" dimension="210,53" />
+  <StrutsActivity path="/web/dsoframer/printEvent1.jsp" location="3350,3650" dimension="246,50" />
   <StrutsActivity path="/web/eventDetail/attachList.jsp" location="1250,2650" dimension="226,48" />
   <StrutsActivity path="/web/documentView.jsp" location="2750,950" dimension="166,48" />
   <StrutsActivity path="/web/eventDetail/conofmeet.jsp" location="1250,3750" dimension="251,50" />
@@ -223,6 +223,7 @@
   <StrutsActivity path="/web/expertAndDept/deptFKManage.jsp" location="1850,3050" dimension="268,53" />
   <StrutsActivity path="/web/expertAndDept/expertFKManage.jsp" location="3950,2650" dimension="278,53" />
   <StrutsActivity path="/web/expertAndDept/expertInfo.jsp" location="50,1250" dimension="239,53" />
+  <StrutsActivity path="/web/dsoframer/printEvent.jsp" location="3050,3150" dimension="210,53" />
   <StrutsActivity path="/web/wsjb/recvSucceed.jsp" location="4850,650" dimension="214,50" />
   <StrutsActivity path="/web/event/cljdDicList.jsp" location="2150,2950" dimension="196,48" />
   <StrutsActivity path="/web/expertAndDept/eventFKManage.jsp" location="3950,3050" dimension="272,53" />
@@ -311,7 +312,7 @@
   <StrutsActivity path="/web/expertAndDept/delayTine.jsp" location="4850,2850" dimension="266,50" />
   <StrutsActivity path="/web/wsjb/recvfailed.jsp" location="50,3550" dimension="193,50" />
   <StrutsActivity path="/web/wsjb/recvSucced.jsp" location="2150,3550" dimension="206,50" />
-  <StrutsActivity path="/web/dsoframer/printEvent1.jsp" location="3350,3650" dimension="246,50" />
+  <StrutsActivity path="/web/wsjb/caseMerge.jsp" />
   <StrutsTransition id="/facultyFKAction.do,editFacultyAdvice,/web/faculty/editFacultyAdvice.jsp,1" routingType="0">
     <AutomaticBendpoints>
       <AbsolutePoint location="4550,2988" />
@@ -408,6 +409,12 @@
       <AbsolutePoint location="2684,1610" />
       <AbsolutePoint location="4688,1610" />
       <AbsolutePoint location="4688,1650" />
+    </AutomaticBendpoints>
+  </StrutsTransition>
+  <StrutsTransition id="/wsjbManageAction.do,caseMerge,/web/wsjb/caseMerge.jsp,1" routingType="0">
+    <AutomaticBendpoints>
+      <AbsolutePoint location="1682,2302" />
+      <AbsolutePoint location="0,0" />
     </AutomaticBendpoints>
   </StrutsTransition>
   <StrutsTransition id="/mistypeManageAction.do,initMistype,/web/credit/mistypeList.jsp,1" routingType="0">
@@ -1318,15 +1325,6 @@
       <AbsolutePoint location="4189,1534" />
       <AbsolutePoint location="4189,1774" />
       <AbsolutePoint location="4182,1774" />
-    </AutomaticBendpoints>
-  </StrutsTransition>
-  <StrutsTransition id="/eventDetailAction.do,printEvent,/web/dsoframer/printEvent.jsp,1" routingType="0">
-    <AutomaticBendpoints>
-      <AbsolutePoint location="2411,2534" />
-      <AbsolutePoint location="2411,2771" />
-      <AbsolutePoint location="2361,2771" />
-      <AbsolutePoint location="2361,3176" />
-      <AbsolutePoint location="3050,3176" />
     </AutomaticBendpoints>
   </StrutsTransition>
   <StrutsTransition id="/web/email/newMail.jsp,null,/newMailAction.do,2" routingType="0">
